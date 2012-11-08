@@ -169,8 +169,14 @@ public class DefaultMailService extends AbstractMailService
 
       if ((subject != null) &&!subject.startsWith(prefix))
       {
-        subject = prefix.concat(subject);
-        e.setSubject(subject);
+        String ns = prefix;
+
+        if (!ns.endsWith(" "))
+        {
+          ns = ns.concat(" ");
+        }
+
+        e.setSubject(ns.concat(subject));
       }
 
     }
