@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>scm-plugins</artifactId>
+    <groupId>sonia.scm.plugins</groupId>
+    <version>1.15</version>
+  </parent>
+
+  <groupId>sonia.scm.plugins</groupId>
+  <artifactId>scm-mail-plugin</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <name>scm-mail-plugin</name>
+  <url>https://bitbucket.org/sdorra/scm-mail-plugin</url>
+  <description>The mail plugin provides an api for sending emails. This api can be used by other plugins.</description>
+  
+  <scm>
+    <connection>scm:hg:https://bitbucket.org/sdorra/scm-mail-plugin</connection>
+    <developerConnection>scm:hg:https://bitbucket.org/sdorra/scm-mail-plugin</developerConnection>
+    <url>https://bitbucket.org/sdorra/scm-mail-plugin</url>
+  </scm>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>${servlet.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.codemonkey.simplejavamail</groupId>
+      <artifactId>simple-java-mail</artifactId>
+      <version>2.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.mail</groupId>
+      <artifactId>mail</artifactId>
+      <version>${javaxmail.version}</version>
+    </dependency>
+
+  </dependencies>
+  
+  <properties>
+    <javaxmail.version>1.4.5</javaxmail.version>
+  </properties>
+  
+  <build>
+    <plugins>
+      
+      <plugin>
+        <groupId>sonia.scm.maven</groupId>
+        <artifactId>scm-maven-plugin</artifactId>
+        <version>1.22</version>
+      </plugin>
+      
+    </plugins>
+  </build>
+  
+  <repositories>
+    
+    <repository>
+      <id>maven.scm-manager.org</id>
+      <name>scm-manager release repository</name>
+      <url>http://maven.scm-manager.org/nexus/content/groups/public</url>
+    </repository>
+
+    <repository>
+      <id>maven.java.net</id>
+      <name>java.net repository</name>    
+      <url>https://maven.java.net/content/groups/public</url>
+    </repository>
+    
+  </repositories>
+
+</project>
