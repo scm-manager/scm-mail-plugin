@@ -33,70 +33,68 @@ package sonia.scm.mail;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.codemonkey.simplejavamail.Email;
-import org.codemonkey.simplejavamail.MailException;
+import com.google.common.collect.Lists;
 
-import sonia.scm.mail.config.MailConfiguration;
+//~--- JDK imports ------------------------------------------------------------
+
+import java.util.List;
 
 /**
  *
  * @author Sebastian Sdorra
  */
-public interface MailService
+public class MailSendBatchException extends Exception
 {
 
+  /** Field description */
+  private static final long serialVersionUID = 797737794920812556L;
+
+  //~--- constructors ---------------------------------------------------------
+
   /**
-   * Method description
+   * Constructs ...
    *
    *
-   * @param email
-   * @param emails
-   *
-   * @throws MailException
-   * @throws MailSendBatchException
+   * @param message
    */
-  public void send(Email email, Email... emails)
-    throws MailException, MailSendBatchException;
+  public MailSendBatchException(String message)
+  {
+    super(message);
+  }
+
+  //~--- methods --------------------------------------------------------------
 
   /**
    * Method description
    *
    *
-   * @param emails
-   *
-   * @throws MailException
-   * @throws MailSendBatchException
+   * @param ex
    */
-  public void send(Iterable<Email> emails)
-    throws MailException, MailSendBatchException;
+  public void append(MailSendException ex)
+  {
+    getSendExceptions().add(ex);
+  }
+
+  //~--- get methods ----------------------------------------------------------
 
   /**
    * Method description
    *
    *
-   *
-   * @param configuration
-   * @param email
-   * @param emails
-   *
-   * @throws MailException
-   * @throws MailSendBatchException
+   * @return
    */
-  public void send(MailConfiguration configuration, Email email,
-    Email... emails)
-    throws MailException, MailSendBatchException;
+  public List<MailSendException> getSendExceptions()
+  {
+    if (exceptions == null)
+    {
+      exceptions = Lists.newArrayList();
+    }
 
-  /**
-   * Method description
-   *
-   *
-   *
-   * @param configuration
-   * @param emails
-   *
-   * @throws MailException
-   * @throws MailSendBatchException
-   */
-  public void send(MailConfiguration configuration, Iterable<Email> emails)
-    throws MailException, MailSendBatchException;
+    return exceptions;
+  }
+
+  //~--- fields ---------------------------------------------------------------
+
+  /** Field description */
+  private List<MailSendException> exceptions;
 }

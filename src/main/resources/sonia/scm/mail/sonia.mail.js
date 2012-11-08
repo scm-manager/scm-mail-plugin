@@ -59,6 +59,12 @@ Sonia.mail.GlobalConfigPanel = Ext.extend(Sonia.config.ConfigForm, {
   testMailConfigurationTitle: 'Test Mail Configuration',
   testMailConfigurationLable: 'Address:',
   
+  // errors 
+  errorBoxTitle: 'Error',
+  errorOnSubmitText: 'Error during config submit.',
+  errorOnLoadText: 'Error during config load.',
+  errorOnTestText: 'Sending test mail failed.',
+  
   initComponent: function(){
     var config = {
       title: this.titleText,
@@ -148,11 +154,17 @@ Sonia.mail.GlobalConfigPanel = Ext.extend(Sonia.config.ConfigForm, {
       jsonData: values,
       scope: this,
       disableCaching: true,
-      success: function(response){
+      success: function(){
         this.el.unmask();
       },
       failure: function(){
         this.el.unmask();
+        Ext.MessageBox.show({
+          title: this.errorBoxTitle,
+          msg: this.errorOnTestText,
+          buttons: Ext.MessageBox.OK,
+          icon:Ext.MessageBox.ERROR
+        });
       }
     });    
   },
@@ -165,11 +177,17 @@ Sonia.mail.GlobalConfigPanel = Ext.extend(Sonia.config.ConfigForm, {
       jsonData: values,
       scope: this,
       disableCaching: true,
-      success: function(response){
+      success: function(){
         this.el.unmask();
       },
       failure: function(){
         this.el.unmask();
+        Ext.MessageBox.show({
+          title: this.errorBoxTitle,
+          msg: this.errorOnSubmitText,
+          buttons: Ext.MessageBox.OK,
+          icon:Ext.MessageBox.ERROR
+        });
       }
     });
   },
@@ -192,7 +210,12 @@ Sonia.mail.GlobalConfigPanel = Ext.extend(Sonia.config.ConfigForm, {
       failure: function(){
         el.unmask();
         clearTimeout(tid);
-        alert('failure');
+        Ext.MessageBox.show({
+          title: this.errorBoxTitle,
+          msg: this.errorOnLoadText,
+          buttons: Ext.MessageBox.OK,
+          icon:Ext.MessageBox.ERROR
+        });
       }
     });
   }

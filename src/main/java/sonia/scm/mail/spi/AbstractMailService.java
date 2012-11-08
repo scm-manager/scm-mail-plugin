@@ -39,6 +39,7 @@ import org.codemonkey.simplejavamail.Email;
 import org.codemonkey.simplejavamail.MailException;
 
 import sonia.scm.mail.MailContext;
+import sonia.scm.mail.MailSendBatchException;
 import sonia.scm.mail.MailService;
 import sonia.scm.mail.config.MailConfiguration;
 
@@ -70,9 +71,11 @@ public abstract class AbstractMailService implements MailService
    * @param emails
    *
    * @throws MailException
+   * @throws MailSendBatchException
    */
   @Override
-  public void send(Email email, Email... emails) throws MailException
+  public void send(Email email, Email... emails)
+    throws MailException, MailSendBatchException
   {
     send(context.getConfiguration(), Lists.asList(email, emails));
   }
@@ -84,9 +87,11 @@ public abstract class AbstractMailService implements MailService
    * @param emails
    *
    * @throws MailException
+   * @throws MailSendBatchException
    */
   @Override
-  public void send(Iterable<Email> emails) throws MailException
+  public void send(Iterable<Email> emails)
+    throws MailException, MailSendBatchException
   {
     send(context.getConfiguration(), emails);
   }
@@ -100,11 +105,12 @@ public abstract class AbstractMailService implements MailService
    * @param emails
    *
    * @throws MailException
+   * @throws MailSendBatchException
    */
   @Override
   public void send(MailConfiguration configuration, Email email,
     Email... emails)
-    throws MailException
+    throws MailException, MailSendBatchException
   {
     send(configuration, Lists.asList(email, emails));
   }

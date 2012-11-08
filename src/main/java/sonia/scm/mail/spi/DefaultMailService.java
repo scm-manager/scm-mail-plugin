@@ -45,8 +45,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import sonia.scm.mail.MailContext;
+import sonia.scm.mail.MailSendBatchException;
+import sonia.scm.mail.MailSendException;
 import sonia.scm.mail.config.MailConfiguration;
-import sonia.scm.util.Util;
 
 /**
  *
@@ -86,13 +87,15 @@ public class DefaultMailService extends AbstractMailService
    * @param emails
    *
    * @throws MailException
+   * @throws MailSendBatchException
    */
   @Override
   public void send(MailConfiguration configuration, Iterable<Email> emails)
-    throws MailException
+    throws MailException, MailSendBatchException
   {
     if (configuration.isValid())
     {
+      MailSendBatchException batchEx = null;
       Mailer mailer = createMailer(configuration);
 
       for (Email e : emails)
@@ -104,8 +107,23 @@ public class DefaultMailService extends AbstractMailService
         catch (MailException ex)
         {
           logger.warn("could not send mail", ex);
+
+          if (batchEx == null)
+          {
+            batchEx =
+              new MailSendBatchException("some messages could not be send");
+          }
+
+          batchEx.append(new MailSendException("message could not be send", e,
+            ex));
         }
       }
+
+      if (batchEx != null)
+      {
+        throw batchEx;
+      }
+
     }
     else if (logger.isWarnEnabled())
     {

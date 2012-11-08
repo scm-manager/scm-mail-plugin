@@ -34,69 +34,48 @@ package sonia.scm.mail;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.codemonkey.simplejavamail.Email;
-import org.codemonkey.simplejavamail.MailException;
-
-import sonia.scm.mail.config.MailConfiguration;
 
 /**
  *
  * @author Sebastian Sdorra
  */
-public interface MailService
+public class MailSendException extends Exception
 {
 
+  /** Field description */
+  private static final long serialVersionUID = -5365072368208361896L;
+
+  //~--- constructors ---------------------------------------------------------
+
   /**
-   * Method description
+   * Constructs ...
    *
    *
+   * @param message
    * @param email
-   * @param emails
-   *
-   * @throws MailException
-   * @throws MailSendBatchException
+   * @param cause
    */
-  public void send(Email email, Email... emails)
-    throws MailException, MailSendBatchException;
+  public MailSendException(String message, Email email, Throwable cause)
+  {
+    super(message, cause);
+    this.email = email;
+  }
+
+  //~--- get methods ----------------------------------------------------------
 
   /**
    * Method description
    *
    *
-   * @param emails
-   *
-   * @throws MailException
-   * @throws MailSendBatchException
+   * @return
    */
-  public void send(Iterable<Email> emails)
-    throws MailException, MailSendBatchException;
+  public Email getEmail()
+  {
+    return email;
+  }
 
-  /**
-   * Method description
-   *
-   *
-   *
-   * @param configuration
-   * @param email
-   * @param emails
-   *
-   * @throws MailException
-   * @throws MailSendBatchException
-   */
-  public void send(MailConfiguration configuration, Email email,
-    Email... emails)
-    throws MailException, MailSendBatchException;
+  //~--- fields ---------------------------------------------------------------
 
-  /**
-   * Method description
-   *
-   *
-   *
-   * @param configuration
-   * @param emails
-   *
-   * @throws MailException
-   * @throws MailSendBatchException
-   */
-  public void send(MailConfiguration configuration, Iterable<Email> emails)
-    throws MailException, MailSendBatchException;
+  /** Field description */
+  private Email email;
 }

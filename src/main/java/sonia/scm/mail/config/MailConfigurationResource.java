@@ -39,8 +39,10 @@ import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
 import org.codemonkey.simplejavamail.Email;
+import org.codemonkey.simplejavamail.MailException;
 
 import sonia.scm.mail.MailContext;
+import sonia.scm.mail.MailSendBatchException;
 import sonia.scm.mail.MailService;
 import sonia.scm.util.SecurityUtil;
 import sonia.scm.util.Util;
@@ -93,12 +95,16 @@ public class MailConfigurationResource
    *
    * @param configuration
    * @param to
+   *
+   * @throws MailException
+   * @throws MailSendBatchException
    */
   @POST
   @Path("test")
   @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
   public void sendTestMessage(MailConfiguration configuration,
     @QueryParam("to") String to)
+    throws MailException, MailSendBatchException
   {
     SecurityUtil.assertIsAdmin(securityContext);
 
