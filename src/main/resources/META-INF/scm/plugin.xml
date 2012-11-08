@@ -47,6 +47,7 @@
   </packages>
 
   <resources>
+    <script>/sonia/scm/mail/sonia.mail.js</script>
   </resources>
 
 </plugin>
