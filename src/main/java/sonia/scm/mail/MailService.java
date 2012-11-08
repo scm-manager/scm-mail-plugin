@@ -99,4 +99,14 @@ public interface MailService
    */
   public void send(MailConfiguration configuration, Iterable<Email> emails)
     throws MailException, MailSendBatchException;
+
+  //~--- get methods ----------------------------------------------------------
+
+  /**
+   * Method description
+   *
+   *
+   * @return
+   */
+  public boolean isConfigured();
 }

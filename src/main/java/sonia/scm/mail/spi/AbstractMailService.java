@@ -115,6 +115,20 @@ public abstract class AbstractMailService implements MailService
     send(configuration, Lists.asList(email, emails));
   }
 
+  //~--- get methods ----------------------------------------------------------
+
+  /**
+   * Method description
+   *
+   *
+   * @return
+   */
+  @Override
+  public boolean isConfigured()
+  {
+    return context.getConfiguration().isValid();
+  }
+
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
