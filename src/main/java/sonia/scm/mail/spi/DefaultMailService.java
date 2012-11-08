@@ -33,6 +33,7 @@ package sonia.scm.mail.spi;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
@@ -48,6 +49,10 @@ import sonia.scm.mail.MailContext;
 import sonia.scm.mail.MailSendBatchException;
 import sonia.scm.mail.MailSendException;
 import sonia.scm.mail.config.MailConfiguration;
+
+//~--- JDK imports ------------------------------------------------------------
+
+import java.util.Iterator;
 
 /**
  *
@@ -189,9 +194,42 @@ public class DefaultMailService extends AbstractMailService
 
     if (mailer.validate(e))
     {
-      logger.debug("send email to {} from {}", e.getRecipients(),
-        e.getFromRecipient());
+      if (logger.isDebugEnabled())
+      {
+        logger.debug("send email to {} from {}",
+          getRecipientsString(e.getRecipients()),
+          e.getFromRecipient().getAddress());
+      }
+
       mailer.sendMail(e);
     }
+  }
+
+  //~--- get methods ----------------------------------------------------------
+
+  /**
+   * Method description
+   *
+   *
+   * @param recipients
+   *
+   * @return
+   */
+  private String getRecipientsString(Iterable<Recipient> recipients)
+  {
+    StringBuilder content = new StringBuilder();
+    Iterator<Recipient> it = recipients.iterator();
+
+    while (it.hasNext())
+    {
+      content.append(it.next().getAddress());
+
+      if (it.hasNext())
+      {
+        content.append(", ");
+      }
+    }
+
+    return content.toString();
   }
 }
