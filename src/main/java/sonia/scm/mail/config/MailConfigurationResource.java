@@ -35,6 +35,7 @@ package sonia.scm.mail.config;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
 import org.codemonkey.simplejavamail.Email;
@@ -42,6 +43,7 @@ import org.codemonkey.simplejavamail.Email;
 import sonia.scm.mail.MailContext;
 import sonia.scm.mail.MailService;
 import sonia.scm.util.SecurityUtil;
+import sonia.scm.util.Util;
 import sonia.scm.web.security.WebSecurityContext;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -53,6 +55,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -69,13 +72,15 @@ public class MailConfigurationResource
    *
    * @param securityContext
    * @param service
+   * @param mailService
    * @param context
    */
   @Inject
   public MailConfigurationResource(WebSecurityContext securityContext,
-    MailService service, MailContext context)
+    MailService mailService, MailContext context)
   {
     this.securityContext = securityContext;
+    this.mailService = mailService;
     this.context = context;
   }
 
@@ -85,11 +90,15 @@ public class MailConfigurationResource
    * Method description
    *
    *
+   *
+   * @param configuration
    * @param to
    */
   @POST
   @Path("test")
-  public void sendTestMessage(String to)
+  @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+  public void sendTestMessage(MailConfiguration configuration,
+    @QueryParam("to") String to)
   {
     SecurityUtil.assertIsAdmin(securityContext);
 
@@ -98,7 +107,7 @@ public class MailConfigurationResource
     email.addRecipient(null, to, RecipientType.TO);
     email.setSubject("Test Message from SCM-Manager");
     email.setText("Test Message");
-    mailService.send(email);
+    mailService.send(configuration, email);
   }
 
   /**

@@ -251,7 +251,7 @@ public class MailConfiguration implements Validateable
 
   /** Field description */
   @XmlElement(name = "subject-prefix")
-  private String subjectPrefix = "[SCM]";
+  private String subjectPrefix = "[SCM] ";
 
   /** Field description */
   @XmlElement(name = "transport-strategy")

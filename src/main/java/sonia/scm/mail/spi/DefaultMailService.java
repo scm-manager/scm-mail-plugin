@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import sonia.scm.mail.MailContext;
 import sonia.scm.mail.config.MailConfiguration;
+import sonia.scm.util.Util;
 
 /**
  *
@@ -71,7 +72,7 @@ public class DefaultMailService extends AbstractMailService
   @Inject
   public DefaultMailService(MailContext context)
   {
-    this.context = context;
+    super(context);
   }
 
   //~--- methods --------------------------------------------------------------
@@ -80,15 +81,16 @@ public class DefaultMailService extends AbstractMailService
    * Method description
    *
    *
+   *
+   * @param configuration
    * @param emails
    *
    * @throws MailException
    */
   @Override
-  public void send(Iterable<Email> emails) throws MailException
+  public void send(MailConfiguration configuration, Iterable<Email> emails)
+    throws MailException
   {
-    MailConfiguration configuration = context.getConfiguration();
-
     if (configuration.isValid())
     {
       Mailer mailer = createMailer(configuration);
@@ -174,9 +176,4 @@ public class DefaultMailService extends AbstractMailService
       mailer.sendMail(e);
     }
   }
-
-  //~--- fields ---------------------------------------------------------------
-
-  /** Field description */
-  private MailContext context;
 }

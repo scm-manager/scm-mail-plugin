@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import sonia.scm.mail.config.MailConfiguration;
 import sonia.scm.store.Store;
 import sonia.scm.store.StoreFactory;
+import sonia.scm.util.AssertUtil;
 
 /**
  *
@@ -87,6 +88,7 @@ public class MailContext
    */
   public void store(MailConfiguration configuration)
   {
+    AssertUtil.assertIsValid(configuration);
     this.configuration = configuration;
     logger.debug("store new mail configuration");
 

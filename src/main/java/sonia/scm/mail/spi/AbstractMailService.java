@@ -38,7 +38,9 @@ import com.google.common.collect.Lists;
 import org.codemonkey.simplejavamail.Email;
 import org.codemonkey.simplejavamail.MailException;
 
+import sonia.scm.mail.MailContext;
 import sonia.scm.mail.MailService;
+import sonia.scm.mail.config.MailConfiguration;
 
 /**
  *
@@ -46,6 +48,19 @@ import sonia.scm.mail.MailService;
  */
 public abstract class AbstractMailService implements MailService
 {
+
+  /**
+   * Constructs ...
+   *
+   *
+   * @param context
+   */
+  public AbstractMailService(MailContext context)
+  {
+    this.context = context;
+  }
+
+  //~--- methods --------------------------------------------------------------
 
   /**
    * Method description
@@ -59,6 +74,43 @@ public abstract class AbstractMailService implements MailService
   @Override
   public void send(Email email, Email... emails) throws MailException
   {
-    send(Lists.asList(email, emails));
+    send(context.getConfiguration(), Lists.asList(email, emails));
   }
+
+  /**
+   * Method description
+   *
+   *
+   * @param emails
+   *
+   * @throws MailException
+   */
+  @Override
+  public void send(Iterable<Email> emails) throws MailException
+  {
+    send(context.getConfiguration(), emails);
+  }
+
+  /**
+   * Method description
+   *
+   *
+   * @param configuration
+   * @param email
+   * @param emails
+   *
+   * @throws MailException
+   */
+  @Override
+  public void send(MailConfiguration configuration, Email email,
+    Email... emails)
+    throws MailException
+  {
+    send(configuration, Lists.asList(email, emails));
+  }
+
+  //~--- fields ---------------------------------------------------------------
+
+  /** Field description */
+  protected MailContext context;
 }

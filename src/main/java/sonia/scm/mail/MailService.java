@@ -36,6 +36,8 @@ package sonia.scm.mail;
 import org.codemonkey.simplejavamail.Email;
 import org.codemonkey.simplejavamail.MailException;
 
+import sonia.scm.mail.config.MailConfiguration;
+
 /**
  *
  * @author Sebastian Sdorra
@@ -63,4 +65,32 @@ public interface MailService
    * @throws MailException
    */
   public void send(Iterable<Email> emails) throws MailException;
+
+  /**
+   * Method description
+   *
+   *
+   *
+   * @param configuration
+   * @param email
+   * @param emails
+   *
+   * @throws MailException
+   */
+  public void send(MailConfiguration configuration, Email email,
+    Email... emails)
+    throws MailException;
+
+  /**
+   * Method description
+   *
+   *
+   *
+   * @param configuration
+   * @param emails
+   *
+   * @throws MailException
+   */
+  public void send(MailConfiguration configuration, Iterable<Email> emails)
+    throws MailException;
 }
