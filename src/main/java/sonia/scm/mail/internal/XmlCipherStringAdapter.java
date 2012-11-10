@@ -29,37 +29,27 @@
 
 
 
-package sonia.scm.mail.spi;
+package sonia.scm.mail.internal;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.google.common.collect.Lists;
+import com.google.common.base.Strings;
 
-import org.codemonkey.simplejavamail.Email;
-import org.codemonkey.simplejavamail.MailException;
+import sonia.scm.security.CipherUtil;
 
-import sonia.scm.mail.api.MailConfiguration;
-import sonia.scm.mail.api.MailContext;
-import sonia.scm.mail.api.MailSendBatchException;
-import sonia.scm.mail.api.MailService;
+//~--- JDK imports ------------------------------------------------------------
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  *
  * @author Sebastian Sdorra
  */
-public abstract class AbstractMailService implements MailService
+public class XmlCipherStringAdapter extends XmlAdapter<String, String>
 {
 
-  /**
-   * Constructs ...
-   *
-   *
-   * @param context
-   */
-  public AbstractMailService(MailContext context)
-  {
-    this.context = context;
-  }
+  /** Field description */
+  private static final String PREFIX = "{enc}";
 
   //~--- methods --------------------------------------------------------------
 
@@ -67,70 +57,41 @@ public abstract class AbstractMailService implements MailService
    * Method description
    *
    *
-   * @param email
-   * @param emails
-   *
-   * @throws MailException
-   * @throws MailSendBatchException
-   */
-  @Override
-  public void send(Email email, Email... emails)
-    throws MailException, MailSendBatchException
-  {
-    send(context.getConfiguration(), Lists.asList(email, emails));
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @param emails
-   *
-   * @throws MailException
-   * @throws MailSendBatchException
-   */
-  @Override
-  public void send(Iterable<Email> emails)
-    throws MailException, MailSendBatchException
-  {
-    send(context.getConfiguration(), emails);
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @param configuration
-   * @param email
-   * @param emails
-   *
-   * @throws MailException
-   * @throws MailSendBatchException
-   */
-  @Override
-  public void send(MailConfiguration configuration, Email email,
-    Email... emails)
-    throws MailException, MailSendBatchException
-  {
-    send(configuration, Lists.asList(email, emails));
-  }
-
-  //~--- get methods ----------------------------------------------------------
-
-  /**
-   * Method description
-   *
+   * @param v
    *
    * @return
+   *
+   * @throws Exception
    */
   @Override
-  public boolean isConfigured()
+  public String marshal(String v) throws Exception
   {
-    return context.getConfiguration().isValid();
+    if (!Strings.isNullOrEmpty(v) &&!v.startsWith(PREFIX))
+    {
+      v = PREFIX.concat(CipherUtil.getInstance().encode(v));
+    }
+
+    return v;
   }
 
-  //~--- fields ---------------------------------------------------------------
+  /**
+   * Method description
+   *
+   *
+   * @param v
+   *
+   * @return
+   *
+   * @throws Exception
+   */
+  @Override
+  public String unmarshal(String v) throws Exception
+  {
+    if (v.startsWith(PREFIX))
+    {
+      v = CipherUtil.getInstance().decode(v.substring(PREFIX.length()));
+    }
 
-  /** Field description */
-  protected MailContext context;
+    return v;
+  }
 }

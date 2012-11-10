@@ -29,36 +29,37 @@
 
 
 
-package sonia.scm.mail.spi;
+package sonia.scm.mail.api;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import com.google.common.collect.Lists;
 
-import org.codemonkey.simplejavamail.Email;
-import org.codemonkey.simplejavamail.MailException;
+//~--- JDK imports ------------------------------------------------------------
 
-import sonia.scm.mail.api.MailConfiguration;
-import sonia.scm.mail.api.MailContext;
-import sonia.scm.mail.api.MailSendBatchException;
-import sonia.scm.mail.api.MailService;
+import java.util.List;
 
 /**
  *
  * @author Sebastian Sdorra
  */
-public abstract class AbstractMailService implements MailService
+public class MailSendBatchException extends Exception
 {
+
+  /** Field description */
+  private static final long serialVersionUID = 797737794920812556L;
+
+  //~--- constructors ---------------------------------------------------------
 
   /**
    * Constructs ...
    *
    *
-   * @param context
+   * @param message
    */
-  public AbstractMailService(MailContext context)
+  public MailSendBatchException(String message)
   {
-    this.context = context;
+    super(message);
   }
 
   //~--- methods --------------------------------------------------------------
@@ -67,52 +68,11 @@ public abstract class AbstractMailService implements MailService
    * Method description
    *
    *
-   * @param email
-   * @param emails
-   *
-   * @throws MailException
-   * @throws MailSendBatchException
+   * @param ex
    */
-  @Override
-  public void send(Email email, Email... emails)
-    throws MailException, MailSendBatchException
+  public void append(MailSendException ex)
   {
-    send(context.getConfiguration(), Lists.asList(email, emails));
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @param emails
-   *
-   * @throws MailException
-   * @throws MailSendBatchException
-   */
-  @Override
-  public void send(Iterable<Email> emails)
-    throws MailException, MailSendBatchException
-  {
-    send(context.getConfiguration(), emails);
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @param configuration
-   * @param email
-   * @param emails
-   *
-   * @throws MailException
-   * @throws MailSendBatchException
-   */
-  @Override
-  public void send(MailConfiguration configuration, Email email,
-    Email... emails)
-    throws MailException, MailSendBatchException
-  {
-    send(configuration, Lists.asList(email, emails));
+    getSendExceptions().add(ex);
   }
 
   //~--- get methods ----------------------------------------------------------
@@ -123,14 +83,18 @@ public abstract class AbstractMailService implements MailService
    *
    * @return
    */
-  @Override
-  public boolean isConfigured()
+  public List<MailSendException> getSendExceptions()
   {
-    return context.getConfiguration().isValid();
+    if (exceptions == null)
+    {
+      exceptions = Lists.newArrayList();
+    }
+
+    return exceptions;
   }
 
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
-  protected MailContext context;
+  private List<MailSendException> exceptions;
 }

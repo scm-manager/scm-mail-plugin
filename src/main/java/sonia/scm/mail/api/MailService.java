@@ -29,108 +29,83 @@
 
 
 
-package sonia.scm.mail.spi;
+package sonia.scm.mail.api;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import com.google.common.collect.Lists;
 
 import org.codemonkey.simplejavamail.Email;
 import org.codemonkey.simplejavamail.MailException;
 
-import sonia.scm.mail.api.MailConfiguration;
-import sonia.scm.mail.api.MailContext;
-import sonia.scm.mail.api.MailSendBatchException;
-import sonia.scm.mail.api.MailService;
-
 /**
+ * Service for sending e-mails.
  *
  * @author Sebastian Sdorra
  */
-public abstract class AbstractMailService implements MailService
+public interface MailService
 {
 
   /**
-   * Constructs ...
+   * Send e-mails with the default configuration.
    *
    *
-   * @param context
-   */
-  public AbstractMailService(MailContext context)
-  {
-    this.context = context;
-  }
-
-  //~--- methods --------------------------------------------------------------
-
-  /**
-   * Method description
-   *
-   *
-   * @param email
-   * @param emails
+   * @param email e-mail to send
+   * @param emails e-mails to send
    *
    * @throws MailException
    * @throws MailSendBatchException
    */
-  @Override
   public void send(Email email, Email... emails)
-    throws MailException, MailSendBatchException
-  {
-    send(context.getConfiguration(), Lists.asList(email, emails));
-  }
+    throws MailException, MailSendBatchException;
 
   /**
-   * Method description
+   * Send e-mails with the default configuration.
    *
    *
-   * @param emails
+   * @param emails e-mails to send
    *
    * @throws MailException
    * @throws MailSendBatchException
    */
-  @Override
   public void send(Iterable<Email> emails)
-    throws MailException, MailSendBatchException
-  {
-    send(context.getConfiguration(), emails);
-  }
+    throws MailException, MailSendBatchException;
 
   /**
-   * Method description
+   * Send e-mails with the given configuration.
    *
    *
-   * @param configuration
-   * @param email
-   * @param emails
+   *
+   * @param configuration mail configuration
+   * @param email e-mail to send
+   * @param emails e-mails to send
    *
    * @throws MailException
    * @throws MailSendBatchException
    */
-  @Override
   public void send(MailConfiguration configuration, Email email,
     Email... emails)
-    throws MailException, MailSendBatchException
-  {
-    send(configuration, Lists.asList(email, emails));
-  }
+    throws MailException, MailSendBatchException;
+
+  /**
+   * Send e-mails with the default configuration.
+   *
+   *
+   *
+   * @param configuration mail configuration
+   * @param emails e-mails to send
+   *
+   * @throws MailException
+   * @throws MailSendBatchException
+   */
+  public void send(MailConfiguration configuration, Iterable<Email> emails)
+    throws MailException, MailSendBatchException;
 
   //~--- get methods ----------------------------------------------------------
 
   /**
-   * Method description
+   * Returns true if default mail configuration is valid.
    *
    *
-   * @return
+   * @return true if default mail configuration is valid
    */
-  @Override
-  public boolean isConfigured()
-  {
-    return context.getConfiguration().isValid();
-  }
-
-  //~--- fields ---------------------------------------------------------------
-
-  /** Field description */
-  protected MailContext context;
+  public boolean isConfigured();
 }

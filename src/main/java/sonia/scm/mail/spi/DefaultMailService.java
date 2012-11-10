@@ -33,7 +33,6 @@ package sonia.scm.mail.spi;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
@@ -45,10 +44,10 @@ import org.codemonkey.simplejavamail.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sonia.scm.mail.MailContext;
-import sonia.scm.mail.MailSendBatchException;
-import sonia.scm.mail.MailSendException;
-import sonia.scm.mail.config.MailConfiguration;
+import sonia.scm.mail.api.MailConfiguration;
+import sonia.scm.mail.api.MailContext;
+import sonia.scm.mail.api.MailSendBatchException;
+import sonia.scm.mail.api.MailSendException;
 import sonia.scm.util.AssertUtil;
 
 //~--- JDK imports ------------------------------------------------------------
