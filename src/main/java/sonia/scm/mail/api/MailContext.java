@@ -46,6 +46,8 @@ import sonia.scm.store.StoreFactory;
 import sonia.scm.util.AssertUtil;
 
 /**
+ * Context for the {@link MailService}. This class stores and load the default 
+ * {@link MailConfiguration} for the {@link MailService}.
  *
  * @author Sebastian Sdorra
  */
@@ -53,11 +55,11 @@ import sonia.scm.util.AssertUtil;
 public class MailContext
 {
 
-  /** Field description */
-  public static final String STORE_NAME = "mail";
+  /** name of the store */
+  private static final String STORE_NAME = "mail";
 
   /**
-   * the logger for NotifyContext
+   * the logger for MailContext
    */
   private static final Logger logger =
     LoggerFactory.getLogger(MailContext.class);
@@ -65,10 +67,10 @@ public class MailContext
   //~--- constructors ---------------------------------------------------------
 
   /**
-   * Constructs ...
+   * Constructs a new MailContext.
    *
    *
-   * @param storeFactory
+   * @param storeFactory store factory
    */
   @Inject
   public MailContext(StoreFactory storeFactory)
@@ -80,10 +82,10 @@ public class MailContext
   //~--- methods --------------------------------------------------------------
 
   /**
-   * Method description
+   * Stores the given mail configuration as default one.
    *
    *
-   * @param configuration
+   * @param configuration default mail configuration
    */
   public void store(MailConfiguration configuration)
   {
@@ -97,10 +99,10 @@ public class MailContext
   //~--- get methods ----------------------------------------------------------
 
   /**
-   * Method description
+   * Returns the current default mail configuration.
    *
    *
-   * @return
+   * @return default mail configuration
    */
   public MailConfiguration getConfiguration()
   {
@@ -114,9 +116,9 @@ public class MailContext
 
   //~--- fields ---------------------------------------------------------------
 
-  /** Field description */
+  /** default mail configuration */
   private MailConfiguration configuration;
 
-  /** Field description */
+  /** store for the default mail configuration */
   private Store<MailConfiguration> store;
 }
