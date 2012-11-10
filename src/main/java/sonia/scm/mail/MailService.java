@@ -39,6 +39,7 @@ import org.codemonkey.simplejavamail.MailException;
 import sonia.scm.mail.config.MailConfiguration;
 
 /**
+ * Service for sending e-mails.
  *
  * @author Sebastian Sdorra
  */
@@ -46,11 +47,11 @@ public interface MailService
 {
 
   /**
-   * Method description
+   * Send e-mails with the default configuration.
    *
    *
-   * @param email
-   * @param emails
+   * @param email e-mail to send
+   * @param emails e-mails to send
    *
    * @throws MailException
    * @throws MailSendBatchException
@@ -59,10 +60,10 @@ public interface MailService
     throws MailException, MailSendBatchException;
 
   /**
-   * Method description
+   * Send e-mails with the default configuration.
    *
    *
-   * @param emails
+   * @param emails e-mails to send
    *
    * @throws MailException
    * @throws MailSendBatchException
@@ -71,13 +72,13 @@ public interface MailService
     throws MailException, MailSendBatchException;
 
   /**
-   * Method description
+   * Send e-mails with the given configuration.
    *
    *
    *
-   * @param configuration
-   * @param email
-   * @param emails
+   * @param configuration mail configuration
+   * @param email e-mail to send
+   * @param emails e-mails to send
    *
    * @throws MailException
    * @throws MailSendBatchException
@@ -87,12 +88,12 @@ public interface MailService
     throws MailException, MailSendBatchException;
 
   /**
-   * Method description
+   * Send e-mails with the default configuration.
    *
    *
    *
-   * @param configuration
-   * @param emails
+   * @param configuration mail configuration
+   * @param emails e-mails to send
    *
    * @throws MailException
    * @throws MailSendBatchException
@@ -103,10 +104,10 @@ public interface MailService
   //~--- get methods ----------------------------------------------------------
 
   /**
-   * Method description
+   * Returns true if default mail configuration is valid.
    *
    *
-   * @return
+   * @return true if default mail configuration is valid
    */
   public boolean isConfigured();
 }
