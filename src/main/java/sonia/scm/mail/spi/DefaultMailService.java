@@ -49,6 +49,7 @@ import sonia.scm.mail.MailContext;
 import sonia.scm.mail.MailSendBatchException;
 import sonia.scm.mail.MailSendException;
 import sonia.scm.mail.config.MailConfiguration;
+import sonia.scm.util.AssertUtil;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -161,6 +162,8 @@ public class DefaultMailService extends AbstractMailService
    */
   private void sendMail(MailConfiguration configuration, Mailer mailer, Email e)
   {
+    AssertUtil.assertIsValid(configuration);
+
     String prefix = configuration.getSubjectPrefix();
 
     if (!Strings.isNullOrEmpty(prefix))
