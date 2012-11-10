@@ -38,6 +38,7 @@ package sonia.scm.mail.config;
 import org.codemonkey.simplejavamail.TransportStrategy;
 
 import sonia.scm.Validateable;
+import sonia.scm.mail.MailService;
 import sonia.scm.util.Util;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -49,6 +50,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
+ * Configuration for the {@link MailService}.
  *
  * @author Sebastian Sdorra
  */
@@ -58,19 +60,20 @@ public class MailConfiguration implements Validateable
 {
 
   /**
-   * Constructs ...
+   * Constructs a new MailConfiguration.
+   * This constructor should only be use from JAXB.
    *
    */
   public MailConfiguration() {}
 
   /**
-   * Constructs ...
+   * Constructs a new MailConfiguration.
    *
    *
-   * @param host
-   * @param port
-   * @param transportStrategy
-   * @param subjectPrefix
+   * @param host hostname of the smtp server
+   * @param port port of the smtp server
+   * @param transportStrategy transoport strategy for the smtp connection
+   * @param subjectPrefix prefix for the mail subject
    */
   public MailConfiguration(String host, int port,
     TransportStrategy transportStrategy, String subjectPrefix)
@@ -79,15 +82,15 @@ public class MailConfiguration implements Validateable
   }
 
   /**
-   * Constructs ...
+   * Constructs a new MailConfiguration.
    *
    *
-   * @param host
-   * @param port
-   * @param transportStrategy
-   * @param username
-   * @param password
-   * @param subjectPrefix
+   * @param host hostname of the smtp server
+   * @param port port of the smtp server
+   * @param transportStrategy transoport strategy for the smtp connection
+   * @param username username for smtp authentication
+   * @param password password for smtp authentication
+   * @param subjectPrefix prefix for the mail subject
    */
   public MailConfiguration(String host, int port,
     TransportStrategy transportStrategy, String username, String password,
@@ -104,10 +107,10 @@ public class MailConfiguration implements Validateable
   //~--- get methods ----------------------------------------------------------
 
   /**
-   * Method description
+   * Returns the default from address.
    *
    *
-   * @return
+   * @return default from address
    */
   public String getFrom()
   {
@@ -115,10 +118,10 @@ public class MailConfiguration implements Validateable
   }
 
   /**
-   * Method description
+   * Returns hostname of the smtp server.
    *
    *
-   * @return
+   * @return hostname of the smtp server
    */
   public String getHost()
   {
@@ -126,10 +129,10 @@ public class MailConfiguration implements Validateable
   }
 
   /**
-   * Method description
+   * Returns password for smtp authentication.
    *
    *
-   * @return
+   * @return password for smtp authentication
    */
   public String getPassword()
   {
@@ -137,10 +140,10 @@ public class MailConfiguration implements Validateable
   }
 
   /**
-   * Method description
+   * Returns port of the smtp server.
    *
    *
-   * @return
+   * @return port of the smtp server
    */
   public int getPort()
   {
@@ -148,10 +151,10 @@ public class MailConfiguration implements Validateable
   }
 
   /**
-   * Method description
+   * Prefix for the mail subject.
    *
    *
-   * @return
+   * @return prefix for the mail subject
    */
   public String getSubjectPrefix()
   {
@@ -159,10 +162,10 @@ public class MailConfiguration implements Validateable
   }
 
   /**
-   * Method description
+   * Returns the transoport strategy for the smtp connection.
    *
    *
-   * @return
+   * @return transoport strategy for the smtp connection
    */
   public TransportStrategy getTransportStrategy()
   {
@@ -170,10 +173,10 @@ public class MailConfiguration implements Validateable
   }
 
   /**
-   * Method description
+   * Returns the username for smtp authentication.
    *
    *
-   * @return
+   * @return username for smtp authentication
    */
   public String getUsername()
   {
@@ -181,10 +184,10 @@ public class MailConfiguration implements Validateable
   }
 
   /**
-   * Method description
+   * Returns true if authentication for the smtp connection is enabled.
    *
    *
-   * @return
+   * @return true if authentication for the smtp connection is enabled
    */
   public boolean isAuthenticationEnabled()
   {
@@ -192,10 +195,10 @@ public class MailConfiguration implements Validateable
   }
 
   /**
-   * Method description
+   * Returns true if the configuration is valid.
    *
    *
-   * @return
+   * @return true if the configuration is valid
    */
   @Override
   public boolean isValid()
@@ -205,27 +208,27 @@ public class MailConfiguration implements Validateable
 
   //~--- fields ---------------------------------------------------------------
 
-  /** Field description */
+  /** default from address */
   private String from;
 
-  /** Field description */
+  /** hostname of the smtp server */
   private String host;
 
-  /** Field description */
+  /** password for smtp authentication */
   @XmlJavaTypeAdapter(XmlCipherStringAdapter.class)
   private String password;
 
-  /** Field description */
+  /** port of the smtp server */
   private int port = 25;
 
-  /** Field description */
+  /** prefix for the mail subject */
   @XmlElement(name = "subject-prefix")
   private String subjectPrefix = "[SCM] ";
 
-  /** Field description */
+  /** transoport strategy for the smtp connection */
   @XmlElement(name = "transport-strategy")
   private TransportStrategy transportStrategy = TransportStrategy.SMTP_PLAIN;
 
-  /** Field description */
+  /** username for smtp authentication */
   private String username;
 }
