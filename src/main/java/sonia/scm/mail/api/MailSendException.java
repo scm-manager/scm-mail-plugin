@@ -36,24 +36,25 @@ package sonia.scm.mail.api;
 import org.codemonkey.simplejavamail.Email;
 
 /**
+ * Exception is thrown when a mail sending error is encountered.
  *
  * @author Sebastian Sdorra
  */
 public class MailSendException extends Exception
 {
 
-  /** Field description */
+  /** serial version uid */
   private static final long serialVersionUID = -5365072368208361896L;
 
   //~--- constructors ---------------------------------------------------------
 
   /**
-   * Constructs ...
+   * Constructs a new MailSendException.
    *
    *
-   * @param message
-   * @param email
-   * @param cause
+   * @param message message message for the exception
+   * @param email e-mail failed to send
+   * @param cause cause of the exception
    */
   public MailSendException(String message, Email email, Throwable cause)
   {
@@ -64,10 +65,10 @@ public class MailSendException extends Exception
   //~--- get methods ----------------------------------------------------------
 
   /**
-   * Method description
+   * Returns e-mail failed to send
    *
    *
-   * @return
+   * @return e-mail failed to send
    */
   public Email getEmail()
   {
@@ -76,6 +77,6 @@ public class MailSendException extends Exception
 
   //~--- fields ---------------------------------------------------------------
 
-  /** Field description */
+  /** e-mail failed to send */
   private Email email;
 }

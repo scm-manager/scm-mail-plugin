@@ -46,7 +46,7 @@ import sonia.scm.store.StoreFactory;
 import sonia.scm.util.AssertUtil;
 
 /**
- * Context for the {@link MailService}. This class stores and load the default 
+ * Context for the {@link MailService}. This class stores and load the default
  * {@link MailConfiguration} for the {@link MailService}.
  *
  * @author Sebastian Sdorra

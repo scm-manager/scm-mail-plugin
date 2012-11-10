@@ -40,6 +40,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 
 /**
+ * Exception is thrown when one or more mail sending error is encountered.
  *
  * @author Sebastian Sdorra
  */
@@ -52,10 +53,10 @@ public class MailSendBatchException extends Exception
   //~--- constructors ---------------------------------------------------------
 
   /**
-   * Constructs ...
+   * Constructs a new MailSendBatchException.
    *
    *
-   * @param message
+   * @param message message for the exception
    */
   public MailSendBatchException(String message)
   {
@@ -65,10 +66,10 @@ public class MailSendBatchException extends Exception
   //~--- methods --------------------------------------------------------------
 
   /**
-   * Method description
+   * Append a send exception.
    *
    *
-   * @param ex
+   * @param ex send exception
    */
   public void append(MailSendException ex)
   {
@@ -78,10 +79,10 @@ public class MailSendBatchException extends Exception
   //~--- get methods ----------------------------------------------------------
 
   /**
-   * Method description
+   * Returns send exceptions.
    *
    *
-   * @return
+   * @return send exceptions
    */
   public List<MailSendException> getSendExceptions()
   {
@@ -95,6 +96,6 @@ public class MailSendBatchException extends Exception
 
   //~--- fields ---------------------------------------------------------------
 
-  /** Field description */
+  /** send exceptions */
   private List<MailSendException> exceptions;
 }
