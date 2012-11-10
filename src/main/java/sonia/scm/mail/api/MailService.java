@@ -34,7 +34,6 @@ package sonia.scm.mail.api;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.codemonkey.simplejavamail.Email;
-import org.codemonkey.simplejavamail.MailException;
 
 /**
  * Service for sending e-mails.
@@ -51,11 +50,9 @@ public interface MailService
    * @param email e-mail to send
    * @param emails e-mails to send
    *
-   * @throws MailException
    * @throws MailSendBatchException
    */
-  public void send(Email email, Email... emails)
-    throws MailException, MailSendBatchException;
+  public void send(Email email, Email... emails) throws MailSendBatchException;
 
   /**
    * Send e-mails with the default configuration.
@@ -63,41 +60,35 @@ public interface MailService
    *
    * @param emails e-mails to send
    *
-   * @throws MailException
    * @throws MailSendBatchException
    */
-  public void send(Iterable<Email> emails)
-    throws MailException, MailSendBatchException;
+  public void send(Iterable<Email> emails) throws MailSendBatchException;
 
   /**
    * Send e-mails with the given configuration.
-   *
    *
    *
    * @param configuration mail configuration
    * @param email e-mail to send
    * @param emails e-mails to send
    *
-   * @throws MailException
    * @throws MailSendBatchException
    */
   public void send(MailConfiguration configuration, Email email,
     Email... emails)
-    throws MailException, MailSendBatchException;
+    throws MailSendBatchException;
 
   /**
    * Send e-mails with the default configuration.
    *
    *
-   *
    * @param configuration mail configuration
    * @param emails e-mails to send
    *
-   * @throws MailException
    * @throws MailSendBatchException
    */
   public void send(MailConfiguration configuration, Iterable<Email> emails)
-    throws MailException, MailSendBatchException;
+    throws MailSendBatchException;
 
   //~--- get methods ----------------------------------------------------------
 
