@@ -58,6 +58,52 @@ public class MailConfiguration implements Validateable
 {
 
   /**
+   * Constructs ...
+   *
+   */
+  public MailConfiguration() {}
+
+  /**
+   * Constructs ...
+   *
+   *
+   * @param host
+   * @param port
+   * @param transportStrategy
+   * @param subjectPrefix
+   */
+  public MailConfiguration(String host, int port,
+    TransportStrategy transportStrategy, String subjectPrefix)
+  {
+    this(host, port, transportStrategy, null, null, subjectPrefix);
+  }
+
+  /**
+   * Constructs ...
+   *
+   *
+   * @param host
+   * @param port
+   * @param transportStrategy
+   * @param username
+   * @param password
+   * @param subjectPrefix
+   */
+  public MailConfiguration(String host, int port,
+    TransportStrategy transportStrategy, String username, String password,
+    String subjectPrefix)
+  {
+    this.host = host;
+    this.port = port;
+    this.transportStrategy = transportStrategy;
+    this.username = username;
+    this.password = password;
+    this.subjectPrefix = subjectPrefix;
+  }
+
+  //~--- get methods ----------------------------------------------------------
+
+  /**
    * Method description
    *
    *
@@ -155,85 +201,6 @@ public class MailConfiguration implements Validateable
   public boolean isValid()
   {
     return Util.isNotEmpty(host) && Util.isNotEmpty(from) && (port > 0);
-  }
-
-  //~--- set methods ----------------------------------------------------------
-
-  /**
-   * Method description
-   *
-   *
-   * @param from
-   */
-  public void setFrom(String from)
-  {
-    this.from = from;
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @param host
-   */
-  public void setHost(String host)
-  {
-    this.host = host;
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @param password
-   */
-  public void setPassword(String password)
-  {
-    this.password = password;
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @param port
-   */
-  public void setPort(int port)
-  {
-    this.port = port;
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @param subjectPrefix
-   */
-  public void setSubjectPrefix(String subjectPrefix)
-  {
-    this.subjectPrefix = subjectPrefix;
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @param transportStrategy
-   */
-  public void setTransportStrategy(TransportStrategy transportStrategy)
-  {
-    this.transportStrategy = transportStrategy;
-  }
-
-  /**
-   * Method description
-   *
-   *
-   * @param username
-   */
-  public void setUsername(String username)
-  {
-    this.username = username;
   }
 
   //~--- fields ---------------------------------------------------------------
