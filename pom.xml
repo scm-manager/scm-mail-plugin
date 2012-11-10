@@ -14,7 +14,7 @@
   <version>1.0-SNAPSHOT</version>
   <name>scm-mail-plugin</name>
   <url>https://bitbucket.org/sdorra/scm-mail-plugin</url>
-  <description>The mail plugin provides an api for sending emails. This api can be used by other plugins.</description>
+  <description>The mail plugin provides an api for sending e-mails. This api can be used by other plugins.</description>
   
   <scm>
     <connection>scm:hg:https://bitbucket.org/sdorra/scm-mail-plugin</connection>
