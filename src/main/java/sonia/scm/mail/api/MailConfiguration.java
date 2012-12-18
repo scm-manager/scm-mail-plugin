@@ -118,12 +118,8 @@ public class MailConfiguration implements Validateable
     TransportStrategy transportStrategy, String username, String password,
     String subjectPrefix)
   {
-    this.host = host;
-    this.port = port;
-    this.transportStrategy = transportStrategy;
-    this.username = username;
-    this.password = password;
-    this.subjectPrefix = subjectPrefix;
+    this(host, port, transportStrategy, null, username, password,
+      subjectPrefix);
   }
 
   /**
@@ -145,6 +141,7 @@ public class MailConfiguration implements Validateable
     this.host = host;
     this.port = port;
     this.transportStrategy = transportStrategy;
+    this.from = from;
     this.username = username;
     this.password = password;
     this.subjectPrefix = subjectPrefix;
