@@ -74,11 +74,30 @@ public class MailConfiguration implements Validateable
    * @param port port of the smtp server
    * @param transportStrategy transoport strategy for the smtp connection
    * @param subjectPrefix prefix for the mail subject
+   *
+   * @deprecated use {@link #MailConfiguration(String, int, TransportStrategy, String, String)} instead.
    */
+  @Deprecated
   public MailConfiguration(String host, int port,
     TransportStrategy transportStrategy, String subjectPrefix)
   {
-    this(host, port, transportStrategy, null, null, subjectPrefix);
+    this(host, port, transportStrategy, null, null, null, subjectPrefix);
+  }
+
+  /**
+   * Constructs a new MailConfiguration.
+   *
+   *
+   * @param host hostname of the smtp server
+   * @param port port of the smtp server
+   * @param transportStrategy transoport strategy for the smtp connection
+   * @param from default from address
+   * @param subjectPrefix prefix for the mail subject
+   */
+  public MailConfiguration(String host, int port,
+    TransportStrategy transportStrategy, String from, String subjectPrefix)
+  {
+    this(host, port, transportStrategy, from, null, null, subjectPrefix);
   }
 
   /**
@@ -91,10 +110,37 @@ public class MailConfiguration implements Validateable
    * @param username username for smtp authentication
    * @param password password for smtp authentication
    * @param subjectPrefix prefix for the mail subject
+   *
+   * @deprecated use {@link #MailConfiguration(String, int, TransportStrategy, String, String, String, String)} instead
    */
+  @Deprecated
   public MailConfiguration(String host, int port,
     TransportStrategy transportStrategy, String username, String password,
     String subjectPrefix)
+  {
+    this.host = host;
+    this.port = port;
+    this.transportStrategy = transportStrategy;
+    this.username = username;
+    this.password = password;
+    this.subjectPrefix = subjectPrefix;
+  }
+
+  /**
+   * Constructs a new MailConfiguration.
+   *
+   *
+   * @param host hostname of the smtp server
+   * @param port port of the smtp server
+   * @param transportStrategy transoport strategy for the smtp connection
+   * @param from default from address
+   * @param username username for smtp authentication
+   * @param password password for smtp authentication
+   * @param subjectPrefix prefix for the mail subject
+   */
+  public MailConfiguration(String host, int port,
+    TransportStrategy transportStrategy, String from, String username,
+    String password, String subjectPrefix)
   {
     this.host = host;
     this.port = port;
