@@ -30,6 +30,7 @@
  */
 
 
+
 package sonia.scm.mail.spi;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -147,9 +148,15 @@ public class DefaultMailService extends AbstractMailService
    */
   private Mailer createMailer(MailConfiguration configuration)
   {
-    return new Mailer(configuration.getHost(), configuration.getPort(),
-      configuration.getUsername(), configuration.getPassword(),
-      configuration.getTransportStrategy());
+    //J-
+    return new Mailer(
+      configuration.getHost(), 
+      configuration.getPort(),
+      Strings.emptyToNull(configuration.getUsername()),
+      Strings.emptyToNull(configuration.getPassword()),
+      configuration.getTransportStrategy()
+    );
+    //J+
   }
 
   /**
