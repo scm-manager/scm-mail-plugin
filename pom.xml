@@ -35,6 +35,12 @@
       <groupId>org.codemonkey.simplejavamail</groupId>
       <artifactId>simple-java-mail</artifactId>
       <version>2.1</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>log4j</artifactId>
+          <groupId>log4j</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
