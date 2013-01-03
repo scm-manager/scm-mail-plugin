@@ -11,7 +11,7 @@
 
   <groupId>sonia.scm.plugins</groupId>
   <artifactId>scm-mail-plugin</artifactId>
-  <version>1.4</version>
+  <version>1.5-SNAPSHOT</version>
   <name>scm-mail-plugin</name>
   <url>https://bitbucket.org/sdorra/scm-mail-plugin</url>
   <description>
