@@ -38,7 +38,7 @@ import com.google.inject.AbstractModule;
 
 import sonia.scm.mail.api.MailService;
 import sonia.scm.mail.spi.DefaultMailService;
-import sonia.scm.plugin.ext.Extension;
+import sonia.scm.plugin.Extension;
 
 /**
  *

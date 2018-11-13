@@ -6,13 +6,14 @@
   <parent>
     <artifactId>scm-plugins</artifactId>
     <groupId>sonia.scm.plugins</groupId>
-    <version>1.15</version>
+    <version>2.0.0-SNAPSHOT</version>
   </parent>
 
   <groupId>sonia.scm.plugins</groupId>
   <artifactId>scm-mail-plugin</artifactId>
-  <version>1.6-SNAPSHOT</version>
+  <version>2.0.0-SNAPSHOT</version>
   <name>scm-mail-plugin</name>
+  <packaging>smp</packaging>
   <url>https://bitbucket.org/sdorra/scm-mail-plugin</url>
   <description>
     The mail plugin provides an api for sending e-mails. 
@@ -26,13 +27,6 @@
   </scm>
 
   <dependencies>
-
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>${servlet.version}</version>
-      <scope>provided</scope>
-    </dependency>
 
     <dependency>
       <groupId>org.codemonkey.simplejavamail</groupId>
@@ -51,18 +45,7 @@
   <properties>
     <javaxmail.version>1.4.7</javaxmail.version>
   </properties>
-  
-  <build>
-    <plugins>
-      
-      <plugin>
-        <groupId>sonia.scm.maven</groupId>
-        <artifactId>scm-maven-plugin</artifactId>
-        <version>1.22</version>
-      </plugin>
-      
-    </plugins>
-  </build>
+
   
   <repositories>
     
@@ -72,12 +55,6 @@
       <url>http://maven.scm-manager.org/nexus/content/groups/public</url>
     </repository>
 
-    <repository>
-      <id>maven.java.net</id>
-      <name>java.net repository</name>    
-      <url>https://maven.java.net/content/groups/public</url>
-    </repository>
-    
   </repositories>
 
 </project>

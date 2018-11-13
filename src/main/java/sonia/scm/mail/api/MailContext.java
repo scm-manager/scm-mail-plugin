@@ -41,8 +41,10 @@ import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sonia.scm.store.Store;
-import sonia.scm.store.StoreFactory;
+
+import sonia.scm.store.ConfigurationStore;
+import sonia.scm.store.ConfigurationStoreFactory;
+
 import sonia.scm.util.AssertUtil;
 
 /**
@@ -73,7 +75,7 @@ public class MailContext
    * @param storeFactory store factory
    */
   @Inject
-  public MailContext(StoreFactory storeFactory)
+  public MailContext(ConfigurationStoreFactory storeFactory)
   {
     this.store = storeFactory.getStore(MailConfiguration.class, STORE_NAME);
     this.configuration = this.store.get();
@@ -120,5 +122,5 @@ public class MailContext
   private MailConfiguration configuration;
 
   /** store for the default mail configuration */
-  private Store<MailConfiguration> store;
+  private ConfigurationStore<MailConfiguration> store;
 }

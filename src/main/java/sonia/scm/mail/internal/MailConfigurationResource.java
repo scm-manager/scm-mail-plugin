@@ -40,12 +40,11 @@ import com.google.inject.Inject;
 import org.codemonkey.simplejavamail.Email;
 import org.codemonkey.simplejavamail.MailException;
 
+import sonia.scm.config.ConfigurationPermissions;
 import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContext;
 import sonia.scm.mail.api.MailSendBatchException;
 import sonia.scm.mail.api.MailService;
-import sonia.scm.util.SecurityUtil;
-import sonia.scm.web.security.WebSecurityContext;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -71,16 +70,12 @@ public class MailConfigurationResource
    * Constructs ...
    *
    *
-   * @param securityContext
-   * @param service
    * @param mailService
    * @param context
    */
   @Inject
-  public MailConfigurationResource(WebSecurityContext securityContext,
-    MailService mailService, MailContext context)
+  public MailConfigurationResource(MailService mailService, MailContext context)
   {
-    this.securityContext = securityContext;
     this.mailService = mailService;
     this.context = context;
   }
@@ -105,7 +100,7 @@ public class MailConfigurationResource
     @QueryParam("to") String to)
     throws MailException, MailSendBatchException
   {
-    SecurityUtil.assertIsAdmin(securityContext);
+    ConfigurationPermissions.write("mail").check();
 
     Email email = new Email();
 
@@ -126,7 +121,7 @@ public class MailConfigurationResource
   @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
   public synchronized void storeConfiguration(MailConfiguration configuration)
   {
-    SecurityUtil.assertIsAdmin(securityContext);
+    ConfigurationPermissions.write("mail").check();
     context.store(configuration);
   }
 
@@ -143,7 +138,7 @@ public class MailConfigurationResource
   @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
   public MailConfiguration getConfiguration()
   {
-    SecurityUtil.assertIsAdmin(securityContext);
+    ConfigurationPermissions.read("mail").check();
 
     return context.getConfiguration();
   }
@@ -155,7 +150,4 @@ public class MailConfigurationResource
 
   /** Field description */
   private MailService mailService;
-
-  /** Field description */
-  private WebSecurityContext securityContext;
 }
