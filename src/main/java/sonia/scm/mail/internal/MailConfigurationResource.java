@@ -140,6 +140,7 @@ public class MailConfigurationResource
   {
     ConfigurationPermissions.read("mail").check();
 
+    // TODO add _links.update if the user has write permissions
     return context.getConfiguration();
   }
 

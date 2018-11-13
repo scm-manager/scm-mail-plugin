@@ -27,7 +27,7 @@ public class MailConfigurationLinkEnricher extends JsonEnricherBase {
 
   @Override
   public void enrich(JsonEnricherContext context) {
-    // TODO check permissions
+    // TODO check read permission
     if (resultHasMediaType(VndMediaType.INDEX, context)) {
       JsonNode rootNode = context.getResponseEntity();
 
