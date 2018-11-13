@@ -62,7 +62,7 @@ import javax.ws.rs.core.MediaType;
  *
  * @author Sebastian Sdorra
  */
-@Path("plugins/mail")
+@Path("v2/plugins/mail")
 public class MailConfigurationResource
 {
 
@@ -95,7 +95,7 @@ public class MailConfigurationResource
    */
   @POST
   @Path("test")
-  @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+  @Consumes(MediaType.APPLICATION_JSON)
   public void sendTestMessage(MailConfiguration configuration,
     @QueryParam("to") String to)
     throws MailException, MailSendBatchException
@@ -118,7 +118,7 @@ public class MailConfigurationResource
    */
   @POST
   @Path("config")
-  @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+  @Consumes(MediaType.APPLICATION_JSON)
   public synchronized void storeConfiguration(MailConfiguration configuration)
   {
     ConfigurationPermissions.write("mail").check();
@@ -135,7 +135,7 @@ public class MailConfigurationResource
    */
   @GET
   @Path("config")
-  @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+  @Produces(MediaType.APPLICATION_JSON)
   public MailConfiguration getConfiguration()
   {
     ConfigurationPermissions.read("mail").check();

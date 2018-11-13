@@ -1,0 +1,14 @@
+{
+  "version": "2.0.0-SNAPSHOT",
+  "_links": {
+    "self": {
+      "href": "https://scm-manager.org/scm/api/v2/"
+    },
+    "uiPlugins": {
+      "href": "https://scm-manager.org/scm/api/v2/ui/plugins"
+    },
+    "login": {
+      "href": "https://scm-manager.org/scm/api/v2/auth/access_token"
+    }
+  }
+}
