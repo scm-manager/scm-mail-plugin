@@ -1,0 +1,8 @@
+{
+  "scm-mail-plugin": {
+    "nav-link": "Mail",
+    "form": {
+      "host": "Host"
+    }
+  }
+}

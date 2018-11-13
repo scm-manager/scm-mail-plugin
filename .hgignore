@@ -26,3 +26,4 @@ Desktop DF$
 
 .*\.iml
 \.idea
+node_modules/
