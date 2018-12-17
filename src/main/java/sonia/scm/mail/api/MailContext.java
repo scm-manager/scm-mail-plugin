@@ -75,9 +75,8 @@ public class MailContext
    * @param storeFactory store factory
    */
   @Inject
-  public MailContext(ConfigurationStoreFactory storeFactory)
-  {
-    this.store = storeFactory.getStore(MailConfiguration.class, STORE_NAME);
+  public MailContext(ConfigurationStoreFactory storeFactory) {
+    this.store = storeFactory.withType(MailConfiguration.class).withName(STORE_NAME).build();
     this.configuration = this.store.get();
   }
 
