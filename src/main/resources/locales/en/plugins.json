@@ -2,7 +2,12 @@
   "scm-mail-plugin": {
     "nav-link": "Mail",
     "form": {
-      "host": "Host"
+      "host": "Host",
+      "port": "Port",
+      "from": "From",
+      "username": "User name",
+      "subject-prefix": "Subject prefix",
+      "transport-strategy": "Transport strategy"
     }
   }
 }
