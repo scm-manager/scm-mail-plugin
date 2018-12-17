@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import sonia.scm.api.v2.resources.LinkBuilder;
-import sonia.scm.api.v2.resources.ScmPathInfo;
 import sonia.scm.api.v2.resources.ScmPathInfoStore;
+import sonia.scm.config.ConfigurationPermissions;
 import sonia.scm.plugin.Extension;
 import sonia.scm.web.JsonEnricherBase;
 import sonia.scm.web.JsonEnricherContext;
@@ -27,8 +27,7 @@ public class MailConfigurationLinkEnricher extends JsonEnricherBase {
 
   @Override
   public void enrich(JsonEnricherContext context) {
-    // TODO check read permission
-    if (resultHasMediaType(VndMediaType.INDEX, context)) {
+    if (resultHasMediaType(VndMediaType.INDEX, context) && ConfigurationPermissions.read("mail").isPermitted()) {
       JsonNode rootNode = context.getResponseEntity();
 
       ObjectNode mailLinkNode = createObject().put("href", createLink());
