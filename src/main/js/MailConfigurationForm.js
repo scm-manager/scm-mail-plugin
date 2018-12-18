@@ -45,7 +45,7 @@ class MailConfigurationForm extends React.Component<Props, State> {
   };
 
   render() {
-    const fields = [ "host", "port", "from", "username", "subject-prefix", "transport-strategy" ].map((name) => {
+    const fields = [ "host", "port", "from", "username", "subjectPrefix", "transportStrategy" ].map((name) => {
       return this.renderInputField(name);
     });
 

@@ -35,6 +35,7 @@ package sonia.scm.mail.api;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import lombok.Setter;
 import org.codemonkey.simplejavamail.TransportStrategy;
 
 import sonia.scm.Validateable;
@@ -56,6 +57,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "mail-configuration")
+@Setter
 public class MailConfiguration implements Validateable
 {
 

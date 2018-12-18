@@ -6,8 +6,8 @@
       "port": "Port",
       "from": "From",
       "username": "User name",
-      "subject-prefix": "Subject prefix",
-      "transport-strategy": "Transport strategy"
+      "subjectPrefix": "Subject prefix",
+      "transportStrategy": "Transport strategy"
     }
   }
 }

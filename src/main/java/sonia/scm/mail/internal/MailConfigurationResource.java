@@ -53,31 +53,28 @@ import javax.mail.Message.RecipientType;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 /**
  *
  * @author Sebastian Sdorra
  */
 @Path("v2/plugins/mail")
-public class MailConfigurationResource
-{
+public class MailConfigurationResource {
 
-  /**
-   * Constructs ...
-   *
-   *
-   * @param mailService
-   * @param context
-   */
+  MailConfigurationMapper mapper;
+
   @Inject
-  public MailConfigurationResource(MailService mailService, MailContext context)
-  {
+  public MailConfigurationResource(MailService mailService, MailContext context, MailConfigurationMapper mapper) {
     this.mailService = mailService;
     this.context = context;
+    this.mapper = mapper;
   }
 
   //~--- methods --------------------------------------------------------------
@@ -110,38 +107,33 @@ public class MailConfigurationResource
     mailService.send(configuration, email);
   }
 
-  /**
-   * Method description
-   *
-   *
-   * @param configuration
-   */
   @POST
   @Path("config")
   @Consumes(MediaType.APPLICATION_JSON)
-  public synchronized void storeConfiguration(MailConfiguration configuration)
-  {
+  public synchronized void storeConfiguration(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto) {
     ConfigurationPermissions.write("mail").check();
-    context.store(configuration);
+    context.store(mapper.using(uriInfo).map(mailConfigurationDto));
   }
 
-  //~--- get methods ----------------------------------------------------------
+  @PUT
+  @Path("config")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public synchronized void updateConfiguration(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto) {
+    ConfigurationPermissions.write("mail").check();
+    MailConfiguration mailConfiguration = mapper.using(uriInfo).map(mailConfigurationDto);
+    context.store(mailConfiguration);
+  }
 
-  /**
-   * Method description
-   *
-   *
-   * @return
-   */
+
   @GET
   @Path("config")
   @Produces(MediaType.APPLICATION_JSON)
-  public MailConfiguration getConfiguration()
-  {
+  public MailConfigurationDto getConfiguration(@Context UriInfo uriInfo) {
     ConfigurationPermissions.read("mail").check();
 
     // TODO add _links.update if the user has write permissions
-    return context.getConfiguration();
+//    return context.getConfiguration();
+    return mapper.using(uriInfo).map(context.getConfiguration());
   }
 
   //~--- fields ---------------------------------------------------------------
