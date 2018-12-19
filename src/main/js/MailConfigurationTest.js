@@ -27,8 +27,9 @@ class MailConfigurationTest extends React.Component<Props, State> {
     const { link } = this.props;
 
     const configLink =
-      "http://localhost:8081/scm/api/v2/plugins/mail/test/?to=florian.scholdei@cloudogu.com";
-    //link + "/test/?to=florianscholdei@gmail.com";
+      "http://localhost:8081/scm/api/v2/plugins/mail/test/?to=some@whe.re";
+    //link + "/test/?to=";
+    // TODO: Add config test link to API
     return apiClient
       .post(configLink)
       .then(response => {
