@@ -34,6 +34,7 @@ public abstract class MailConfigurationMapper {
     links.self(mailConfigurationResourceLinks.self());
     if (ConfigurationPermissions.write("mail").isPermitted()) {
       links.single(link("update", mailConfigurationResourceLinks.update()));
+      links.single(link("test", mailConfigurationResourceLinks.test()));
     }
     dto.add(links.build());
   }

@@ -19,7 +19,13 @@ public class MailConfigurationResourceLinks {
 
   public String update() {
     return linkBuilder
-      .method("updateConfiguration").parameters("configuration")
+      .method("updateConfiguration").parameters()
+      .href();
+  }
+
+  public String test() {
+    return linkBuilder
+      .method("sendTestMessage").parameters()
       .href();
   }
 }
