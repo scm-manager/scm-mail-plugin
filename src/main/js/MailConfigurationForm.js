@@ -13,13 +13,12 @@ type Props = {
   onConfigurationChange: (Configuration, boolean) => void,
 
   // context prop
-  t: (string) => string
-}
+  t: string => string
+};
 
 type State = Configuration;
 
 class MailConfigurationForm extends React.Component<Props, State> {
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -28,34 +27,42 @@ class MailConfigurationForm extends React.Component<Props, State> {
   }
 
   configChangeHandler = (value: string, name: string) => {
-    this.setState({
-      [name]: value
-    }, () => this.props.onConfigurationChange({...this.state}, true));
+    this.setState(
+      {
+        [name]: value
+      },
+      () => this.props.onConfigurationChange({ ...this.state }, true)
+    );
   };
 
   renderInputField = (name: string) => {
     const { t } = this.props;
     const readOnly = false;
-    return <InputField name={name}
-                      label={ t("scm-mail-plugin.form." + name) }
-                      disabled={readOnly}
-                      value={this.state[name]}
-                      onChange={this.configChangeHandler}
-           />;
+    return (
+      <InputField
+        name={name}
+        label={t("scm-mail-plugin.form." + name)}
+        disabled={readOnly}
+        value={this.state[name]}
+        onChange={this.configChangeHandler}
+      />
+    );
   };
 
   render() {
-    const fields = [ "host", "port", "from", "username", "subjectPrefix", "transportStrategy" ].map((name) => {
+    const fields = [
+      "host",
+      "port",
+      "from",
+      "username",
+      "subjectPrefix",
+      "transportStrategy"
+    ].map(name => {
       return this.renderInputField(name);
     });
 
-    return (
-      <>
-        { fields }
-      </>
-    );
+    return <>{fields}</>;
   }
-
 }
 
 export default translate("plugins")(MailConfigurationForm);
