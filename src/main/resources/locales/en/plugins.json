@@ -10,8 +10,9 @@
       "transportStrategy": "Transport strategy"
     },
     "test": {
+      "input": "Address",
       "button": "Test Configuration",
-      "modalTitle": "Test SMTP Server Configuration",
+      "title": "Test SMTP Server Configuration",
       "error": "Sending test mail failed.",
       "success": "Mail was sent successfully."
     }

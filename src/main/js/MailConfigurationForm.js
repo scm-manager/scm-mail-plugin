@@ -2,6 +2,7 @@
 import React from "react";
 import { InputField } from "@scm-manager/ui-components";
 import { translate } from "react-i18next";
+import MailConfigurationTest from "./MailConfigurationTest";
 
 type Configuration = {
   host: string
@@ -61,7 +62,12 @@ class MailConfigurationForm extends React.Component<Props, State> {
       return this.renderInputField(name);
     });
 
-    return <>{fields}</>;
+    return (
+      <>
+        {fields}
+        <MailConfigurationTest />
+      </>
+    );
   }
 }
 

@@ -1,12 +1,11 @@
 //@flow
 import React from "react";
 import { translate } from "react-i18next";
-import Button from "@scm-manager/ui-components/src/buttons/Button";
+import { Button, InputField } from "@scm-manager/ui-components";
 import { apiClient } from "@scm-manager/ui-components";
 
 type Props = {
-  t: string => string,
-  link: string
+  t: string => string
 };
 
 type State = {
@@ -24,11 +23,9 @@ class MailConfigurationTest extends React.Component<Props, State> {
   }
 
   fetchConfiguration = () => {
-    const { link } = this.props;
-
     const configLink =
       "http://localhost:8081/scm/api/v2/plugins/mail/test/?to=some@whe.re";
-    //link + "/test/?to=";
+    //link + ".test ?to=";
     // TODO: Add config test link to API
     return apiClient
       .post(configLink)
@@ -66,7 +63,7 @@ class MailConfigurationTest extends React.Component<Props, State> {
           <div className="modal-card">
             <header className="modal-card-head">
               <p className="modal-card-title">
-                {t("scm-mail-plugin.test.modalTitle")}
+                {t("scm-mail-plugin.test.title")}
               </p>
               <button
                 className="delete"
@@ -81,10 +78,18 @@ class MailConfigurationTest extends React.Component<Props, State> {
     }
 
     return (
-      <Button
-        label={t("scm-mail-plugin.test.button")}
-        action={this.fetchConfiguration}
-      />
+      <>
+        <InputField
+          label={t("scm-mail-plugin.test.title")}
+          placeholder={t("scm-mail-plugin.test.input")}
+          type="email"
+          onChange={this.handlePasswordChange}
+        />
+        <Button
+          label={t("scm-mail-plugin.test.button")}
+          action={this.fetchConfiguration}
+        />
+      </>
     );
   }
 }
