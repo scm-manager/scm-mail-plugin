@@ -5,12 +5,14 @@ import { Button, InputField } from "@scm-manager/ui-components";
 import { apiClient } from "@scm-manager/ui-components";
 
 type Props = {
+  configuration: any, //TODO: fix type
   t: string => string
 };
 
 type State = {
   showModal: boolean,
-  failure: boolean
+  failure: boolean,
+  mail: string
 };
 
 class MailConfigurationTest extends React.Component<Props, State> {
@@ -22,15 +24,23 @@ class MailConfigurationTest extends React.Component<Props, State> {
     };
   }
 
-  fetchConfiguration = () => {
-    const configLink =
-      "http://localhost:8081/scm/api/v2/plugins/mail/test/?to=some@whe.re";
-    //link + ".test ?to=";
-    // TODO: Add config test link to API
+  updateEmail = (value: string) => {
+    this.setState(
+      {
+        mail: value  //TODO: check if mail is valid!
+      },
+    );
+  };
+
+  testConfiguration = () => {
+    const {configuration} = this.props;
+    const {mail} = this.state;
+    const configLink = configuration._links.test.href + "?to=" + mail;
+
     return apiClient
-      .post(configLink)
+      .post(configLink, configuration)
       .then(response => {
-        this.setState({ showModal: true, failure: false });
+        this.setState({ showModal: true, failure: false }); //TODO: backend: why is mail always sent successfully even if wrong mail is entered?
       })
       .catch(err => {
         this.setState({ showModal: true, failure: true });
@@ -79,15 +89,16 @@ class MailConfigurationTest extends React.Component<Props, State> {
 
     return (
       <>
+        <hr/>
         <InputField
           label={t("scm-mail-plugin.test.title")}
           placeholder={t("scm-mail-plugin.test.input")}
           type="email"
-          onChange={this.handlePasswordChange}
+          onChange={this.updateEmail}
         />
         <Button
           label={t("scm-mail-plugin.test.button")}
-          action={this.fetchConfiguration}
+          action={this.testConfiguration}
         />
       </>
     );

@@ -19,7 +19,7 @@ type Props = {
 
 type State = Configuration;
 
-class MailConfigurationForm extends React.Component<Props, State> {
+class MailConfigurationForm extends React.Component<Props, State> { //TODO: update (clicking on submit button) does throw error!
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -65,7 +65,7 @@ class MailConfigurationForm extends React.Component<Props, State> {
     return (
       <>
         {fields}
-        <MailConfigurationTest />
+        <MailConfigurationTest configuration={this.state}/>
       </>
     );
   }
