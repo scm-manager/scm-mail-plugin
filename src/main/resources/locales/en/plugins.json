@@ -2,6 +2,7 @@
   "scm-mail-plugin": {
     "nav-link": "Mail",
     "form": {
+      "header": "Mail Configuration",
       "host": "Host",
       "port": "Port",
       "from": "From",

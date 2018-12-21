@@ -2,17 +2,19 @@
 import React from "react";
 import { Title, Configuration } from "@scm-manager/ui-components";
 import MailConfigurationForm from "./MailConfigurationForm";
+import { translate } from "react-i18next";
 
 type Props = {
-  link: string
+  link: string,
+  t: string => string
 };
 
 class GlobalMailConfiguration extends React.Component<Props> {
   render() {
-    const { link } = this.props;
+    const { t, link } = this.props;
     return (
       <>
-        <Title title="Mail Configuration" />
+        <Title title={t("scm-mail-plugin.form.header")} />
         <Configuration
           link={link}
           render={props => <MailConfigurationForm {...props} />}
@@ -22,4 +24,4 @@ class GlobalMailConfiguration extends React.Component<Props> {
   }
 }
 
-export default GlobalMailConfiguration;
+export default translate("plugins")(GlobalMailConfiguration);
