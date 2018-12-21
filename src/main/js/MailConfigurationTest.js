@@ -25,22 +25,20 @@ class MailConfigurationTest extends React.Component<Props, State> {
   }
 
   updateEmail = (value: string) => {
-    this.setState(
-      {
-        mail: value  //TODO: check if mail is valid!
-      },
-    );
+    this.setState({
+      mail: value
+    });
   };
 
   testConfiguration = () => {
-    const {configuration} = this.props;
-    const {mail} = this.state;
+    const { configuration } = this.props;
+    const { mail } = this.state;
     const configLink = configuration._links.test.href + "?to=" + mail;
 
     return apiClient
       .post(configLink, configuration)
       .then(response => {
-        this.setState({ showModal: true, failure: false }); //TODO: backend: why is mail always sent successfully even if wrong mail is entered?
+        this.setState({ showModal: true, failure: false });
       })
       .catch(err => {
         this.setState({ showModal: true, failure: true });
@@ -53,43 +51,51 @@ class MailConfigurationTest extends React.Component<Props, State> {
     });
   };
 
-  render() {
+  renderModal = () => {
     const { t } = this.props;
-    const { showModal, failure } = this.state;
+    return (
+      <div className="modal is-active">
+        <div className="modal-background" />
+        <div className="modal-card">
+          <header className="modal-card-head">
+            <p className="modal-card-title">
+              {t("scm-mail-plugin.test.title")}
+            </p>
+            <button
+              className="delete"
+              aria-label="close"
+              onClick={() => this.closeModal()}
+            />
+          </header>
+          <section className="modal-card-body">
+            {this.renderModalContent()}
+          </section>
+        </div>
+      </div>
+    );
+  };
 
-    let modal = null;
+  renderModalContent = () => {
+    const { t } = this.props;
+    const { failure } = this.state;
     if (failure) {
-      modal = <div className="content">{t("scm-mail-plugin.test.error")}</div>;
-    } else {
-      modal = (
-        <div className="content">{t("scm-mail-plugin.test.success")}</div>
-      );
+      return <div className="content">{t("scm-mail-plugin.test.error")}</div>;
     }
 
+    return <div className="content">{t("scm-mail-plugin.test.success")}</div>;
+  };
+
+  render() {
+    const { t } = this.props;
+    const { showModal } = this.state;
+
     if (showModal) {
-      return (
-        <div className="modal is-active">
-          <div className="modal-background" />
-          <div className="modal-card">
-            <header className="modal-card-head">
-              <p className="modal-card-title">
-                {t("scm-mail-plugin.test.title")}
-              </p>
-              <button
-                className="delete"
-                aria-label="close"
-                onClick={() => this.closeModal()}
-              />
-            </header>
-            <section className="modal-card-body">{modal}</section>
-          </div>
-        </div>
-      );
+      return this.renderModal();
     }
 
     return (
       <>
-        <hr/>
+        <hr />
         <InputField
           label={t("scm-mail-plugin.test.title")}
           placeholder={t("scm-mail-plugin.test.input")}

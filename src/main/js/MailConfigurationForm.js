@@ -5,7 +5,12 @@ import { translate } from "react-i18next";
 import MailConfigurationTest from "./MailConfigurationTest";
 
 type Configuration = {
-  host: string
+  host: string,
+  port: number,
+  from: string,
+  username: string,
+  subjectPrefix: string,
+  transportStrategy: string
 };
 
 type Props = {
@@ -19,7 +24,7 @@ type Props = {
 
 type State = Configuration;
 
-class MailConfigurationForm extends React.Component<Props, State> { //TODO: update (clicking on submit button) does throw error!
+class MailConfigurationForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -27,12 +32,18 @@ class MailConfigurationForm extends React.Component<Props, State> { //TODO: upda
     };
   }
 
+  isStateValid = () => {
+    const { host, port, from } = this.state;
+    return host && port && port > 0 && from;
+  };
+
   configChangeHandler = (value: string, name: string) => {
     this.setState(
       {
         [name]: value
       },
-      () => this.props.onConfigurationChange({ ...this.state }, true)
+      () =>
+        this.props.onConfigurationChange({ ...this.state }, this.isStateValid())
     );
   };
 
@@ -65,7 +76,7 @@ class MailConfigurationForm extends React.Component<Props, State> { //TODO: upda
     return (
       <>
         {fields}
-        <MailConfigurationTest configuration={this.state}/>
+        <MailConfigurationTest configuration={this.state} />
       </>
     );
   }

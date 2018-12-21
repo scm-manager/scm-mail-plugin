@@ -68,7 +68,7 @@ import javax.ws.rs.core.UriInfo;
 @Path("v2/plugins/mail")
 public class MailConfigurationResource {
 
-  MailConfigurationMapper mapper;
+  private MailConfigurationMapper mapper;
 
   @Inject
   public MailConfigurationResource(MailService mailService, MailContext context, MailConfigurationMapper mapper) {
@@ -77,26 +77,13 @@ public class MailConfigurationResource {
     this.mapper = mapper;
   }
 
-  //~--- methods --------------------------------------------------------------
 
-  /**
-   * Method description
-   *
-   *
-   *
-   * @param configuration
-   * @param to
-   *
-   * @throws MailException
-   * @throws MailSendBatchException
-   */
   @POST
   @Path("test")
   @Consumes(MediaType.APPLICATION_JSON)
-  public void sendTestMessage(MailConfiguration configuration,
+  public void sendTestMessage(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto,
     @QueryParam("to") String to)
-    throws MailException, MailSendBatchException
-  {
+    throws MailException, MailSendBatchException {
     ConfigurationPermissions.write("mail").check();
 
     Email email = new Email();
@@ -104,7 +91,7 @@ public class MailConfigurationResource {
     email.addRecipient(null, to, RecipientType.TO);
     email.setSubject("Test Message from SCM-Manager");
     email.setText("Test Message");
-    mailService.send(configuration, email);
+    mailService.send(mapper.using(uriInfo).map(mailConfigurationDto), email);
   }
 
   @POST
@@ -131,8 +118,6 @@ public class MailConfigurationResource {
   public MailConfigurationDto getConfiguration(@Context UriInfo uriInfo) {
     ConfigurationPermissions.read("mail").check();
 
-    // TODO add _links.update if the user has write permissions
-//    return context.getConfiguration();
     return mapper.using(uriInfo).map(context.getConfiguration());
   }
 
