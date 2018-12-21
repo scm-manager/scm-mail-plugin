@@ -3,26 +3,18 @@ import React from "react";
 import { InputField } from "@scm-manager/ui-components";
 import { translate } from "react-i18next";
 import MailConfigurationTest from "./MailConfigurationTest";
-
-type Configuration = {
-  host: string,
-  port: number,
-  from: string,
-  username: string,
-  subjectPrefix: string,
-  transportStrategy: string
-};
+import type { MailConfiguration } from "./MailConfiguration";
 
 type Props = {
-  initialConfiguration: Configuration,
+  initialConfiguration: MailConfiguration,
   readOnly: boolean,
-  onConfigurationChange: (Configuration, boolean) => void,
+  onConfigurationChange: (MailConfiguration, boolean) => void,
 
   // context prop
   t: string => string
 };
 
-type State = Configuration;
+type State = MailConfiguration;
 
 class MailConfigurationForm extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -33,8 +25,8 @@ class MailConfigurationForm extends React.Component<Props, State> {
   }
 
   isStateValid = () => {
-    const { host, port, from } = this.state;
-    return host && port && port > 0 && from;
+    const { host, from, port } = this.state;
+    return !!host && !!from && port > 0;
   };
 
   configChangeHandler = (value: string, name: string) => {

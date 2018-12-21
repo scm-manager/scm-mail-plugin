@@ -3,9 +3,10 @@ import React from "react";
 import { translate } from "react-i18next";
 import { Button, InputField } from "@scm-manager/ui-components";
 import { apiClient } from "@scm-manager/ui-components";
+import type { MailConfiguration } from "./MailConfiguration";
 
 type Props = {
-  configuration: any, //TODO: fix type
+  configuration: MailConfiguration,
   t: string => string
 };
 
@@ -19,6 +20,7 @@ class MailConfigurationTest extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
+      ...this.state,
       showModal: false,
       failure: false
     };
