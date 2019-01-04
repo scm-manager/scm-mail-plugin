@@ -1,6 +1,6 @@
 //@flow
 import React from "react";
-import { InputField } from "@scm-manager/ui-components";
+import { DropDown, InputField } from "@scm-manager/ui-components";
 import { translate } from "react-i18next";
 import MailConfigurationTest from "./MailConfigurationTest";
 import type { MailConfiguration } from "./MailConfiguration";
@@ -9,6 +9,7 @@ type Props = {
   initialConfiguration: MailConfiguration,
   readOnly: boolean,
   onConfigurationChange: (MailConfiguration, boolean) => void,
+  transportStrategy: string,
 
   // context prop
   t: string => string
@@ -25,8 +26,8 @@ class MailConfigurationForm extends React.Component<Props, State> {
   }
 
   isStateValid = () => {
-    const { host, from, port } = this.state;
-    return !!host && !!from && port > 0;
+    const { host, from, port, transportStrategy } = this.state;
+    return !!host && !!from && port > 0 && transportStrategy !== "";
   };
 
   configChangeHandler = (value: string, name: string) => {
@@ -53,17 +54,44 @@ class MailConfigurationForm extends React.Component<Props, State> {
     );
   };
 
+  renderPasswordInpuField = () => {
+    const { t } = this.props;
+    return (
+      <InputField
+        type="password"
+        name="password"
+        label={t("scm-mail-plugin.form.password")}
+        onChange={this.configChangeHandler}
+      />
+    );
+  };
+
+  renderTransportStrategyDropDown = () => {
+    const { t } = this.props;
+    return (
+      <div className="field">
+        <label className="label">
+          {t("scm-mail-plugin.form.transportStrategy")}
+        </label>
+        <div className="control">
+          <DropDown
+            options={["SMTP_PLAIN", "SMTP_TLS", "SMTP_SSL"]}
+            optionSelected={this.handleDropDownChange}
+            preselectedOption={this.state.transportStrategy}
+          />
+        </div>
+      </div>
+    );
+  };
+
   render() {
-    const fields = [
-      "host",
-      "port",
-      "from",
-      "username",
-      "subjectPrefix",
-      "transportStrategy"
-    ].map(name => {
+    const fields = ["host", "port", "from", "username"].map(name => {
       return this.renderInputField(name);
     });
+
+    fields.push(this.renderPasswordInpuField());
+    fields.push(this.renderInputField("subjectPrefix"));
+    fields.push(this.renderTransportStrategyDropDown());
 
     return (
       <>
@@ -72,6 +100,13 @@ class MailConfigurationForm extends React.Component<Props, State> {
       </>
     );
   }
+
+  handleDropDownChange = (selection: string) => {
+    console.log("change");
+    this.setState({ ...this.state, transportStrategy: selection });
+
+    this.configChangeHandler(selection, "transportStrategy");
+  };
 }
 
 export default translate("plugins")(MailConfigurationForm);
