@@ -68,6 +68,8 @@ import javax.ws.rs.core.UriInfo;
 @Path("v2/plugins/mail")
 public class MailConfigurationResource {
 
+  private MailService mailService;
+  private MailContext context;
   private MailConfigurationMapper mapper;
 
   @Inject
@@ -76,7 +78,6 @@ public class MailConfigurationResource {
     this.context = context;
     this.mapper = mapper;
   }
-
 
   @POST
   @Path("test")
@@ -111,7 +112,6 @@ public class MailConfigurationResource {
     context.store(mailConfiguration);
   }
 
-
   @GET
   @Path("config")
   @Produces(MediaType.APPLICATION_JSON)
@@ -120,12 +120,4 @@ public class MailConfigurationResource {
 
     return mapper.using(uriInfo).map(context.getConfiguration());
   }
-
-  //~--- fields ---------------------------------------------------------------
-
-  /** Field description */
-  private MailContext context;
-
-  /** Field description */
-  private MailService mailService;
 }
