@@ -68,23 +68,6 @@ public class MailConfiguration implements Validateable
    */
   public MailConfiguration() {}
 
-  /**
-   * Constructs a new MailConfiguration.
-   *
-   *
-   * @param host hostname of the smtp server
-   * @param port port of the smtp server
-   * @param transportStrategy transoport strategy for the smtp connection
-   * @param subjectPrefix prefix for the mail subject
-   *
-   * @deprecated use {@link #MailConfiguration(String, int, TransportStrategy, String, String)} instead.
-   */
-  @Deprecated
-  public MailConfiguration(String host, int port,
-    TransportStrategy transportStrategy, String subjectPrefix)
-  {
-    this(host, port, transportStrategy, null, null, null, subjectPrefix);
-  }
 
   /**
    * Constructs a new MailConfiguration.
@@ -102,27 +85,6 @@ public class MailConfiguration implements Validateable
     this(host, port, transportStrategy, from, null, null, subjectPrefix);
   }
 
-  /**
-   * Constructs a new MailConfiguration.
-   *
-   *
-   * @param host hostname of the smtp server
-   * @param port port of the smtp server
-   * @param transportStrategy transoport strategy for the smtp connection
-   * @param username username for smtp authentication
-   * @param password password for smtp authentication
-   * @param subjectPrefix prefix for the mail subject
-   *
-   * @deprecated use {@link #MailConfiguration(String, int, TransportStrategy, String, String, String, String)} instead
-   */
-  @Deprecated
-  public MailConfiguration(String host, int port,
-    TransportStrategy transportStrategy, String username, String password,
-    String subjectPrefix)
-  {
-    this(host, port, transportStrategy, null, username, password,
-      subjectPrefix);
-  }
 
   /**
    * Constructs a new MailConfiguration.
