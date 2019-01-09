@@ -55,19 +55,20 @@ class MailConfigurationForm extends React.Component<Props, State> {
   };
 
   renderPasswordInpuField = () => {
-    const { t } = this.props;
+    const { readOnly, t } = this.props;
     return (
       <InputField
         type="password"
         name="password"
         label={t("scm-mail-plugin.form.password")}
         onChange={this.configChangeHandler}
+        disabled={readOnly}
       />
     );
   };
 
   renderTransportStrategyDropDown = () => {
-    const { t } = this.props;
+    const { readOnly, t } = this.props;
     return (
       <div className="field">
         <label className="label">
@@ -78,6 +79,7 @@ class MailConfigurationForm extends React.Component<Props, State> {
             options={["SMTP_PLAIN", "SMTP_TLS", "SMTP_SSL"]}
             optionSelected={this.handleDropDownChange}
             preselectedOption={this.state.transportStrategy}
+            disabled={readOnly}
           />
         </div>
       </div>
