@@ -13,7 +13,8 @@ type Props = {
 type State = {
   showModal: boolean,
   failure: boolean,
-  mail: string
+  mail: string,
+  loading: boolean
 };
 
 class MailConfigurationTest extends React.Component<Props, State> {
@@ -22,7 +23,8 @@ class MailConfigurationTest extends React.Component<Props, State> {
     this.state = {
       ...this.state,
       showModal: false,
-      failure: false
+      failure: false,
+      loading: false
     };
   }
 
@@ -37,13 +39,15 @@ class MailConfigurationTest extends React.Component<Props, State> {
     const { mail } = this.state;
     const configLink = configuration._links.test.href + "?to=" + mail;
 
+    this.setState({loading: true});
+
     return apiClient
       .post(configLink, configuration)
       .then(response => {
-        this.setState({ showModal: true, failure: false });
+        this.setState({ showModal: true, failure: false, loading: false });
       })
       .catch(err => {
-        this.setState({ showModal: true, failure: true });
+        this.setState({ showModal: true, failure: true, loading: false });
       });
   };
 
@@ -89,7 +93,7 @@ class MailConfigurationTest extends React.Component<Props, State> {
 
   render() {
     const { t } = this.props;
-    const { showModal } = this.state;
+    const { showModal, loading } = this.state;
 
     if (showModal) {
       return this.renderModal();
@@ -107,6 +111,7 @@ class MailConfigurationTest extends React.Component<Props, State> {
         <Button
           label={t("scm-mail-plugin.test.button")}
           action={this.testConfiguration}
+          loading={loading}
         />
       </>
     );
