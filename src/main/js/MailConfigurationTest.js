@@ -39,7 +39,7 @@ class MailConfigurationTest extends React.Component<Props, State> {
     const { mail } = this.state;
     const configLink = configuration._links.test.href + "?to=" + mail;
 
-    this.setState({loading: true});
+    this.setState({ loading: true });
 
     return apiClient
       .post(configLink, configuration)
@@ -73,9 +73,7 @@ class MailConfigurationTest extends React.Component<Props, State> {
               onClick={() => this.closeModal()}
             />
           </header>
-          <section className="modal-card-body">
-            {this.renderModalContent()}
-          </section>
+          {this.renderModalContent()}
         </div>
       </div>
     );
@@ -85,22 +83,36 @@ class MailConfigurationTest extends React.Component<Props, State> {
     const { t } = this.props;
     const { failure } = this.state;
     if (failure) {
-      return <div className="content">{t("scm-mail-plugin.test.error")}</div>;
+      return (
+        <section className="modal-card-body has-background-danger">
+          <div className="content has-text-white">
+            {t("scm-mail-plugin.test.error")}
+          </div>
+        </section>
+      );
     }
 
-    return <div className="content">{t("scm-mail-plugin.test.success")}</div>;
+    return (
+      <section className="modal-card-body has-background-success">
+        <div className="content has-text-white">
+          {t("scm-mail-plugin.test.success")}
+        </div>
+      </section>
+    );
   };
 
   render() {
     const { t } = this.props;
     const { showModal, loading } = this.state;
 
+    let modal = null;
     if (showModal) {
-      return this.renderModal();
+      modal = this.renderModal();
     }
 
     return (
       <>
+        {modal}
         <hr />
         <InputField
           label={t("scm-mail-plugin.test.title")}
