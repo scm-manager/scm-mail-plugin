@@ -59,6 +59,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 /**
@@ -82,17 +83,24 @@ public class MailConfigurationResource {
   @POST
   @Path("test")
   @Consumes(MediaType.APPLICATION_JSON)
-  public void sendTestMessage(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto,
-    @QueryParam("to") String to)
+  public Response sendTestMessage(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto,
+                                  @QueryParam("to") String to)
     throws MailException, MailSendBatchException {
     ConfigurationPermissions.write("mail").check();
 
-    Email email = new Email();
+    MailConfiguration configuration = mapper.using(uriInfo).map(mailConfigurationDto);
+    if (configuration.isValid()) {
 
-    email.addRecipient(null, to, RecipientType.TO);
-    email.setSubject("Test Message from SCM-Manager");
-    email.setText("Test Message");
-    mailService.send(mapper.using(uriInfo).map(mailConfigurationDto), email);
+      Email email = new Email();
+
+      email.addRecipient(null, to, RecipientType.TO);
+      email.setSubject("Test Message from SCM-Manager");
+      email.setText("Test Message");
+      mailService.send(configuration, email);
+      return Response.noContent().build();
+    } else {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    }
   }
 
   @POST
