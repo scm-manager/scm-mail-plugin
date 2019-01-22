@@ -15,7 +15,7 @@ type Props = {
 
 type State = {
   showModal: boolean,
-  failure: boolean,
+  failure?: Error,
   mail: string,
   loading: boolean,
   mailValidationError?: Error
@@ -27,7 +27,6 @@ class MailConfigurationTest extends React.Component<Props, State> {
     this.state = {
       ...this.state,
       showModal: false,
-      failure: false,
       loading: false
     };
   }
@@ -49,10 +48,10 @@ class MailConfigurationTest extends React.Component<Props, State> {
     return apiClient
       .post(configLink, configuration)
       .then(response => {
-        this.setState({ showModal: true, failure: false, loading: false });
+        this.setState({ showModal: true, failure: null, loading: false });
       })
       .catch(err => {
-        this.setState({ showModal: true, failure: true, loading: false });
+        this.setState({ showModal: true, failure: err, loading: false });
       });
   };
 
