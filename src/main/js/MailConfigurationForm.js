@@ -1,6 +1,6 @@
 //@flow
 import React from "react";
-import { DropDown, InputField } from "@scm-manager/ui-components";
+import {DropDown, InputField, validation as validator} from "@scm-manager/ui-components";
 import { translate } from "react-i18next";
 import MailConfigurationTest from "./MailConfigurationTest";
 import type { MailConfiguration } from "./MailConfiguration";
@@ -27,7 +27,7 @@ class MailConfigurationForm extends React.Component<Props, State> {
 
   isStateValid = () => {
     const { host, from, port, transportStrategy } = this.state;
-    return !!host && !!from && port > 0 && transportStrategy !== "";
+    return !!host && !!from && port > 0 && transportStrategy !== "" && validator.isMailValid(this.state["from"]);
   };
 
   configChangeHandler = (value: string, name: string) => {
@@ -50,6 +50,22 @@ class MailConfigurationForm extends React.Component<Props, State> {
         disabled={readOnly}
         value={this.state[name]}
         onChange={this.configChangeHandler}
+      />
+    );
+  };
+
+  renderFromField = () => {
+    const { t } = this.props;
+    const readOnly = false;
+    return (
+      <InputField
+        name="from"
+        label={t("scm-mail-plugin.form.from")}
+        disabled={readOnly}
+        value={this.state["from"]}
+        onChange={this.configChangeHandler}
+        validationError={!validator.isMailValid(this.state["from"])}
+        errorMessage={t("scm-mail-plugin.mailValidationError")}
       />
     );
   };
@@ -87,10 +103,12 @@ class MailConfigurationForm extends React.Component<Props, State> {
   };
 
   render() {
-    const fields = ["host", "port", "from", "username"].map(name => {
+    const fields = ["host", "port"].map(name => {
       return this.renderInputField(name);
     });
 
+    fields.push(this.renderFromField());
+    fields.push(this.renderInputField("username"));
     fields.push(this.renderPasswordInpuField());
     fields.push(this.renderInputField("subjectPrefix"));
     fields.push(this.renderTransportStrategyDropDown());

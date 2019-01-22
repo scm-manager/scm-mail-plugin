@@ -1,6 +1,7 @@
 {
   "scm-mail-plugin": {
     "nav-link": "Mail",
+    "mailValidationError":  "This is not a valid mail address",
     "form": {
       "header": "Mail Configuration",
       "host": "Host",
@@ -16,8 +17,7 @@
       "button": "Test Configuration",
       "title": "Test SMTP Server Configuration",
       "error": "Sending test mail failed.",
-      "success": "Mail was sent successfully.",
-      "mailValidationError":  "This is not a valid mail address"
+      "success": "Mail was sent successfully."
     }
   }
 }

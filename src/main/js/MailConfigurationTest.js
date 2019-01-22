@@ -124,7 +124,7 @@ class MailConfigurationTest extends React.Component<Props, State> {
           type="email"
           validationError={this.state.mailValidationError}
           onChange={this.updateEmail}
-          errorMessage={t("scm-mail-plugin.test.mailValidationError")}
+          errorMessage={t("scm-mail-plugin.mailValidationError")}
         />
         <Button
           label={t("scm-mail-plugin.test.button")}
