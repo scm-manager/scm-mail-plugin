@@ -16,7 +16,8 @@
       "button": "Test Configuration",
       "title": "Test SMTP Server Configuration",
       "error": "Sending test mail failed.",
-      "success": "Mail was sent successfully."
+      "success": "Mail was sent successfully.",
+      "mailValidationError":  "This is not a valid mail address"
     }
   }
 }

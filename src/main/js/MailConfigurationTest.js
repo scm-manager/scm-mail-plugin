@@ -2,7 +2,10 @@
 import React from "react";
 import { translate } from "react-i18next";
 import { Button, InputField } from "@scm-manager/ui-components";
-import { apiClient } from "@scm-manager/ui-components";
+import {
+  apiClient,
+  validation as validator
+} from "@scm-manager/ui-components";
 import type { MailConfiguration } from "./MailConfiguration";
 
 type Props = {
@@ -14,7 +17,8 @@ type State = {
   showModal: boolean,
   failure: boolean,
   mail: string,
-  loading: boolean
+  loading: boolean,
+  mailValidationError?: Error
 };
 
 class MailConfigurationTest extends React.Component<Props, State> {
@@ -30,6 +34,7 @@ class MailConfigurationTest extends React.Component<Props, State> {
 
   updateEmail = (value: string) => {
     this.setState({
+      mailValidationError: !validator.isMailValid(value),
       mail: value
     });
   };
@@ -118,7 +123,9 @@ class MailConfigurationTest extends React.Component<Props, State> {
           label={t("scm-mail-plugin.test.title")}
           placeholder={t("scm-mail-plugin.test.input")}
           type="email"
+          validationError={this.state.mailValidationError}
           onChange={this.updateEmail}
+          errorMessage={t("scm-mail-plugin.test.mailValidationError")}
         />
         <Button
           label={t("scm-mail-plugin.test.button")}
