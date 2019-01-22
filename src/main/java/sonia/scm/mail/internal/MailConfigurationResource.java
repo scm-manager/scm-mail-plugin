@@ -45,6 +45,7 @@ import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContext;
 import sonia.scm.mail.api.MailSendBatchException;
 import sonia.scm.mail.api.MailService;
+import sonia.scm.util.ValidationUtil;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -89,7 +90,7 @@ public class MailConfigurationResource {
     ConfigurationPermissions.write("mail").check();
 
     MailConfiguration configuration = mapper.using(uriInfo).map(mailConfigurationDto);
-    if (configuration.isValid()) {
+    if (configuration.isValid() && ValidationUtil.isMailAddressValid(to)) {
 
       Email email = new Email();
 
