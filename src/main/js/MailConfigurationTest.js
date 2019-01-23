@@ -2,7 +2,10 @@
 import React from "react";
 import { translate } from "react-i18next";
 import { Button, InputField } from "@scm-manager/ui-components";
-import { apiClient } from "@scm-manager/ui-components";
+import {
+  apiClient,
+  validation as validator
+} from "@scm-manager/ui-components";
 import type { MailConfiguration } from "./MailConfiguration";
 
 type Props = {
@@ -12,9 +15,10 @@ type Props = {
 
 type State = {
   showModal: boolean,
-  failure: boolean,
+  failure?: Error,
   mail: string,
-  loading: boolean
+  loading: boolean,
+  mailValidationError?: Error
 };
 
 class MailConfigurationTest extends React.Component<Props, State> {
@@ -23,13 +27,13 @@ class MailConfigurationTest extends React.Component<Props, State> {
     this.state = {
       ...this.state,
       showModal: false,
-      failure: false,
       loading: false
     };
   }
 
   updateEmail = (value: string) => {
     this.setState({
+      mailValidationError: !validator.isMailValid(value),
       mail: value
     });
   };
@@ -44,10 +48,10 @@ class MailConfigurationTest extends React.Component<Props, State> {
     return apiClient
       .post(configLink, configuration)
       .then(response => {
-        this.setState({ showModal: true, failure: false, loading: false });
+        this.setState({ showModal: true, failure: null, loading: false });
       })
       .catch(err => {
-        this.setState({ showModal: true, failure: true, loading: false });
+        this.setState({ showModal: true, failure: err, loading: false });
       });
   };
 
@@ -118,7 +122,9 @@ class MailConfigurationTest extends React.Component<Props, State> {
           label={t("scm-mail-plugin.test.title")}
           placeholder={t("scm-mail-plugin.test.input")}
           type="email"
+          validationError={this.state.mailValidationError}
           onChange={this.updateEmail}
+          errorMessage={t("scm-mail-plugin.mailValidationError")}
         />
         <Button
           label={t("scm-mail-plugin.test.button")}
