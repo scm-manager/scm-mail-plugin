@@ -1,6 +1,10 @@
 //@flow
 import React from "react";
-import {DropDown, InputField, validation as validator} from "@scm-manager/ui-components";
+import {
+  DropDown,
+  InputField,
+  validation as validator
+} from "@scm-manager/ui-components";
 import { translate } from "react-i18next";
 import MailConfigurationTest from "./MailConfigurationTest";
 import type { MailConfiguration } from "./MailConfiguration";
@@ -15,19 +19,28 @@ type Props = {
   t: string => string
 };
 
-type State = MailConfiguration;
+type State = MailConfiguration & {
+  fromFieldChanged: boolean
+};
 
 class MailConfigurationForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      ...props.initialConfiguration
+      ...props.initialConfiguration,
+      fromFieldChanged: false
     };
   }
 
   isStateValid = () => {
     const { host, from, port, transportStrategy } = this.state;
-    return !!host && !!from && port > 0 && transportStrategy !== "" && validator.isMailValid(this.state["from"]);
+    return (
+      !!host &&
+      !!from &&
+      port > 0 &&
+      transportStrategy !== "" &&
+      validator.isMailValid(this.state["from"])
+    );
   };
 
   configChangeHandler = (value: string, name: string) => {
@@ -54,6 +67,14 @@ class MailConfigurationForm extends React.Component<Props, State> {
     );
   };
 
+  fromFieldInvalid = () => {
+    if (!this.state.fromFieldChanged && !this.state["from"]) {
+      return false;
+    } else {
+      return !validator.isMailValid(this.state["from"]);
+    }
+  };
+
   renderFromField = () => {
     const { t } = this.props;
     const readOnly = false;
@@ -63,8 +84,11 @@ class MailConfigurationForm extends React.Component<Props, State> {
         label={t("scm-mail-plugin.form.from")}
         disabled={readOnly}
         value={this.state["from"]}
-        onChange={this.configChangeHandler}
-        validationError={!validator.isMailValid(this.state["from"])}
+        onChange={(value: string, name: string) => {
+          this.setState({ ...this.state, fromFieldChanged: true });
+          this.configChangeHandler(value, name);
+        }}
+        validationError={this.fromFieldInvalid()}
         errorMessage={t("scm-mail-plugin.mailValidationError")}
       />
     );
