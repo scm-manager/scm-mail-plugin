@@ -9,8 +9,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import sonia.scm.api.v2.resources.LinkAppender;
-import sonia.scm.api.v2.resources.LinkEnricherContext;
+import sonia.scm.api.v2.resources.HalAppender;
+import sonia.scm.api.v2.resources.HalEnricherContext;
 import sonia.scm.api.v2.resources.ScmPathInfoStore;
 
 import javax.inject.Provider;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MailConfigurationLinkEnricherTest {
+public class MailConfigurationHalEnricherTest {
 
   private Provider<ScmPathInfoStore> scmPathInfoStoreProvider;
 
@@ -28,9 +28,9 @@ public class MailConfigurationLinkEnricherTest {
   public ShiroRule shiro = new ShiroRule();
 
   @Mock
-  private LinkAppender appender;
+  private HalAppender appender;
 
-  private MailConfigurationLinkEnricher enricher;
+  private MailConfigurationHalEnricher enricher;
 
   @Before
   public void setUp() {
@@ -46,9 +46,9 @@ public class MailConfigurationLinkEnricherTest {
   )
   @Test
   public void testEnrich() {
-    enricher = new MailConfigurationLinkEnricher(scmPathInfoStoreProvider);
-    enricher.enrich(LinkEnricherContext.of(), appender);
-    verify(appender).appendOne("mailConfig", "https://scm-manager.org/scm/api/v2/plugins/mail/config");
+    enricher = new MailConfigurationHalEnricher(scmPathInfoStoreProvider);
+    enricher.enrich(HalEnricherContext.of(), appender);
+    verify(appender).appendLink("mailConfig", "https://scm-manager.org/scm/api/v2/plugins/mail/config");
   }
 
   @Test
@@ -57,8 +57,8 @@ public class MailConfigurationLinkEnricherTest {
     configuration = "classpath:sonia/scm/mail/internal/shiro.ini"
   )
   public void dontEnrichWhenReadIsNotPermitted() {
-    MailConfigurationLinkEnricher enricher = new MailConfigurationLinkEnricher(scmPathInfoStoreProvider);
-    enricher.enrich(LinkEnricherContext.of(), appender);
+    MailConfigurationHalEnricher enricher = new MailConfigurationHalEnricher(scmPathInfoStoreProvider);
+    enricher.enrich(HalEnricherContext.of(), appender);
     verifyZeroInteractions(appender);
   }
 

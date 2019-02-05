@@ -2,10 +2,10 @@ package sonia.scm.mail.internal;
 
 import sonia.scm.api.v2.resources.Enrich;
 import sonia.scm.api.v2.resources.Index;
-import sonia.scm.api.v2.resources.LinkAppender;
+import sonia.scm.api.v2.resources.HalAppender;
 import sonia.scm.api.v2.resources.LinkBuilder;
-import sonia.scm.api.v2.resources.LinkEnricher;
-import sonia.scm.api.v2.resources.LinkEnricherContext;
+import sonia.scm.api.v2.resources.HalEnricher;
+import sonia.scm.api.v2.resources.HalEnricherContext;
 import sonia.scm.api.v2.resources.ScmPathInfoStore;
 import sonia.scm.config.ConfigurationPermissions;
 import sonia.scm.plugin.Extension;
@@ -15,12 +15,12 @@ import javax.inject.Provider;
 
 @Extension
 @Enrich(Index.class)
-public class MailConfigurationLinkEnricher implements LinkEnricher {
+public class MailConfigurationHalEnricher implements HalEnricher {
 
   private Provider<ScmPathInfoStore> scmPathInfoStoreProvider;
 
   @Inject
-  public MailConfigurationLinkEnricher(Provider<ScmPathInfoStore> scmPathInfoStoreProvider) {
+  public MailConfigurationHalEnricher(Provider<ScmPathInfoStore> scmPathInfoStoreProvider) {
     this.scmPathInfoStoreProvider = scmPathInfoStoreProvider;
   }
 
@@ -33,9 +33,9 @@ public class MailConfigurationLinkEnricher implements LinkEnricher {
   }
 
   @Override
-  public void enrich(LinkEnricherContext context, LinkAppender appender) {
+  public void enrich(HalEnricherContext context, HalAppender appender) {
     if (ConfigurationPermissions.read("mail").isPermitted()) {
-      appender.appendOne("mailConfig", createLink());
+      appender.appendLink("mailConfig", createLink());
     }
   }
 }
