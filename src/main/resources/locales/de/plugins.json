@@ -1,0 +1,23 @@
+{
+  "scm-mail-plugin": {
+    "nav-link": "E-Mail",
+    "mailValidationError":  "Dies ist keine valide E-Mail-Adresse.",
+    "form": {
+      "header": "E-Mail Konfiguration",
+      "host": "Host",
+      "port": "Port",
+      "from": "Von",
+      "username": "Benutzername",
+      "password": "Passwort",
+      "subjectPrefix": "Betreff Prefix",
+      "transportStrategy": "Transport Strategie"
+    },
+    "test": {
+      "input": "E-Mail-Address",
+      "button": "Konfiguration testen",
+      "title": "SMTP Server Konfiguration testen",
+      "error": "Das Senden der Test E-Mail ist fehlgeschlagen.",
+      "success": "Die E-Mail wurde erfolgreich versandt."
+    }
+  }
+}

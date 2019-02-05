@@ -41,6 +41,7 @@ import org.codemonkey.simplejavamail.TransportStrategy;
 import sonia.scm.Validateable;
 import sonia.scm.mail.internal.XmlCipherStringAdapter;
 import sonia.scm.util.Util;
+import sonia.scm.util.ValidationUtil;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -210,7 +211,7 @@ public class MailConfiguration implements Validateable
   @Override
   public boolean isValid()
   {
-    return Util.isNotEmpty(host) && Util.isNotEmpty(from) && (port > 0);
+    return Util.isNotEmpty(host) && Util.isNotEmpty(from) && (port > 0) && ValidationUtil.isMailAddressValid(from);
   }
 
   //~--- fields ---------------------------------------------------------------

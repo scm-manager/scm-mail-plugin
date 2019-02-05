@@ -2,7 +2,10 @@
 import React from "react";
 import { translate } from "react-i18next";
 import { Button, InputField } from "@scm-manager/ui-components";
-import { apiClient } from "@scm-manager/ui-components";
+import {
+  apiClient,
+  validation as validator
+} from "@scm-manager/ui-components";
 import type { MailConfiguration } from "./MailConfiguration";
 
 type Props = {
@@ -12,8 +15,10 @@ type Props = {
 
 type State = {
   showModal: boolean,
-  failure: boolean,
-  mail: string
+  failure?: Error,
+  mail: string,
+  loading: boolean,
+  mailValidationError?: Error
 };
 
 class MailConfigurationTest extends React.Component<Props, State> {
@@ -22,12 +27,13 @@ class MailConfigurationTest extends React.Component<Props, State> {
     this.state = {
       ...this.state,
       showModal: false,
-      failure: false
+      loading: false
     };
   }
 
   updateEmail = (value: string) => {
     this.setState({
+      mailValidationError: !validator.isMailValid(value),
       mail: value
     });
   };
@@ -37,13 +43,15 @@ class MailConfigurationTest extends React.Component<Props, State> {
     const { mail } = this.state;
     const configLink = configuration._links.test.href + "?to=" + mail;
 
+    this.setState({ loading: true });
+
     return apiClient
       .post(configLink, configuration)
       .then(response => {
-        this.setState({ showModal: true, failure: false });
+        this.setState({ showModal: true, failure: null, loading: false });
       })
       .catch(err => {
-        this.setState({ showModal: true, failure: true });
+        this.setState({ showModal: true, failure: err, loading: false });
       });
   };
 
@@ -69,9 +77,7 @@ class MailConfigurationTest extends React.Component<Props, State> {
               onClick={() => this.closeModal()}
             />
           </header>
-          <section className="modal-card-body">
-            {this.renderModalContent()}
-          </section>
+          {this.renderModalContent()}
         </div>
       </div>
     );
@@ -81,32 +87,49 @@ class MailConfigurationTest extends React.Component<Props, State> {
     const { t } = this.props;
     const { failure } = this.state;
     if (failure) {
-      return <div className="content">{t("scm-mail-plugin.test.error")}</div>;
+      return (
+        <section className="modal-card-body has-background-danger">
+          <div className="content has-text-white">
+            {t("scm-mail-plugin.test.error")}
+          </div>
+        </section>
+      );
     }
 
-    return <div className="content">{t("scm-mail-plugin.test.success")}</div>;
+    return (
+      <section className="modal-card-body has-background-success">
+        <div className="content has-text-white">
+          {t("scm-mail-plugin.test.success")}
+        </div>
+      </section>
+    );
   };
 
   render() {
     const { t } = this.props;
-    const { showModal } = this.state;
+    const { showModal, loading } = this.state;
 
+    let modal = null;
     if (showModal) {
-      return this.renderModal();
+      modal = this.renderModal();
     }
 
     return (
       <>
+        {modal}
         <hr />
         <InputField
           label={t("scm-mail-plugin.test.title")}
           placeholder={t("scm-mail-plugin.test.input")}
           type="email"
+          validationError={this.state.mailValidationError}
           onChange={this.updateEmail}
+          errorMessage={t("scm-mail-plugin.mailValidationError")}
         />
         <Button
           label={t("scm-mail-plugin.test.button")}
           action={this.testConfiguration}
+          loading={loading}
         />
       </>
     );
