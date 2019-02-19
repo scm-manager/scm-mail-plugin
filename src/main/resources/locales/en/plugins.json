@@ -19,5 +19,15 @@
       "error": "Sending test email failed.",
       "success": "Email was sent successfully."
     }
+  },
+  "permissions": {
+    "configuration": {
+      "read,write": {
+        "mail": {
+          "displayName": "Modify mail configuration",
+          "description": "May modify the mail configuration"
+        }
+      }
+    }
   }
 }

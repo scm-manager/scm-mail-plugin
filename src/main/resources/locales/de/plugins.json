@@ -19,5 +19,15 @@
       "error": "Das Senden der Test E-Mail ist fehlgeschlagen.",
       "success": "Die E-Mail wurde erfolgreich versandt."
     }
+  },
+  "permissions": {
+    "configuration": {
+      "read,write": {
+        "mail": {
+          "displayName": "Mail Konfiguration ändern",
+          "description": "Darf die Mail Konfiguration verändern"
+        }
+      }
+    }
   }
 }
