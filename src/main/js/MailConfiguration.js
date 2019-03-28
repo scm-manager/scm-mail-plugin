@@ -9,5 +9,6 @@ export type MailConfiguration = {
   username: string,
   subjectPrefix: string,
   transportStrategy: string,
+  language: string,
   _links: Links
 };

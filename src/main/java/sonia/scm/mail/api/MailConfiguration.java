@@ -214,6 +214,10 @@ public class MailConfiguration implements Validateable
     return Util.isNotEmpty(host) && Util.isNotEmpty(from) && (port > 0) && ValidationUtil.isMailAddressValid(from);
   }
 
+  public String getLanguage() {
+    return language;
+  }
+
   //~--- fields ---------------------------------------------------------------
 
   /** default from address */
@@ -239,4 +243,6 @@ public class MailConfiguration implements Validateable
 
   /** username for smtp authentication */
   private String username;
+
+  private String language;
 }

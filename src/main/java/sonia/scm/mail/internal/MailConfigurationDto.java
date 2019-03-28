@@ -18,6 +18,7 @@ public class MailConfigurationDto extends HalRepresentation {
   private String password;
   private String from;
   private String subjectPrefix;
+  private String language;
 
   @Override
   @SuppressWarnings("squid:S1185") // We want to have this method available in this package

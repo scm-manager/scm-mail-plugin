@@ -1,7 +1,7 @@
 {
   "scm-mail-plugin": {
     "nav-link": "Email",
-    "mailValidationError":  "This is not a valid email address",
+    "mailValidationError": "This is not a valid email address",
     "form": {
       "header": "Email Configuration",
       "host": "Host",
@@ -10,7 +10,12 @@
       "username": "User name",
       "password": "Password",
       "subjectPrefix": "Subject prefix",
+      "language": "Language",
       "transportStrategy": "Transport strategy"
+    },
+    "language" : {
+      "de" : "German",
+      "en" : "English"
     },
     "test": {
       "input": "Email Address",

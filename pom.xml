@@ -16,10 +16,10 @@
   <packaging>smp</packaging>
   <url>https://bitbucket.org/sdorra/scm-mail-plugin</url>
   <description>
-    The mail plugin provides an api for sending e-mails. 
+    The mail plugin provides an api for sending e-mails.
     This api can be used by other plugins.
   </description>
-  
+
   <scm>
     <connection>scm:hg:https://bitbucket.org/sdorra/scm-mail-plugin</connection>
     <developerConnection>scm:hg:https://bitbucket.org/sdorra/scm-mail-plugin</developerConnection>
@@ -55,14 +55,14 @@
     </dependency>
 
   </dependencies>
-  
+
   <properties>
     <javaxmail.version>1.4.7</javaxmail.version>
   </properties>
 
-  
+
   <repositories>
-    
+
     <repository>
       <id>maven.scm-manager.org</id>
       <name>scm-manager release repository</name>
