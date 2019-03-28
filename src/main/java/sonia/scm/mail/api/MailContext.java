@@ -91,10 +91,17 @@ public class MailContext
   public void store(MailConfiguration configuration)
   {
     AssertUtil.assertIsValid(configuration);
+    configuration.getUserMailConfigurations().putAll(this.configuration.getUserMailConfigurations());
     this.configuration = configuration;
     logger.debug("store new mail configuration");
 
     this.store.set(configuration);
+  }
+
+  public void store(String userId, UserMailConfiguration userMailConfiguration) {
+    MailConfiguration configuration = getConfiguration();
+    configuration.getUserMailConfigurations().put(userId,userMailConfiguration);
+    store(configuration);
   }
 
   //~--- get methods ----------------------------------------------------------
@@ -113,6 +120,14 @@ public class MailContext
     }
 
     return configuration;
+  }
+
+  public UserMailConfiguration getUserConfiguration(String userId) {
+    UserMailConfiguration userMailConfiguration = getConfiguration().getUserMailConfigurations().get(userId);
+    if (userMailConfiguration == null){
+      userMailConfiguration = new UserMailConfiguration();
+    }
+    return userMailConfiguration;
   }
 
   //~--- fields ---------------------------------------------------------------

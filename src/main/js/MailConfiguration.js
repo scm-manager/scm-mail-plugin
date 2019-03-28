@@ -2,6 +2,10 @@
 
 import type { Links } from "@scm-manager/ui-types";
 
+export type UserMailConfiguration = {
+  language : string
+}
+
 export type MailConfiguration = {
   host: string,
   port: number,

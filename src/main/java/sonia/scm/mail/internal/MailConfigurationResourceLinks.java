@@ -17,6 +17,18 @@ public class MailConfigurationResourceLinks {
       .href();
   }
 
+  public String userConfigLink() {
+    return linkBuilder
+      .method("getUserConfiguration").parameters()
+      .href();
+  }
+
+  public String updateUserConfigLink() {
+    return linkBuilder
+      .method("storeUserConfiguration").parameters()
+      .href();
+  }
+
   public String update() {
     return linkBuilder
       .method("updateConfiguration").parameters()
