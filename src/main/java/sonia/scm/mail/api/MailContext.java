@@ -58,7 +58,8 @@ public class MailContext
 {
 
   /** name of the store */
-  private static final String STORE_NAME = "mail";
+  private static final String CONFIG_STORE_NAME = "mail";
+  private static final String USER_LANGUAGE_STORE_NAME = "user-lang";
 
   /**
    * the logger for MailContext
@@ -76,8 +77,9 @@ public class MailContext
    */
   @Inject
   public MailContext(ConfigurationStoreFactory storeFactory) {
-    this.store = storeFactory.withType(MailConfiguration.class).withName(STORE_NAME).build();
-    this.configuration = this.store.get();
+    this.configurationStore = storeFactory.withType(MailConfiguration.class).withName(CONFIG_STORE_NAME).build();
+    this.userLanguageStore = storeFactory.withType(UserLanguageConfiguration.class).withName(USER_LANGUAGE_STORE_NAME).build();
+    this.configuration = this.configurationStore.get();
   }
 
   //~--- methods --------------------------------------------------------------
@@ -91,17 +93,24 @@ public class MailContext
   public void store(MailConfiguration configuration)
   {
     AssertUtil.assertIsValid(configuration);
-    configuration.getUserMailConfigurations().putAll(this.configuration.getUserMailConfigurations());
     this.configuration = configuration;
     logger.debug("store new mail configuration");
 
-    this.store.set(configuration);
+    this.configurationStore.set(configuration);
   }
 
   public void store(String userId, UserMailConfiguration userMailConfiguration) {
-    MailConfiguration configuration = getConfiguration();
-    configuration.getUserMailConfigurations().put(userId,userMailConfiguration);
-    store(configuration);
+    UserLanguageConfiguration userLanguageConfiguration = getUserLanguageConfiguration();
+    userLanguageConfiguration.setUserMailConfiguration(userId, userMailConfiguration);
+    store(userLanguageConfiguration);
+  }
+
+  private void store(UserLanguageConfiguration userLanguageConfiguration)
+  {
+    this.userLanguageConfiguration = userLanguageConfiguration;
+    logger.debug("store new user language configuration");
+
+    this.userLanguageStore.set(userLanguageConfiguration);
   }
 
   //~--- get methods ----------------------------------------------------------
@@ -122,8 +131,15 @@ public class MailContext
     return configuration;
   }
 
+  public UserLanguageConfiguration getUserLanguageConfiguration() {
+    if (userLanguageConfiguration == null) {
+      userLanguageConfiguration = new UserLanguageConfiguration();
+    }
+    return userLanguageConfiguration;
+  }
+
   public UserMailConfiguration getUserConfiguration(String userId) {
-    UserMailConfiguration userMailConfiguration = getConfiguration().getUserMailConfigurations().get(userId);
+    UserMailConfiguration userMailConfiguration = getUserLanguageConfiguration().getUserMailConfigurations().get(userId);
     if (userMailConfiguration == null){
       userMailConfiguration = new UserMailConfiguration();
     }
@@ -135,6 +151,8 @@ public class MailContext
   /** default mail configuration */
   private MailConfiguration configuration;
 
-  /** store for the default mail configuration */
-  private ConfigurationStore<MailConfiguration> store;
+  private UserLanguageConfiguration userLanguageConfiguration;
+
+  private final ConfigurationStore<MailConfiguration> configurationStore;
+  private final ConfigurationStore<UserLanguageConfiguration> userLanguageStore;
 }

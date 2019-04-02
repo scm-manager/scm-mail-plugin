@@ -31,8 +31,6 @@
 
 package sonia.scm.mail.api;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import lombok.Setter;
 import org.codemonkey.simplejavamail.TransportStrategy;
 import sonia.scm.Validateable;
@@ -45,8 +43,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -87,14 +83,6 @@ public class MailConfiguration implements Validateable {
    * the language used in the mail content
    */
   private String language;
-
-  /**
-   * the user specific configurations
-   * the key is the userId
-   *
-   */
-  private Map<String, UserMailConfiguration> userMailConfigurations = new HashMap<>();
-
 
   /**
    * Constructs a new MailConfiguration.
@@ -248,25 +236,7 @@ public class MailConfiguration implements Validateable {
     return Util.isNotEmpty(host) && Util.isNotEmpty(from) && (port > 0) && ValidationUtil.isMailAddressValid(from);
   }
 
-  /**
-   * Return the user specified lan
-   * @param username
-   * @return
-   */
-  public String getUserLanguage(String username) {
-    if (username != null && userMailConfigurations.get(username) != null){
-      return userMailConfigurations.get(username).getLanguage();
-    }
-    return language;
-  }
-
   public String getLanguage() {
     return language;
   }
-
-  public Map<String, UserMailConfiguration> getUserMailConfigurations() {
-    return userMailConfigurations;
-  }
-
-
 }

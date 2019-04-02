@@ -3,6 +3,7 @@ package sonia.scm.mail.spi;
 import com.google.inject.Inject;
 import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContentRenderer;
+import sonia.scm.mail.api.UserLanguageConfiguration;
 import sonia.scm.plugin.PluginLoader;
 import sonia.scm.template.Template;
 import sonia.scm.template.TemplateEngine;
@@ -21,14 +22,21 @@ public class DefaultMailContentRenderer implements MailContentRenderer {
   private final String templatePath;
   private final Object templateModel;
   private final MailConfiguration configuration;
+  private final UserLanguageConfiguration userLanguageConfiguration;
   private final PluginLoader pluginLoader;
 
   @Inject
-  public DefaultMailContentRenderer(TemplateEngineFactory templateEngineFactory, String templatePath, Object templateModel, MailConfiguration configuration, PluginLoader pluginLoader) {
+  public DefaultMailContentRenderer(
+    TemplateEngineFactory templateEngineFactory,
+    String templatePath,
+    Object templateModel,
+    MailConfiguration configuration,
+    UserLanguageConfiguration userLanguageConfiguration, PluginLoader pluginLoader) {
     this.templateEngineFactory = templateEngineFactory;
     this.templatePath = templatePath;
     this.templateModel = templateModel;
     this.configuration = configuration;
+    this.userLanguageConfiguration = userLanguageConfiguration;
     this.pluginLoader = pluginLoader;
   }
 
@@ -67,7 +75,7 @@ public class DefaultMailContentRenderer implements MailContentRenderer {
     if (configuration.getLanguage() == null) {
       return templatePath;
     }
-    String language = configuration.getUserLanguage(username);
+    String language = userLanguageConfiguration.getUserLanguage(username).orElse(configuration.getLanguage());
     int lastIndexOfDot = templatePath.lastIndexOf(".");
     String filename = templatePath.substring(0, lastIndexOfDot);
     String extension = templatePath.substring(lastIndexOfDot);
