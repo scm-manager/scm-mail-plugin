@@ -36,6 +36,7 @@ package sonia.scm.mail.spi;
 //~--- non-JDK imports --------------------------------------------------------
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 
 import org.codemonkey.simplejavamail.Email;
@@ -47,9 +48,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import sonia.scm.mail.api.MailConfiguration;
+import sonia.scm.mail.api.MailContentRenderer;
 import sonia.scm.mail.api.MailContext;
 import sonia.scm.mail.api.MailSendBatchException;
 import sonia.scm.mail.api.MailSendException;
+import sonia.scm.mail.api.MailSendParams;
 import sonia.scm.util.AssertUtil;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -60,6 +63,7 @@ import java.util.Iterator;
  *
  * @author Sebastian Sdorra
  */
+
 public class DefaultMailService extends AbstractMailService
 {
 
@@ -84,6 +88,26 @@ public class DefaultMailService extends AbstractMailService
   }
 
   //~--- methods --------------------------------------------------------------
+
+  @Override
+  public void send(MailSendParams sendParams) throws Exception {
+    Iterable<Email> emails = sendParams.getEmails();
+    if (emails == null || Iterables.isEmpty(emails)){
+      throw new MailSendException("there are no mails to send");
+    }
+    MailConfiguration mailConfiguration = sendParams.getMailConfiguration();
+    if (mailConfiguration == null ) {
+      mailConfiguration = context.getConfiguration();
+    }
+    MailContentRenderer mailContentRenderer = sendParams.getMailContentRenderer();
+    String username = sendParams.getUserId();
+    if (mailContentRenderer != null){
+      for (Email email : emails) {
+        email.setTextHTML(mailContentRenderer.createMailContent(username));
+      }
+    }
+    send(mailConfiguration, emails);
+  }
 
   /**
    * Method description

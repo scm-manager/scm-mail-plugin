@@ -66,6 +66,14 @@ public interface MailService
   public void send(Iterable<Email> emails) throws MailSendBatchException;
 
   /**
+   * Send e-mails using the sending parameters
+   *
+   * @param sendingParams
+   * @throws MailSendBatchException
+   */
+  void send(MailSendParams sendingParams) throws Exception;
+
+  /**
    * Send e-mails with the given configuration.
    *
    *

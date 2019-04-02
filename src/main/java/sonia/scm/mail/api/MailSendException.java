@@ -63,6 +63,10 @@ public class MailSendException extends Exception
     this.email = email;
   }
 
+  public MailSendException(String message) {
+    super(message);
+  }
+
   //~--- get methods ----------------------------------------------------------
 
   /**

@@ -248,6 +248,18 @@ public class MailConfiguration implements Validateable {
     return Util.isNotEmpty(host) && Util.isNotEmpty(from) && (port > 0) && ValidationUtil.isMailAddressValid(from);
   }
 
+  /**
+   * Return the user specified lan
+   * @param username
+   * @return
+   */
+  public String getUserLanguage(String username) {
+    if (username != null && userMailConfigurations.get(username) != null){
+      return userMailConfigurations.get(username).getLanguage();
+    }
+    return language;
+  }
+
   public String getLanguage() {
     return language;
   }
