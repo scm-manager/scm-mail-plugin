@@ -1,6 +1,5 @@
 package sonia.scm.mail.spi;
 
-import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.mail.api.MailConfiguration;
@@ -17,7 +16,7 @@ import java.util.Locale;
 import static java.util.Locale.ENGLISH;
 import static java.util.Optional.ofNullable;
 
-public class DefaultMailContentRenderer implements MailContentRenderer {
+class DefaultMailContentRenderer implements MailContentRenderer {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultMailContentRenderer.class);
 
@@ -27,8 +26,7 @@ public class DefaultMailContentRenderer implements MailContentRenderer {
   private final MailConfiguration configuration;
   private final UserLanguageConfiguration userLanguageConfiguration;
 
-  @Inject
-  public DefaultMailContentRenderer(
+  DefaultMailContentRenderer(
     TemplateEngineFactory templateEngineFactory,
     String templatePath,
     Object templateModel,
