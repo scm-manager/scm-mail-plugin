@@ -80,6 +80,7 @@ public class MailContext
     this.configurationStore = storeFactory.withType(MailConfiguration.class).withName(CONFIG_STORE_NAME).build();
     this.userLanguageStore = storeFactory.withType(UserLanguageConfiguration.class).withName(USER_LANGUAGE_STORE_NAME).build();
     this.configuration = this.configurationStore.get();
+    this.userLanguageConfiguration = this.userLanguageStore.get();
   }
 
   //~--- methods --------------------------------------------------------------
