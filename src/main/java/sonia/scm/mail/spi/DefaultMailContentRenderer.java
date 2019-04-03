@@ -1,29 +1,27 @@
 package sonia.scm.mail.spi;
 
 import com.google.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContentRenderer;
 import sonia.scm.mail.api.UserLanguageConfiguration;
-import sonia.scm.plugin.PluginLoader;
 import sonia.scm.template.Template;
 import sonia.scm.template.TemplateEngine;
 import sonia.scm.template.TemplateEngineFactory;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.io.StringWriter;
-import java.net.URL;
 
 public class DefaultMailContentRenderer implements MailContentRenderer {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultMailContentRenderer.class);
 
   private final TemplateEngineFactory templateEngineFactory;
   private final String templatePath;
   private final Object templateModel;
   private final MailConfiguration configuration;
   private final UserLanguageConfiguration userLanguageConfiguration;
-  private final PluginLoader pluginLoader;
 
   @Inject
   public DefaultMailContentRenderer(
@@ -31,19 +29,12 @@ public class DefaultMailContentRenderer implements MailContentRenderer {
     String templatePath,
     Object templateModel,
     MailConfiguration configuration,
-    UserLanguageConfiguration userLanguageConfiguration, PluginLoader pluginLoader) {
+    UserLanguageConfiguration userLanguageConfiguration) {
     this.templateEngineFactory = templateEngineFactory;
     this.templatePath = templatePath;
     this.templateModel = templateModel;
     this.configuration = configuration;
     this.userLanguageConfiguration = userLanguageConfiguration;
-    this.pluginLoader = pluginLoader;
-  }
-
-  public String getMailContent(Template template, Object templateModel) throws IOException {
-    StringWriter writer = new StringWriter();
-    template.execute(writer, templateModel);
-    return writer.toString();
   }
 
   @Override
@@ -52,23 +43,15 @@ public class DefaultMailContentRenderer implements MailContentRenderer {
 
     TemplateEngine templateEngine = templateEngineFactory.getEngineByExtension(templatePath);
 
-    ClassLoader uberClassLoader = pluginLoader.getUberClassLoader();
-    URL resource = uberClassLoader.getResource(path);
-    if (resource == null) {
-      throw new Exception("resource of path " + templatePath + " cannot be found");
-    }
-    File file = new File(resource.getFile());
-    Reader reader = new FileReader(file);
-
-    Thread thread = Thread.currentThread();
-    ClassLoader contextClassLoader = thread.getContextClassLoader();
-
-    thread.setContextClassLoader(uberClassLoader);
-    Template template = templateEngine.getTemplate(file.getAbsolutePath(), reader);
-    thread.setContextClassLoader(contextClassLoader);
-
+    LOG.trace("trying to load template path {} for path {}", path, templatePath);
+    Template template = templateEngine.getTemplate(path);
     return getMailContent(template, templateModel);
+  }
 
+  private String getMailContent(Template template, Object templateModel) throws IOException {
+    StringWriter writer = new StringWriter();
+    template.execute(writer, templateModel);
+    return writer.toString();
   }
 
   private String resolvePath(String templatePath, String username) {
@@ -76,10 +59,13 @@ public class DefaultMailContentRenderer implements MailContentRenderer {
       return templatePath;
     }
     String language = userLanguageConfiguration.getUserLanguage(username).orElse(configuration.getLanguage());
-    int lastIndexOfDot = templatePath.lastIndexOf(".");
+    LOG.trace("language for user {}: {}", username, language);
+    int lastIndexOfDot = templatePath.lastIndexOf('.');
     String filename = templatePath.substring(0, lastIndexOfDot);
     String extension = templatePath.substring(lastIndexOfDot);
-    return filename + "_" + language + extension;
+    String templatePathWithLanguage = filename + "_" + language + extension;
+    LOG.trace("template path with language for template {}: {}", templatePath, templatePathWithLanguage);
+    return templatePathWithLanguage;
   }
 
 
