@@ -92,19 +92,14 @@ public class DefaultMailService extends AbstractMailService
   @Override
   public void send(MailSendParams sendParams) throws Exception {
     Iterable<Email> emails = sendParams.getEmails();
-    if (emails == null || Iterables.isEmpty(emails)){
-      throw new MailSendException("there are no mails to send");
-    }
     MailConfiguration mailConfiguration = sendParams.getMailConfiguration();
     if (mailConfiguration == null ) {
       mailConfiguration = context.getConfiguration();
     }
     MailContentRenderer mailContentRenderer = sendParams.getMailContentRenderer();
     String username = sendParams.getUserId();
-    if (mailContentRenderer != null){
-      for (Email email : emails) {
-        email.setTextHTML(mailContentRenderer.createMailContent(username));
-      }
+    for (Email email : emails) {
+      email.setTextHTML(mailContentRenderer.createMailContent(username));
     }
     send(mailConfiguration, emails);
   }
