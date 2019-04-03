@@ -12,6 +12,10 @@ import sonia.scm.template.TemplateEngineFactory;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Locale;
+
+import static java.util.Locale.ENGLISH;
+import static java.util.Optional.ofNullable;
 
 public class DefaultMailContentRenderer implements MailContentRenderer {
 
@@ -39,12 +43,12 @@ public class DefaultMailContentRenderer implements MailContentRenderer {
 
   @Override
   public String createMailContent(String username) throws Exception {
-    String path = resolvePath(templatePath, username);
+    Locale preferredLocale = getPreferredLocale(username);
 
     TemplateEngine templateEngine = templateEngineFactory.getEngineByExtension(templatePath);
 
-    LOG.trace("trying to load template path {} for path {}", path, templatePath);
-    Template template = templateEngine.getTemplate(path);
+    LOG.trace("trying to load template path {} with preferred locale {}", templatePath, preferredLocale);
+    Template template = templateEngine.getTemplate(templatePath, preferredLocale);
     return getMailContent(template, templateModel);
   }
 
@@ -54,19 +58,8 @@ public class DefaultMailContentRenderer implements MailContentRenderer {
     return writer.toString();
   }
 
-  private String resolvePath(String templatePath, String username) {
-    if (configuration.getLanguage() == null) {
-      return templatePath;
-    }
-    String language = userLanguageConfiguration.getUserLanguage(username).orElse(configuration.getLanguage());
-    LOG.trace("language for user {}: {}", username, language);
-    int lastIndexOfDot = templatePath.lastIndexOf('.');
-    String filename = templatePath.substring(0, lastIndexOfDot);
-    String extension = templatePath.substring(lastIndexOfDot);
-    String templatePathWithLanguage = filename + "_" + language + extension;
-    LOG.trace("template path with language for template {}: {}", templatePath, templatePathWithLanguage);
-    return templatePathWithLanguage;
+  private Locale getPreferredLocale(String username) {
+    Locale fallbackLocale = ofNullable(configuration.getLanguage()).map(Locale::new).orElse(ENGLISH);
+    return userLanguageConfiguration.getUserLanguage(username).map(Locale::new).orElse(fallbackLocale);
   }
-
-
 }
