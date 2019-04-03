@@ -35,8 +35,8 @@ package sonia.scm.mail.spi;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 
 import org.codemonkey.simplejavamail.Email;
@@ -53,11 +53,14 @@ import sonia.scm.mail.api.MailContext;
 import sonia.scm.mail.api.MailSendBatchException;
 import sonia.scm.mail.api.MailSendException;
 import sonia.scm.mail.api.MailSendParams;
+import sonia.scm.mail.api.MailSendParams.UserEmail;
 import sonia.scm.util.AssertUtil;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -91,17 +94,16 @@ public class DefaultMailService extends AbstractMailService
 
   @Override
   public void send(MailSendParams sendParams) throws Exception {
-    Iterable<Email> emails = sendParams.getEmails();
     MailConfiguration mailConfiguration = sendParams.getMailConfiguration();
     if (mailConfiguration == null ) {
       mailConfiguration = context.getConfiguration();
     }
     MailContentRenderer mailContentRenderer = sendParams.getMailContentRenderer();
-    String username = sendParams.getUserId();
-    for (Email email : emails) {
-      email.setTextHTML(mailContentRenderer.createMailContent(username));
+    Collection<UserEmail> userEmails = sendParams.getUserEmails();
+    for (UserEmail userEmail : userEmails) {
+      userEmail.getEmail().setTextHTML(mailContentRenderer.createMailContent(userEmail.getUserId()));
     }
-    send(mailConfiguration, emails);
+    send(mailConfiguration, userEmails.stream().map(UserEmail::getEmail).collect(Collectors.toList()));
   }
 
   /**
@@ -165,7 +167,8 @@ public class DefaultMailService extends AbstractMailService
    *
    * @return
    */
-  private Mailer createMailer(MailConfiguration configuration)
+  @VisibleForTesting
+  Mailer createMailer(MailConfiguration configuration)
   {
     //J-
     return new Mailer(
