@@ -44,6 +44,7 @@ import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContext;
 import sonia.scm.mail.api.MailSendBatchException;
 import sonia.scm.mail.api.MailService;
+import sonia.scm.mail.api.UserMailConfiguration;
 import sonia.scm.user.User;
 import sonia.scm.util.ValidationUtil;
 
@@ -132,7 +133,9 @@ public class MailConfigurationResource {
   @Produces(MediaType.APPLICATION_JSON)
   public UserMailConfigurationDto getUserConfiguration(@Context UriInfo uriInfo) {
     User currentUser = SecurityUtils.getSubject().getPrincipals().oneByType(User.class);
-    return mapper.using(uriInfo).map(context.getUserConfiguration(currentUser.getId()));
+    return mapper.using(uriInfo).map(context
+      .getUserConfiguration(currentUser.getId())
+      .orElse(new UserMailConfiguration()));
   }
 
   @PUT

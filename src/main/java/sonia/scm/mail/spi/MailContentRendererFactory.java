@@ -19,6 +19,6 @@ public class MailContentRendererFactory {
   }
 
   public MailContentRenderer createFor(String templatePath, Object templateModel) {
-    return new DefaultMailContentRenderer(templateEngineFactory, templatePath, templateModel, mailContext.getConfiguration(), mailContext.getUserLanguageConfiguration());
+    return new DefaultMailContentRenderer(templateEngineFactory, templatePath, templateModel, mailContext);
   }
 }

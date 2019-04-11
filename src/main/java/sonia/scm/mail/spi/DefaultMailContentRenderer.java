@@ -2,9 +2,9 @@ package sonia.scm.mail.spi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContentRenderer;
-import sonia.scm.mail.api.UserLanguageConfiguration;
+import sonia.scm.mail.api.MailContext;
+import sonia.scm.mail.api.UserMailConfiguration;
 import sonia.scm.template.Template;
 import sonia.scm.template.TemplateEngine;
 import sonia.scm.template.TemplateEngineFactory;
@@ -23,20 +23,17 @@ class DefaultMailContentRenderer implements MailContentRenderer {
   private final TemplateEngineFactory templateEngineFactory;
   private final String templatePath;
   private final Object templateModel;
-  private final MailConfiguration configuration;
-  private final UserLanguageConfiguration userLanguageConfiguration;
+  private final MailContext context;
 
   DefaultMailContentRenderer(
     TemplateEngineFactory templateEngineFactory,
     String templatePath,
     Object templateModel,
-    MailConfiguration configuration,
-    UserLanguageConfiguration userLanguageConfiguration) {
+    MailContext context) {
     this.templateEngineFactory = templateEngineFactory;
     this.templatePath = templatePath;
     this.templateModel = templateModel;
-    this.configuration = configuration;
-    this.userLanguageConfiguration = userLanguageConfiguration;
+    this.context = context;
   }
 
   @Override
@@ -57,7 +54,12 @@ class DefaultMailContentRenderer implements MailContentRenderer {
   }
 
   private Locale getPreferredLocale(String username) {
-    Locale fallbackLocale = ofNullable(configuration.getLanguage()).map(Locale::new).orElse(ENGLISH);
-    return userLanguageConfiguration.getUserLanguage(username).map(Locale::new).orElse(fallbackLocale);
+    Locale fallbackLocale = ofNullable(context.getConfiguration().getLanguage())
+      .map(Locale::new)
+      .orElse(ENGLISH);
+    return context.getUserConfiguration(username)
+      .map(UserMailConfiguration::getLanguage)
+      .map(Locale::new)
+      .orElse(fallbackLocale);
   }
 }

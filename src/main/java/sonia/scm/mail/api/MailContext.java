@@ -42,10 +42,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import sonia.scm.store.ConfigurationEntryStore;
+import sonia.scm.store.ConfigurationEntryStoreFactory;
 import sonia.scm.store.ConfigurationStore;
 import sonia.scm.store.ConfigurationStoreFactory;
 
 import sonia.scm.util.AssertUtil;
+
+import java.util.Optional;
 
 /**
  * Context for the {@link MailService}. This class stores and load the default
@@ -59,7 +63,7 @@ public class MailContext
 
   /** name of the store */
   private static final String CONFIG_STORE_NAME = "mail";
-  private static final String USER_LANGUAGE_STORE_NAME = "user-lang";
+  private static final String USER_CONFIGURATION_STORE_NAME = "user-mail";
 
   /**
    * the logger for MailContext
@@ -76,11 +80,10 @@ public class MailContext
    * @param storeFactory store factory
    */
   @Inject
-  public MailContext(ConfigurationStoreFactory storeFactory) {
+  public MailContext(ConfigurationStoreFactory storeFactory, ConfigurationEntryStoreFactory entryStoreFactory) {
     this.configurationStore = storeFactory.withType(MailConfiguration.class).withName(CONFIG_STORE_NAME).build();
-    this.userLanguageStore = storeFactory.withType(UserLanguageConfiguration.class).withName(USER_LANGUAGE_STORE_NAME).build();
+    this.userConfigurationStore = entryStoreFactory.withType(UserMailConfiguration.class).withName(USER_CONFIGURATION_STORE_NAME).build();
     this.configuration = this.configurationStore.get();
-    this.userLanguageConfiguration = this.userLanguageStore.get();
   }
 
   //~--- methods --------------------------------------------------------------
@@ -101,17 +104,7 @@ public class MailContext
   }
 
   public void store(String userId, UserMailConfiguration userMailConfiguration) {
-    UserLanguageConfiguration userLanguageConfiguration = getUserLanguageConfiguration();
-    userLanguageConfiguration.setUserMailConfiguration(userId, userMailConfiguration);
-    store(userLanguageConfiguration);
-  }
-
-  private void store(UserLanguageConfiguration userLanguageConfiguration)
-  {
-    this.userLanguageConfiguration = userLanguageConfiguration;
-    logger.debug("store new user language configuration");
-
-    this.userLanguageStore.set(userLanguageConfiguration);
+    userConfigurationStore.put(userId, userMailConfiguration);
   }
 
   //~--- get methods ----------------------------------------------------------
@@ -132,19 +125,8 @@ public class MailContext
     return configuration;
   }
 
-  public UserLanguageConfiguration getUserLanguageConfiguration() {
-    if (userLanguageConfiguration == null) {
-      userLanguageConfiguration = new UserLanguageConfiguration();
-    }
-    return userLanguageConfiguration;
-  }
-
-  public UserMailConfiguration getUserConfiguration(String userId) {
-    UserMailConfiguration userMailConfiguration = getUserLanguageConfiguration().getUserMailConfigurations().get(userId);
-    if (userMailConfiguration == null){
-      userMailConfiguration = new UserMailConfiguration();
-    }
-    return userMailConfiguration;
+  public Optional<UserMailConfiguration> getUserConfiguration(String userId) {
+    return Optional.ofNullable(userConfigurationStore.get(userId));
   }
 
   //~--- fields ---------------------------------------------------------------
@@ -152,8 +134,6 @@ public class MailContext
   /** default mail configuration */
   private MailConfiguration configuration;
 
-  private UserLanguageConfiguration userLanguageConfiguration;
-
   private final ConfigurationStore<MailConfiguration> configurationStore;
-  private final ConfigurationStore<UserLanguageConfiguration> userLanguageStore;
+  private final ConfigurationEntryStore<UserMailConfiguration> userConfigurationStore;
 }
