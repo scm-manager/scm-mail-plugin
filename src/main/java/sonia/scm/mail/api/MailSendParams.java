@@ -8,16 +8,16 @@ import java.util.Collections;
 
 public class MailSendParams {
 
-  private final MailContentRenderer mailContentRenderer;
-  private MailConfiguration mailConfiguration;
+  private final MailConfiguration mailConfiguration;
+  private MailContentRenderer mailContentRenderer;
   private Collection<UserEmail> userEmails = new ArrayList<>();
 
-  public MailSendParams(MailContentRenderer mailContentRenderer) {
-    this.mailContentRenderer = mailContentRenderer;
+  MailSendParams(MailConfiguration mailConfiguration) {
+    this.mailConfiguration = mailConfiguration;
   }
 
-  public MailSendParams mailConfiguration(MailConfiguration mailConfiguration) {
-    this.mailConfiguration = mailConfiguration;
+  MailSendParams render(MailContentRenderer mailContentRenderer) {
+    this.mailContentRenderer = mailContentRenderer;
     return this;
   }
 

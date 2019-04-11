@@ -107,6 +107,10 @@ public class MailContext
     userConfigurationStore.put(userId, userMailConfiguration);
   }
 
+  public MailSendParams create(MailContentRenderer mailContentRenderer) {
+    return new MailSendParams(getConfiguration()).render(mailContentRenderer);
+  }
+
   //~--- get methods ----------------------------------------------------------
 
   /**
