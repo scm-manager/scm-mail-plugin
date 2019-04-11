@@ -112,9 +112,21 @@ public class MailContext
     userConfigurationStore.put(userId, userMailConfiguration);
   }
 
-  public MailSendParams create(String templatePath, Object templateModel) {
-    MailContentRenderer mailContentRenderer = createMailContentRenderer(templatePath, templateModel);
-    return new MailSendParams(getConfiguration()).render(mailContentRenderer);
+  public TemplateBuilder withTemplate(String templatePath) {
+    return new TemplateBuilder(templatePath);
+  }
+
+  public class TemplateBuilder {
+    private final String templatePath;
+
+    private TemplateBuilder(String templatePath) {
+      this.templatePath = templatePath;
+    }
+
+    public MailSendParams andModel(Object templateModel) {
+      MailContentRenderer mailContentRenderer = createMailContentRenderer(templatePath, templateModel);
+      return new MailSendParams(getConfiguration()).render(mailContentRenderer);
+    }
   }
 
   @VisibleForTesting
