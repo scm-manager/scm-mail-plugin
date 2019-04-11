@@ -47,7 +47,8 @@ class DefaultMailServiceTest {
   @BeforeEach
   void init() throws Exception {
     when(context.getConfiguration()).thenReturn(configuration);
-    when(context.create(any())).thenCallRealMethod();
+    when(context.createMailContentRenderer(any(), any())).thenReturn(renderer);
+    when(context.create(any(), any())).thenCallRealMethod();
     when(configuration.isValid()).thenReturn(true);
     doNothing().when(mailer).sendMail(sentMailCaptor.capture());
     when(mailer.validate(any())).thenReturn(true);
@@ -64,7 +65,7 @@ class DefaultMailServiceTest {
 
   @Test
   void shouldSendMails() throws Exception {
-    MailSendParams params = context.create(renderer)
+    MailSendParams params = context.create(null, null)
       .forUserId(USER_1).sendEmail(to(USER_1))
       .forUserId(USER_2).sendEmail(to(USER_2));
     service.send(params);

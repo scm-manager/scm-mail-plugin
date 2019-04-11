@@ -16,7 +16,7 @@ import java.util.Locale;
 import static java.util.Locale.ENGLISH;
 import static java.util.Optional.ofNullable;
 
-class DefaultMailContentRenderer implements MailContentRenderer {
+public class DefaultMailContentRenderer implements MailContentRenderer {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultMailContentRenderer.class);
 
@@ -25,7 +25,7 @@ class DefaultMailContentRenderer implements MailContentRenderer {
   private final Object templateModel;
   private final MailContext context;
 
-  DefaultMailContentRenderer(
+  public DefaultMailContentRenderer(
     TemplateEngineFactory templateEngineFactory,
     String templatePath,
     Object templateModel,
