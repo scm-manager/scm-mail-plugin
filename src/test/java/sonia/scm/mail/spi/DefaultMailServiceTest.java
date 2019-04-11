@@ -12,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import sonia.scm.mail.api.MailConfiguration;
-import sonia.scm.mail.api.MailContentRenderer;
 import sonia.scm.mail.api.MailContext;
 import sonia.scm.mail.api.MailSendParams;
 

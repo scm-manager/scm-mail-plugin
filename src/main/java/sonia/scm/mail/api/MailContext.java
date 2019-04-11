@@ -43,7 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import sonia.scm.mail.spi.DefaultMailContentRenderer;
+import sonia.scm.mail.spi.MailContentRenderer;
 import sonia.scm.store.ConfigurationEntryStore;
 import sonia.scm.store.ConfigurationEntryStoreFactory;
 import sonia.scm.store.ConfigurationStore;
@@ -131,7 +131,7 @@ public class MailContext
 
   @VisibleForTesting
   public MailContentRenderer createMailContentRenderer(String templatePath, Object templateModel) {
-    return new DefaultMailContentRenderer(templateEngineFactory, templatePath, templateModel, this);
+    return new MailContentRenderer(templateEngineFactory, templatePath, templateModel, this);
   }
 
   //~--- get methods ----------------------------------------------------------

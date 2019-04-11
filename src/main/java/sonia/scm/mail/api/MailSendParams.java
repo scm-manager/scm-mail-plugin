@@ -1,6 +1,7 @@
 package sonia.scm.mail.api;
 
 import org.codemonkey.simplejavamail.Email;
+import sonia.scm.mail.spi.MailContentRenderer;
 
 import java.util.ArrayList;
 import java.util.Collection;

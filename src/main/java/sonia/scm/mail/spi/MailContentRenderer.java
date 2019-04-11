@@ -2,7 +2,6 @@ package sonia.scm.mail.spi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sonia.scm.mail.api.MailContentRenderer;
 import sonia.scm.mail.api.MailContext;
 import sonia.scm.mail.api.UserMailConfiguration;
 import sonia.scm.template.Template;
@@ -16,16 +15,16 @@ import java.util.Locale;
 import static java.util.Locale.ENGLISH;
 import static java.util.Optional.ofNullable;
 
-public class DefaultMailContentRenderer implements MailContentRenderer {
+public class MailContentRenderer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultMailContentRenderer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MailContentRenderer.class);
 
   private final TemplateEngineFactory templateEngineFactory;
   private final String templatePath;
   private final Object templateModel;
   private final MailContext context;
 
-  public DefaultMailContentRenderer(
+  public MailContentRenderer(
     TemplateEngineFactory templateEngineFactory,
     String templatePath,
     Object templateModel,
@@ -36,7 +35,6 @@ public class DefaultMailContentRenderer implements MailContentRenderer {
     this.context = context;
   }
 
-  @Override
   public String createMailContent(String username) throws Exception {
     Locale preferredLocale = getPreferredLocale(username);
 
