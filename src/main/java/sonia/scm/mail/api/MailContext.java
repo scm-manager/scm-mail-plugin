@@ -35,7 +35,6 @@ package sonia.scm.mail.api;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -44,12 +43,12 @@ import org.slf4j.LoggerFactory;
 
 
 import sonia.scm.mail.spi.MailContentRenderer;
+import sonia.scm.mail.spi.MailContentRendererFactory;
 import sonia.scm.store.ConfigurationEntryStore;
 import sonia.scm.store.ConfigurationEntryStoreFactory;
 import sonia.scm.store.ConfigurationStore;
 import sonia.scm.store.ConfigurationStoreFactory;
 
-import sonia.scm.template.TemplateEngineFactory;
 import sonia.scm.util.AssertUtil;
 
 import java.util.Optional;
@@ -76,18 +75,11 @@ public class MailContext
 
   //~--- constructors ---------------------------------------------------------
 
-  /**
-   * Constructs a new MailContext.
-   *
-   *
-   * @param storeFactory store factory
-   * @param templateEngineFactory
-   */
   @Inject
-  public MailContext(ConfigurationStoreFactory storeFactory, ConfigurationEntryStoreFactory entryStoreFactory, TemplateEngineFactory templateEngineFactory) {
+  public MailContext(ConfigurationStoreFactory storeFactory, ConfigurationEntryStoreFactory entryStoreFactory, MailContentRendererFactory mailContentRendererFactory) {
     this.configurationStore = storeFactory.withType(MailConfiguration.class).withName(CONFIG_STORE_NAME).build();
     this.userConfigurationStore = entryStoreFactory.withType(UserMailConfiguration.class).withName(USER_CONFIGURATION_STORE_NAME).build();
-    this.templateEngineFactory = templateEngineFactory;
+    this.mailContentRendererFactory = mailContentRendererFactory;
     this.configuration = this.configurationStore.get();
   }
 
@@ -124,14 +116,9 @@ public class MailContext
     }
 
     public MailSendParams andModel(Object templateModel) {
-      MailContentRenderer mailContentRenderer = createMailContentRenderer(templatePath, templateModel);
+      MailContentRenderer mailContentRenderer = mailContentRendererFactory.createMailContentRenderer(templatePath, templateModel, MailContext.this);
       return new MailSendParams(getConfiguration()).render(mailContentRenderer);
     }
-  }
-
-  @VisibleForTesting
-  public MailContentRenderer createMailContentRenderer(String templatePath, Object templateModel) {
-    return new MailContentRenderer(templateEngineFactory, templatePath, templateModel, this);
   }
 
   //~--- get methods ----------------------------------------------------------
@@ -163,5 +150,5 @@ public class MailContext
 
   private final ConfigurationStore<MailConfiguration> configurationStore;
   private final ConfigurationEntryStore<UserMailConfiguration> userConfigurationStore;
-  private final TemplateEngineFactory templateEngineFactory;
+  private final MailContentRendererFactory mailContentRendererFactory;
 }

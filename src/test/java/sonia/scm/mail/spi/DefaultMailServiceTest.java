@@ -14,12 +14,16 @@ import org.mockito.quality.Strictness;
 import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContext;
 import sonia.scm.mail.api.MailSendParams;
+import sonia.scm.store.InMemoryConfigurationEntryStoreFactory;
+import sonia.scm.store.InMemoryConfigurationStore;
+import sonia.scm.store.InMemoryConfigurationStoreFactory;
 
 import javax.mail.Message;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
@@ -31,6 +35,7 @@ class DefaultMailServiceTest {
   private static final String USER_2 = "user 2";
 
   @Mock
+  MailContentRendererFactory mailContentRendererFactory;
   MailContext context;
   @Mock
   MailConfiguration configuration;
@@ -41,13 +46,14 @@ class DefaultMailServiceTest {
 
   @Captor
   ArgumentCaptor<Email> sentMailCaptor;
-  private DefaultMailService service;
+  DefaultMailService service;
 
   @BeforeEach
   void init() throws Exception {
-    when(context.getConfiguration()).thenReturn(configuration);
-    when(context.createMailContentRenderer(any(), any())).thenReturn(renderer);
-    when(context.withTemplate(any())).thenCallRealMethod();
+    InMemoryConfigurationStoreFactory storeFactory = new InMemoryConfigurationStoreFactory(new InMemoryConfigurationStore());
+    storeFactory.getStore(null).set(configuration);
+    context = new MailContext(storeFactory, new InMemoryConfigurationEntryStoreFactory(), mailContentRendererFactory);
+    when(mailContentRendererFactory.createMailContentRenderer(any(), any(), eq(context))).thenReturn(renderer);
     when(configuration.isValid()).thenReturn(true);
     doNothing().when(mailer).sendMail(sentMailCaptor.capture());
     when(mailer.validate(any())).thenReturn(true);
