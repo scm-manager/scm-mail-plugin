@@ -24,7 +24,7 @@ public class MailContentRenderer {
   private final Object templateModel;
   private final MailContext context;
 
-  public MailContentRenderer(
+  MailContentRenderer(
     TemplateEngineFactory templateEngineFactory,
     String templatePath,
     Object templateModel,
@@ -35,7 +35,7 @@ public class MailContentRenderer {
     this.context = context;
   }
 
-  public String createMailContent(String username) throws Exception {
+  String createMailContent(String username) throws IOException {
     Locale preferredLocale = getPreferredLocale(username);
 
     TemplateEngine templateEngine = templateEngineFactory.getEngineByExtension(templatePath);

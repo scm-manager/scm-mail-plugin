@@ -36,6 +36,7 @@ package sonia.scm.mail.internal;
 
 import com.google.inject.AbstractModule;
 
+import org.mapstruct.factory.Mappers;
 import sonia.scm.mail.api.MailService;
 import sonia.scm.mail.spi.DefaultMailService;
 import sonia.scm.plugin.Extension;
@@ -56,5 +57,6 @@ public class MailModule extends AbstractModule
   protected void configure()
   {
     bind(MailService.class).to(DefaultMailService.class);
+    bind(MailConfigurationMapper.class).to(Mappers.getMapper(MailConfigurationMapper.class).getClass());
   }
 }

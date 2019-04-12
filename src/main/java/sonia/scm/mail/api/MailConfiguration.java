@@ -214,17 +214,6 @@ public class MailConfiguration implements Validateable {
   }
 
   /**
-   * Returns true if authentication for the smtp connection is enabled.
-   *
-   *
-   * @return true if authentication for the smtp connection is enabled
-   */
-  public boolean isAuthenticationEnabled()
-  {
-    return Util.isNotEmpty(username) && Util.isNotEmpty(password);
-  }
-
-  /**
    * Returns true if the configuration is valid.
    *
    *

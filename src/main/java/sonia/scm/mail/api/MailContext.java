@@ -33,8 +33,6 @@
 
 package sonia.scm.mail.api;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 

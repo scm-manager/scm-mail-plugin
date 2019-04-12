@@ -95,7 +95,7 @@ public class DefaultMailService extends AbstractMailService
   public void send(MailSendParams sendParams) throws Exception {
     MailConfiguration mailConfiguration = sendParams.getMailConfiguration();
     if (mailConfiguration == null ) {
-      mailConfiguration = context.getConfiguration();
+      mailConfiguration = getContext().getConfiguration();
     }
     MailContentRenderer mailContentRenderer = sendParams.getMailContentRenderer();
     Collection<UserEmail> userEmails = sendParams.getUserEmails();
@@ -118,7 +118,7 @@ public class DefaultMailService extends AbstractMailService
    */
   @Override
   public void send(MailConfiguration configuration, Iterable<Email> emails)
-    throws MailException, MailSendBatchException
+    throws MailSendBatchException
   {
     if (configuration.isValid())
     {

@@ -37,7 +37,6 @@ package sonia.scm.mail.internal;
 import com.google.inject.Inject;
 import org.apache.shiro.SecurityUtils;
 import org.codemonkey.simplejavamail.Email;
-import org.codemonkey.simplejavamail.MailException;
 
 import sonia.scm.config.ConfigurationPermissions;
 import sonia.scm.mail.api.MailConfiguration;
@@ -84,7 +83,7 @@ public class MailConfigurationResource {
   @Consumes(MediaType.APPLICATION_JSON)
   public Response sendTestMessage(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto,
                                   @QueryParam("to") String to)
-    throws MailException, MailSendBatchException {
+    throws MailSendBatchException {
     ConfigurationPermissions.write("mail").check();
 
     MailConfiguration configuration = mapper.using(uriInfo).map(mailConfigurationDto);

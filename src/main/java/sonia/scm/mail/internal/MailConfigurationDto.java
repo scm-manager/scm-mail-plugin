@@ -3,13 +3,11 @@ package sonia.scm.mail.internal;
 import de.otto.edison.hal.HalRepresentation;
 import de.otto.edison.hal.Links;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class MailConfigurationDto extends HalRepresentation {
   private String host;
   private int port;
