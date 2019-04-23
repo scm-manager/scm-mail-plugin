@@ -2,8 +2,6 @@ package sonia.scm.mail.spi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sonia.scm.mail.api.MailContext;
-import sonia.scm.mail.api.UserMailConfiguration;
 import sonia.scm.template.Template;
 import sonia.scm.template.TemplateEngine;
 import sonia.scm.template.TemplateEngineFactory;
@@ -12,32 +10,19 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Locale;
 
-import static java.util.Locale.ENGLISH;
-import static java.util.Optional.ofNullable;
-
 public class MailContentRenderer {
 
   private static final Logger LOG = LoggerFactory.getLogger(MailContentRenderer.class);
 
   private final TemplateEngineFactory templateEngineFactory;
   private final String templatePath;
-  private final Object templateModel;
-  private final MailContext context;
 
-  MailContentRenderer(
-    TemplateEngineFactory templateEngineFactory,
-    String templatePath,
-    Object templateModel,
-    MailContext context) {
+  MailContentRenderer(TemplateEngineFactory templateEngineFactory, String templatePath) {
     this.templateEngineFactory = templateEngineFactory;
     this.templatePath = templatePath;
-    this.templateModel = templateModel;
-    this.context = context;
   }
 
-  String createMailContent(String username) throws IOException {
-    Locale preferredLocale = getPreferredLocale(username);
-
+  String createMailContent(Locale preferredLocale, Object templateModel) throws IOException {
     TemplateEngine templateEngine = templateEngineFactory.getEngineByExtension(templatePath);
 
     LOG.trace("trying to load template path {} with preferred locale {}", templatePath, preferredLocale);
@@ -49,15 +34,5 @@ public class MailContentRenderer {
     StringWriter writer = new StringWriter();
     template.execute(writer, templateModel);
     return writer.toString();
-  }
-
-  private Locale getPreferredLocale(String username) {
-    Locale fallbackLocale = ofNullable(context.getConfiguration().getLanguage())
-      .map(Locale::new)
-      .orElse(ENGLISH);
-    return context.getUserConfiguration(username)
-      .map(UserMailConfiguration::getLanguage)
-      .map(Locale::new)
-      .orElse(fallbackLocale);
   }
 }

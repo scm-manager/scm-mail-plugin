@@ -2,6 +2,7 @@ package sonia.scm.mail.spi;
 
 import org.codemonkey.simplejavamail.Email;
 import org.codemonkey.simplejavamail.Mailer;
+import org.codemonkey.simplejavamail.Recipient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,79 +14,197 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContext;
-import sonia.scm.mail.api.MailSendParams;
-import sonia.scm.store.InMemoryConfigurationEntryStoreFactory;
-import sonia.scm.store.InMemoryConfigurationStore;
-import sonia.scm.store.InMemoryConfigurationStoreFactory;
+import sonia.scm.mail.api.MailSendBatchException;
+import sonia.scm.mail.api.MailService;
+import sonia.scm.mail.api.UserMailConfiguration;
+import sonia.scm.user.DisplayUser;
+import sonia.scm.user.User;
+import sonia.scm.user.UserDisplayManager;
+import sonia.scm.user.UserTestData;
 
-import javax.mail.Message;
-import java.util.List;
+import java.io.IOException;
+import java.util.Locale;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class DefaultMailServiceTest {
 
-  private static final String USER_1 = "user 1";
-  private static final String USER_2 = "user 2";
 
   @Mock
-  MailContentRendererFactory mailContentRendererFactory;
-  MailContext context;
+  private MailContext context;
+
   @Mock
-  MailConfiguration configuration;
+  private UserDisplayManager userDisplayManager;
+
   @Mock
-  MailContentRenderer renderer;
+  private MailContentRendererFactory mailContentRendererFactory;
+
   @Mock
-  Mailer mailer;
+  private MailContentRenderer mailContentRenderer;
+
+  @Mock
+  private MailConfiguration configuration;
+
+  @Mock
+  private Mailer mailer;
+
+  private MailService mailService;
+
 
   @Captor
-  ArgumentCaptor<Email> sentMailCaptor;
-  DefaultMailService service;
+  private ArgumentCaptor<Email> emailCaptor;
 
   @BeforeEach
-  void init() throws Exception {
-    InMemoryConfigurationStoreFactory storeFactory = new InMemoryConfigurationStoreFactory(new InMemoryConfigurationStore());
-    storeFactory.getStore(null).set(configuration);
-    context = new MailContext(storeFactory, new InMemoryConfigurationEntryStoreFactory(), mailContentRendererFactory);
-    when(mailContentRendererFactory.createMailContentRenderer(any(), any(), eq(context))).thenReturn(renderer);
-    when(configuration.isValid()).thenReturn(true);
-    doNothing().when(mailer).sendMail(sentMailCaptor.capture());
-    when(mailer.validate(any())).thenReturn(true);
-    when(renderer.createMailContent(USER_1)).thenReturn("content user 1");
-    when(renderer.createMailContent(USER_2)).thenReturn("content user 2");
-
-    service = new DefaultMailService(context) {
-      @Override
-      Mailer createMailer(MailConfiguration configuration) {
-        return mailer;
-      }
-    };
+  void setUpMocks() {
+    this.mailService = new TestingMailService();
+    when(context.getConfiguration()).thenReturn(configuration);
   }
 
   @Test
-  void shouldSendMails() throws Exception {
-    MailSendParams params = context.withTemplate(null)
-      .andModel(null)
-      .forUserId(USER_1).sendEmail(to(USER_1))
-      .forUserId(USER_2).sendEmail(to(USER_2));
-    service.send(params);
+  void shouldSendEmail() throws MailSendBatchException, IOException {
+    configureMailer();
+    mockContentRenderer(Locale.ENGLISH, "my-template", "model", "Don't Panic");
 
-    List<Email> sendMails = sentMailCaptor.getAllValues();
+    mailService.emailTemplateBuilder()
+      .toAddress(Locale.ENGLISH, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com")
+      .withSubject("Hello World")
+      .withTemplate("my-template")
+      .andModel("model")
+      .send();
 
-    assertThat(sendMails).hasSize(2)
-    .anyMatch(email -> email.getTextHTML().contains(USER_1) && email.getRecipients().stream().anyMatch(r -> USER_1.equals(r.getAddress())))
-    .anyMatch(email -> email.getTextHTML().contains(USER_2) && email.getRecipients().stream().anyMatch(r -> USER_2.equals(r.getAddress())));
+    Email email = captureAndReturn();
+
+    assertRecipient(email, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com");
+
+    assertThat(email.getSubject()).isEqualTo("Hello World");
+    assertThat(email.getTextHTML()).isEqualTo("Don't Panic");
   }
 
-  private Email to(String user) {
-    Email email = new Email();
-    email.addRecipient(user, user, Message.RecipientType.TO);
-    return email;
+  private Email captureAndReturn() {
+    verify(mailer).sendMail(emailCaptor.capture());
+
+    return emailCaptor.getValue();
   }
+
+  @Test
+  void shouldSendEmailAndResolveUser() throws IOException, MailSendBatchException {
+    configureMailer();
+    mockUser(UserTestData.createTrillian());
+    mockContentRenderer(Locale.ENGLISH, "my-template", "model", "Don't Panic");
+
+    mailService.emailTemplateBuilder()
+      .toUser("trillian")
+      .withSubject("Hello Tricia")
+      .withTemplate("my-template")
+      .andModel("model")
+      .send();
+
+    Email email = captureAndReturn();
+
+    assertRecipient(email, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com");
+    assertThat(email.getSubject()).isEqualTo("Hello Tricia");
+    assertThat(email.getTextHTML()).isEqualTo("Don't Panic");
+  }
+
+  @Test
+  void shouldSendEmailAndUseLocaleOfUser() throws IOException, MailSendBatchException {
+    configureMailer();
+    mockContentRenderer(Locale.GERMAN, "my-template", "model", "Keine Panik");
+    mockUserWithConfiguration(UserTestData.createTrillian(), Locale.GERMAN);
+
+    mailService.emailTemplateBuilder()
+      .toUser("trillian")
+      .withSubject("Hello Tricia")
+      .withSubject(Locale.GERMAN, "Hallo Tricia")
+      .withTemplate("my-template")
+      .andModel("model")
+      .send();
+
+    Email email = captureAndReturn();
+
+    assertThat(email.getSubject()).isEqualTo("Hallo Tricia");
+    assertThat(email.getTextHTML()).isEqualTo("Keine Panik");
+  }
+
+  @Test
+  void shouldNotSendEmailForUnknownUsers() throws MailSendBatchException, IOException {
+    when(configuration.isValid()).thenReturn(Boolean.TRUE);
+
+    mailService.emailTemplateBuilder()
+      .toUser("trillian")
+      .withSubject("Hello Tricia")
+      .withTemplate("my-template")
+      .andModel("model")
+      .send();
+
+    verify(mailer, never()).sendMail(any(Email.class));
+  }
+
+  @Test
+  void shouldSendEmailAndUseLocaleFromConfiguration() throws MailSendBatchException, IOException {
+    mockContentRenderer(Locale.GERMAN, "my-template", "model", "Keine Panik");
+
+    MailConfiguration config = mock(MailConfiguration.class);
+    when(config.isValid()).thenReturn(Boolean.TRUE);
+    when(config.getLanguage()).thenReturn("de");
+    when(mailer.validate(any(Email.class))).thenReturn(Boolean.TRUE);
+
+    mailService.emailTemplateBuilder()
+      .withConfiguration(config)
+      .toAddress("tricia.mcmillan@hitchhiker.com")
+      .withSubject("Hello Tricia")
+      .withSubject(Locale.GERMAN, "Hallo Tricia")
+      .withTemplate("my-template")
+      .andModel("model")
+      .send();
+
+    Email email = captureAndReturn();
+
+    assertThat(email.getSubject()).isEqualTo("Hallo Tricia");
+    assertThat(email.getTextHTML()).isEqualTo("Keine Panik");
+  }
+
+  private void mockUser(User user) {
+    when(userDisplayManager.get(user.getId())).thenReturn(Optional.of(DisplayUser.from(user)));
+  }
+
+  private void mockUserWithConfiguration(User user, Locale locale) {
+    mockUser(user);
+
+    UserMailConfiguration userMailConfiguration = new UserMailConfiguration();
+    userMailConfiguration.setLanguage(locale.getLanguage());
+    when(context.getUserConfiguration(user.getId())).thenReturn(Optional.of(userMailConfiguration));
+  }
+
+  private void assertRecipient(Email email, String displayName, String address) {
+    Recipient recipient = email.getRecipients().get(0);
+    assertThat(recipient.getName()).isEqualTo(displayName);
+    assertThat(recipient.getAddress()).isEqualTo(address);
+  }
+
+  private void mockContentRenderer(Locale locale, String template, Object model, String result) throws IOException {
+    when(mailContentRendererFactory.createMailContentRenderer(template)).thenReturn(mailContentRenderer);
+    when(mailContentRenderer.createMailContent(locale, model)).thenReturn(result);
+  }
+
+  private void configureMailer() {
+    when(configuration.isValid()).thenReturn(Boolean.TRUE);
+    when(mailer.validate(any(Email.class))).thenReturn(Boolean.TRUE);
+  }
+
+  public class TestingMailService extends DefaultMailService {
+    private TestingMailService() {
+      super(context, userDisplayManager, mailContentRendererFactory);
+    }
+
+    @Override
+    Mailer createMailer(MailConfiguration configuration) {
+      return mailer;
+    }
+  }
+
 }

@@ -35,18 +35,12 @@ package sonia.scm.mail.api;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
-import sonia.scm.mail.spi.MailContentRenderer;
-import sonia.scm.mail.spi.MailContentRendererFactory;
 import sonia.scm.store.ConfigurationEntryStore;
 import sonia.scm.store.ConfigurationEntryStoreFactory;
 import sonia.scm.store.ConfigurationStore;
 import sonia.scm.store.ConfigurationStoreFactory;
-
 import sonia.scm.util.AssertUtil;
 
 import java.util.Optional;
@@ -74,10 +68,9 @@ public class MailContext
   //~--- constructors ---------------------------------------------------------
 
   @Inject
-  public MailContext(ConfigurationStoreFactory storeFactory, ConfigurationEntryStoreFactory entryStoreFactory, MailContentRendererFactory mailContentRendererFactory) {
+  public MailContext(ConfigurationStoreFactory storeFactory, ConfigurationEntryStoreFactory entryStoreFactory) {
     this.configurationStore = storeFactory.withType(MailConfiguration.class).withName(CONFIG_STORE_NAME).build();
     this.userConfigurationStore = entryStoreFactory.withType(UserMailConfiguration.class).withName(USER_CONFIGURATION_STORE_NAME).build();
-    this.mailContentRendererFactory = mailContentRendererFactory;
     this.configuration = this.configurationStore.get();
   }
 
@@ -100,23 +93,6 @@ public class MailContext
 
   public void store(String userId, UserMailConfiguration userMailConfiguration) {
     userConfigurationStore.put(userId, userMailConfiguration);
-  }
-
-  public TemplateBuilder withTemplate(String templatePath) {
-    return new TemplateBuilder(templatePath);
-  }
-
-  public class TemplateBuilder {
-    private final String templatePath;
-
-    private TemplateBuilder(String templatePath) {
-      this.templatePath = templatePath;
-    }
-
-    public MailSendParams andModel(Object templateModel) {
-      MailContentRenderer mailContentRenderer = mailContentRendererFactory.createMailContentRenderer(templatePath, templateModel, MailContext.this);
-      return new MailSendParams(getConfiguration()).render(mailContentRenderer);
-    }
   }
 
   //~--- get methods ----------------------------------------------------------
@@ -148,5 +124,4 @@ public class MailContext
 
   private final ConfigurationStore<MailConfiguration> configurationStore;
   private final ConfigurationEntryStore<UserMailConfiguration> userConfigurationStore;
-  private final MailContentRendererFactory mailContentRendererFactory;
 }
