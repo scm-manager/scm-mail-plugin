@@ -138,6 +138,22 @@ public interface MailService
     EnvelopeBuilder withConfiguration(MailConfiguration mailConfiguration);
 
     /**
+     * Use given display name as name for the from address.
+     *
+     * @param displayName display name
+     *
+     * @return {@code this}
+     */
+    EnvelopeBuilder from(String displayName);
+
+    /**
+     * Use current users display as name for the from address.
+     *
+     * @return {@code this}
+     */
+    EnvelopeBuilder fromCurrentUser();
+
+    /**
      * Adds user from the scm-manager user database to the list of recipients. The user is added with his configured
      * email, display name and locale. If the user has no locale configured the default locale is used.
      *

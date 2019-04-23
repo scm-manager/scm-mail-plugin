@@ -1,5 +1,8 @@
 package sonia.scm.mail.spi;
 
+import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ThreadContext;
 import org.codemonkey.simplejavamail.Email;
 import org.codemonkey.simplejavamail.Mailer;
 import org.codemonkey.simplejavamail.Recipient;
@@ -166,6 +169,54 @@ class DefaultMailServiceTest {
 
     assertThat(email.getSubject()).isEqualTo("Hallo Tricia");
     assertThat(email.getTextHTML()).isEqualTo("Keine Panik");
+  }
+
+  @Test
+  void shouldSendEmailAndUseConfiguredFrom() throws MailSendBatchException, IOException {
+    configureMailer();
+    mockContentRenderer(Locale.ENGLISH, "my-template", "model", "Don't Panic");
+
+    mailService.emailTemplateBuilder()
+      .from("Arthur Dent")
+      .toAddress(Locale.ENGLISH, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com")
+      .withSubject("Hello World")
+      .withTemplate("my-template")
+      .andModel("model")
+      .send();
+
+    Email email = captureAndReturn();
+    Recipient fromRecipient = email.getFromRecipient();
+    assertThat(fromRecipient.getName()).isEqualTo("Arthur Dent");
+  }
+
+  @Test
+  void shouldSendEmailAndUseFromFromSubject() throws MailSendBatchException, IOException {
+    configureMailer();
+    mockContentRenderer(Locale.ENGLISH, "my-template", "model", "Don't Panic");
+
+    SimplePrincipalCollection principals = new SimplePrincipalCollection();
+    principals.add(UserTestData.createDent(), "test");
+
+    Subject subject = mock(Subject.class);
+    when(subject.getPrincipals()).thenReturn(principals);
+    ThreadContext.bind(subject);
+
+    try {
+      mailService.emailTemplateBuilder()
+        .fromCurrentUser()
+        .toAddress(Locale.ENGLISH, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com")
+        .withSubject("Hello World")
+        .withTemplate("my-template")
+        .andModel("model")
+        .send();
+
+    } finally {
+      ThreadContext.unbindSubject();
+    }
+
+    Email email = captureAndReturn();
+    Recipient fromRecipient = email.getFromRecipient();
+    assertThat(fromRecipient.getName()).isEqualTo("Arthur Dent");
   }
 
   private void mockUser(User user) {

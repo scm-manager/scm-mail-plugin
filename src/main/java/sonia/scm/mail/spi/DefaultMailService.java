@@ -39,6 +39,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import org.apache.shiro.SecurityUtils;
 import org.codemonkey.simplejavamail.Email;
 import org.codemonkey.simplejavamail.MailException;
 import org.codemonkey.simplejavamail.Mailer;
@@ -50,6 +51,7 @@ import sonia.scm.mail.api.MailSendBatchException;
 import sonia.scm.mail.api.MailSendException;
 import sonia.scm.mail.api.UserMailConfiguration;
 import sonia.scm.user.DisplayUser;
+import sonia.scm.user.User;
 import sonia.scm.user.UserDisplayManager;
 import sonia.scm.util.AssertUtil;
 
@@ -317,6 +319,7 @@ public class DefaultMailService extends AbstractMailService
   public class EnvelopeBuilderImpl implements EnvelopeBuilder {
 
     private MailConfiguration configuration;
+    private String fromDisplayName;
     private final Set<String> users = new HashSet<>();
     private final Set<Recipient> external = new HashSet<>();
 
@@ -327,6 +330,19 @@ public class DefaultMailService extends AbstractMailService
     @Override
     public EnvelopeBuilder withConfiguration(MailConfiguration configuration) {
       this.configuration = configuration;
+      return this;
+    }
+
+    @Override
+    public EnvelopeBuilder from(String displayName) {
+      this.fromDisplayName = displayName;
+      return this;
+    }
+
+    @Override
+    public EnvelopeBuilder fromCurrentUser() {
+      User user = SecurityUtils.getSubject().getPrincipals().oneByType(User.class);
+      fromDisplayName = user.getDisplayName();
       return this;
     }
 
@@ -433,6 +449,7 @@ public class DefaultMailService extends AbstractMailService
 
     private Email createMail(Recipient recipient) throws IOException {
       Email email = new Email();
+      email.setFromAddress(envelopeBuilder.fromDisplayName, envelopeBuilder.configuration.getFrom());
       email.addRecipient(recipient.displayName, recipient.address, Message.RecipientType.TO);
       email.setSubject(subjectFor(recipient));
       email.setTextHTML(createMailContent(recipient));
