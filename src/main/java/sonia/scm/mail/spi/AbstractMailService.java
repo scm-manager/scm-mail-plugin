@@ -130,8 +130,12 @@ public abstract class AbstractMailService implements MailService
     return context.getConfiguration().isValid();
   }
 
+  protected MailContext getContext() {
+    return context;
+  }
+
   //~--- fields ---------------------------------------------------------------
 
   /** Field description */
-  protected MailContext context;
+  private final MailContext context;
 }

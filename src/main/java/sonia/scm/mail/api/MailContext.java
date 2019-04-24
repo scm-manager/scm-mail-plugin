@@ -33,19 +33,17 @@
 
 package sonia.scm.mail.api;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
+import sonia.scm.store.ConfigurationEntryStore;
+import sonia.scm.store.ConfigurationEntryStoreFactory;
 import sonia.scm.store.ConfigurationStore;
 import sonia.scm.store.ConfigurationStoreFactory;
-
 import sonia.scm.util.AssertUtil;
+
+import java.util.Optional;
 
 /**
  * Context for the {@link MailService}. This class stores and load the default
@@ -58,7 +56,8 @@ public class MailContext
 {
 
   /** name of the store */
-  private static final String STORE_NAME = "mail";
+  private static final String CONFIG_STORE_NAME = "mail";
+  private static final String USER_CONFIGURATION_STORE_NAME = "user-mail";
 
   /**
    * the logger for MailContext
@@ -68,16 +67,11 @@ public class MailContext
 
   //~--- constructors ---------------------------------------------------------
 
-  /**
-   * Constructs a new MailContext.
-   *
-   *
-   * @param storeFactory store factory
-   */
   @Inject
-  public MailContext(ConfigurationStoreFactory storeFactory) {
-    this.store = storeFactory.withType(MailConfiguration.class).withName(STORE_NAME).build();
-    this.configuration = this.store.get();
+  public MailContext(ConfigurationStoreFactory storeFactory, ConfigurationEntryStoreFactory entryStoreFactory) {
+    this.configurationStore = storeFactory.withType(MailConfiguration.class).withName(CONFIG_STORE_NAME).build();
+    this.userConfigurationStore = entryStoreFactory.withType(UserMailConfiguration.class).withName(USER_CONFIGURATION_STORE_NAME).build();
+    this.configuration = this.configurationStore.get();
   }
 
   //~--- methods --------------------------------------------------------------
@@ -94,7 +88,11 @@ public class MailContext
     this.configuration = configuration;
     logger.debug("store new mail configuration");
 
-    this.store.set(configuration);
+    this.configurationStore.set(configuration);
+  }
+
+  public void store(String userId, UserMailConfiguration userMailConfiguration) {
+    userConfigurationStore.put(userId, userMailConfiguration);
   }
 
   //~--- get methods ----------------------------------------------------------
@@ -115,11 +113,15 @@ public class MailContext
     return configuration;
   }
 
+  public Optional<UserMailConfiguration> getUserConfiguration(String userId) {
+    return Optional.ofNullable(userConfigurationStore.get(userId));
+  }
+
   //~--- fields ---------------------------------------------------------------
 
   /** default mail configuration */
   private MailConfiguration configuration;
 
-  /** store for the default mail configuration */
-  private ConfigurationStore<MailConfiguration> store;
+  private final ConfigurationStore<MailConfiguration> configurationStore;
+  private final ConfigurationEntryStore<UserMailConfiguration> userConfigurationStore;
 }

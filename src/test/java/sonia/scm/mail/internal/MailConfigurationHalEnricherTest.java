@@ -22,8 +22,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 @RunWith(MockitoJUnitRunner.class)
 public class MailConfigurationHalEnricherTest {
 
-  private Provider<ScmPathInfoStore> scmPathInfoStoreProvider;
-
   @Rule
   public ShiroRule shiro = new ShiroRule();
 
@@ -36,7 +34,8 @@ public class MailConfigurationHalEnricherTest {
   public void setUp() {
     ScmPathInfoStore scmPathInfoStore = new ScmPathInfoStore();
     scmPathInfoStore.set(() -> URI.create("https://scm-manager.org/scm/api/"));
-    scmPathInfoStoreProvider = Providers.of(scmPathInfoStore);
+    Provider<ScmPathInfoStore> scmPathInfoStoreProvider = Providers.of(scmPathInfoStore);
+    enricher = new MailConfigurationHalEnricher(scmPathInfoStoreProvider);
   }
 
   @SubjectAware(
@@ -46,7 +45,6 @@ public class MailConfigurationHalEnricherTest {
   )
   @Test
   public void testEnrich() {
-    enricher = new MailConfigurationHalEnricher(scmPathInfoStoreProvider);
     enricher.enrich(HalEnricherContext.of(), appender);
     verify(appender).appendLink("mailConfig", "https://scm-manager.org/scm/api/v2/plugins/mail/config");
   }
@@ -57,9 +55,7 @@ public class MailConfigurationHalEnricherTest {
     configuration = "classpath:sonia/scm/mail/internal/shiro.ini"
   )
   public void dontEnrichWhenReadIsNotPermitted() {
-    MailConfigurationHalEnricher enricher = new MailConfigurationHalEnricher(scmPathInfoStoreProvider);
     enricher.enrich(HalEnricherContext.of(), appender);
     verifyZeroInteractions(appender);
   }
-
 }

@@ -126,6 +126,29 @@ class MailConfigurationForm extends React.Component<Props, State> {
     );
   };
 
+  renderLanguageDropDown = () => {
+    const { readOnly, t } = this.props;
+    return (
+      <div className="field">
+        <label className="label">
+          {t("scm-mail-plugin.form.language")}
+        </label>
+        <div className="control">
+          <DropDown
+            options={[t("scm-mail-plugin.language.de"), t("scm-mail-plugin.language.en")]}
+            optionValues={["de", "en"]}
+            preselectedOption={this.state.language}
+            optionSelected= {selection => {
+              this.setState({ ...this.state, language: selection });
+              this.configChangeHandler(selection, "language");
+            }}
+            disabled={readOnly}
+          />
+        </div>
+      </div>
+    );
+  };
+
   render() {
     const fields = ["host", "port"].map(name => {
       return this.renderInputField(name);
@@ -135,6 +158,7 @@ class MailConfigurationForm extends React.Component<Props, State> {
     fields.push(this.renderInputField("username"));
     fields.push(this.renderPasswordInpuField());
     fields.push(this.renderInputField("subjectPrefix"));
+    fields.push(this.renderLanguageDropDown());
     fields.push(this.renderTransportStrategyDropDown());
 
     return (
@@ -146,9 +170,7 @@ class MailConfigurationForm extends React.Component<Props, State> {
   }
 
   handleDropDownChange = (selection: string) => {
-    console.log("change");
     this.setState({ ...this.state, transportStrategy: selection });
-
     this.configChangeHandler(selection, "transportStrategy");
   };
 }

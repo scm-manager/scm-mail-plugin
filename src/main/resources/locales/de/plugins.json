@@ -10,7 +10,12 @@
       "username": "Benutzername",
       "password": "Passwort",
       "subjectPrefix": "Betreff Prefix",
+      "language": "Sprache",
       "transportStrategy": "Transport Strategie"
+    },
+    "language" : {
+      "de" : "Deutsch",
+      "en" : "Englisch"
     },
     "test": {
       "input": "E-Mail-Address",

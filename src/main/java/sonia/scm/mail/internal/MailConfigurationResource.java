@@ -33,24 +33,21 @@
 
 package sonia.scm.mail.internal;
 
-//~--- non-JDK imports --------------------------------------------------------
 
 import com.google.inject.Inject;
-
+import org.apache.shiro.SecurityUtils;
 import org.codemonkey.simplejavamail.Email;
-import org.codemonkey.simplejavamail.MailException;
 
 import sonia.scm.config.ConfigurationPermissions;
 import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContext;
 import sonia.scm.mail.api.MailSendBatchException;
 import sonia.scm.mail.api.MailService;
+import sonia.scm.mail.api.UserMailConfiguration;
+import sonia.scm.user.User;
 import sonia.scm.util.ValidationUtil;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import javax.mail.Message.RecipientType;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -86,7 +83,7 @@ public class MailConfigurationResource {
   @Consumes(MediaType.APPLICATION_JSON)
   public Response sendTestMessage(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto,
                                   @QueryParam("to") String to)
-    throws MailException, MailSendBatchException {
+    throws MailSendBatchException {
     ConfigurationPermissions.write("mail").check();
 
     MailConfiguration configuration = mapper.using(uriInfo).map(mailConfigurationDto);
@@ -128,5 +125,23 @@ public class MailConfigurationResource {
     ConfigurationPermissions.read("mail").check();
 
     return mapper.using(uriInfo).map(context.getConfiguration());
+  }
+
+  @GET
+  @Path("user-config")
+  @Produces(MediaType.APPLICATION_JSON)
+  public UserMailConfigurationDto getUserConfiguration(@Context UriInfo uriInfo) {
+    User currentUser = SecurityUtils.getSubject().getPrincipals().oneByType(User.class);
+    return mapper.using(uriInfo).map(context
+      .getUserConfiguration(currentUser.getId())
+      .orElse(new UserMailConfiguration()));
+  }
+
+  @PUT
+  @Path("user-config")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public synchronized void storeUserConfiguration(@Context UriInfo uriInfo, UserMailConfigurationDto userMailConfigurationDto) {
+    User currentUser = SecurityUtils.getSubject().getPrincipals().oneByType(User.class);
+    context.store(currentUser.getId(), mapper.using(uriInfo).map(userMailConfigurationDto));
   }
 }
