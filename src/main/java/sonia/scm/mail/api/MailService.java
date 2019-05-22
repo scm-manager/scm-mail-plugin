@@ -36,7 +36,6 @@ package sonia.scm.mail.api;
 
 import org.codemonkey.simplejavamail.Email;
 
-import java.io.IOException;
 import java.util.Locale;
 
 /**

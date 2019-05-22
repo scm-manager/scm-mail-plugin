@@ -36,8 +36,6 @@ package sonia.scm.mail.internal;
 
 import com.google.inject.Inject;
 import org.apache.shiro.SecurityUtils;
-import org.codemonkey.simplejavamail.Email;
-
 import sonia.scm.config.ConfigurationPermissions;
 import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContext;
@@ -48,7 +46,6 @@ import sonia.scm.mail.api.UserMailConfiguration;
 import sonia.scm.user.User;
 import sonia.scm.util.ValidationUtil;
 
-import javax.mail.Message.RecipientType;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -60,7 +57,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
 
 /**
  *
