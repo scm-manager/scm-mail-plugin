@@ -1,6 +1,6 @@
-package sonia.scm.mail.spi;
+package sonia.scm.mail.spi.content;
 
-class MailContent {
+public class MailContent {
 
   private final String text;
   private final String html;
@@ -10,23 +10,23 @@ class MailContent {
     this.html = html;
   }
 
-  String getHtml() {
+  public String getHtml() {
     return html;
   }
 
-  String getText() {
+  public String getText() {
     return text;
   }
 
-  static MailContent html(String content) {
+  public static MailContent html(String content) {
     return new MailContent(null, content);
   }
 
-  static MailContent text(String content) {
+  public static MailContent text(String content) {
     return new MailContent(content, null);
   }
 
-  static MailContent textAndHtml(String text, String html) {
+  public static MailContent textAndHtml(String text, String html) {
     return new MailContent(text, html);
   }
 }

@@ -267,8 +267,7 @@ public interface MailService
      * Builds and send emails to the configured recipients.
      *
      * @throws MailSendBatchException
-     * @throws IOException
      */
-    void send() throws MailSendBatchException, IOException;
+    void send() throws MailSendBatchException;
   }
 }

@@ -85,7 +85,7 @@ public class MailConfigurationResource {
   @Consumes(MediaType.APPLICATION_JSON)
   public Response sendTestMessage(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto,
                                   @QueryParam("to") String to)
-    throws MailSendBatchException, IOException {
+    throws MailSendBatchException {
     ConfigurationPermissions.write("mail").check();
 
     MailConfiguration configuration = mapper.using(uriInfo).map(mailConfigurationDto);

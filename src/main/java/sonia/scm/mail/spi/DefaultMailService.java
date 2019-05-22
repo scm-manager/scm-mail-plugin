@@ -36,6 +36,7 @@ package sonia.scm.mail.spi;
 //~--- non-JDK imports --------------------------------------------------------
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
@@ -51,13 +52,15 @@ import sonia.scm.mail.api.MailSendBatchException;
 import sonia.scm.mail.api.MailSendException;
 import sonia.scm.mail.api.MailTemplateType;
 import sonia.scm.mail.api.UserMailConfiguration;
+import sonia.scm.mail.spi.content.MailContent;
+import sonia.scm.mail.spi.content.MailContentRenderer;
+import sonia.scm.mail.spi.content.MailContentRendererFactory;
 import sonia.scm.user.DisplayUser;
 import sonia.scm.user.User;
 import sonia.scm.user.UserDisplayManager;
 import sonia.scm.util.AssertUtil;
 
 import javax.mail.Message;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -178,7 +181,7 @@ public class DefaultMailService extends AbstractMailService
   {
     //J-
     return new Mailer(
-      configuration.getHost(), 
+      configuration.getHost(),
       configuration.getPort(),
       Strings.emptyToNull(configuration.getUsername()),
       Strings.emptyToNull(configuration.getPassword()),
@@ -442,7 +445,7 @@ public class DefaultMailService extends AbstractMailService
     }
 
     @Override
-    public void send() throws IOException, MailSendBatchException {
+    public void send() throws MailSendBatchException {
       List<Email> emails = new ArrayList<>();
       for (Recipient recipient : collectRecipients()) {
         emails.add(createMail(recipient));
@@ -450,7 +453,7 @@ public class DefaultMailService extends AbstractMailService
       DefaultMailService.this.send(envelopeBuilder.configuration, emails);
     }
 
-    private Email createMail(Recipient recipient) throws IOException {
+    private Email createMail(Recipient recipient) {
       Email email = new Email();
       email.setFromAddress(envelopeBuilder.fromDisplayName, envelopeBuilder.configuration.getFrom());
       email.addRecipient(recipient.displayName, recipient.address, Message.RecipientType.TO);
@@ -462,9 +465,14 @@ public class DefaultMailService extends AbstractMailService
       return email;
     }
 
-    private MailContent createMailContent(Recipient recipient) throws IOException {
-      MailContentRenderer mailContentRenderer = mailContentRendererFactory.createMailContentRenderer(templateBuilder.template, templateBuilder.type);
-      return mailContentRenderer.createMailContent(recipient.locale, model);
+    private MailContent createMailContent(Recipient recipient) {
+      Stopwatch sw = Stopwatch.createStarted();
+      try {
+        MailContentRenderer mailContentRenderer = mailContentRendererFactory.createMailContentRenderer(templateBuilder.template, templateBuilder.type);
+        return mailContentRenderer.createMailContent(recipient.locale, model);
+      } finally {
+        logger.debug("mail content rendered in {}", sw.stop());
+      }
     }
 
     private String subjectFor(Recipient recipient) {
