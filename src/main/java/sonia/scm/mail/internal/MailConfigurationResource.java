@@ -43,6 +43,7 @@ import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContext;
 import sonia.scm.mail.api.MailSendBatchException;
 import sonia.scm.mail.api.MailService;
+import sonia.scm.mail.api.MailTemplateType;
 import sonia.scm.mail.api.UserMailConfiguration;
 import sonia.scm.user.User;
 import sonia.scm.util.ValidationUtil;
@@ -59,6 +60,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.io.IOException;
 
 /**
  *
@@ -83,18 +85,20 @@ public class MailConfigurationResource {
   @Consumes(MediaType.APPLICATION_JSON)
   public Response sendTestMessage(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto,
                                   @QueryParam("to") String to)
-    throws MailSendBatchException {
+    throws MailSendBatchException, IOException {
     ConfigurationPermissions.write("mail").check();
 
     MailConfiguration configuration = mapper.using(uriInfo).map(mailConfigurationDto);
     if (configuration.isValid() && ValidationUtil.isMailAddressValid(to)) {
 
-      Email email = new Email();
+      mailService.emailTemplateBuilder()
+        .withConfiguration(configuration)
+        .toAddress(to)
+        .withSubject("Test Message from SCM-Manager")
+        .withTemplate("sonia/scm/mail/test.mustache", MailTemplateType.MARKDOWN_HTML)
+        .andModel(configuration)
+        .send();
 
-      email.addRecipient(null, to, RecipientType.TO);
-      email.setSubject("Test Message from SCM-Manager");
-      email.setText("Test Message");
-      mailService.send(configuration, email);
       return Response.noContent().build();
     } else {
       return Response.status(Response.Status.BAD_REQUEST).build();

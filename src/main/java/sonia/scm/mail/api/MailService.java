@@ -208,7 +208,7 @@ public interface MailService
      *
      * @param subject default mail subject
      *
-     * @return suject step of builder
+     * @return subject step of builder
      */
     SubjectBuilder withSubject(String subject);
   }
@@ -233,10 +233,11 @@ public interface MailService
      * {@link sonia.scm.template.TemplateEngine#getTemplate(String, Locale)} for details of template resolution.
      *
      * @param template template path
+     * @param type rendering and output type
      *
-     * @return {@code this}
+     * @return template builder step
      */
-    TemplateBuilder withTemplate(String template);
+    TemplateBuilder withTemplate(String template, MailTemplateType type);
 
   }
 
@@ -251,7 +252,7 @@ public interface MailService
      *
      * @param templateModel model of template
      *
-     * @return {@code this}
+     * @return send step
      */
     MailBuilder andModel(Object templateModel);
 

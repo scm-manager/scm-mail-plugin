@@ -19,6 +19,7 @@ import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContext;
 import sonia.scm.mail.api.MailSendBatchException;
 import sonia.scm.mail.api.MailService;
+import sonia.scm.mail.api.MailTemplateType;
 import sonia.scm.mail.api.UserMailConfiguration;
 import sonia.scm.user.DisplayUser;
 import sonia.scm.user.User;
@@ -75,7 +76,7 @@ class DefaultMailServiceTest {
     mailService.emailTemplateBuilder()
       .toAddress(Locale.ENGLISH, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com")
       .withSubject("Hello World")
-      .withTemplate("my-template")
+      .withTemplate("my-template", MailTemplateType.TEXT)
       .andModel("model")
       .send();
 
@@ -84,7 +85,7 @@ class DefaultMailServiceTest {
     assertRecipient(email, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com");
 
     assertThat(email.getSubject()).isEqualTo("Hello World");
-    assertThat(email.getTextHTML()).isEqualTo("Don't Panic");
+    assertThat(email.getText()).isEqualTo("Don't Panic");
   }
 
   private Email captureAndReturn() {
@@ -102,7 +103,7 @@ class DefaultMailServiceTest {
     mailService.emailTemplateBuilder()
       .toUser("trillian")
       .withSubject("Hello Tricia")
-      .withTemplate("my-template")
+      .withTemplate("my-template", MailTemplateType.TEXT)
       .andModel("model")
       .send();
 
@@ -110,7 +111,7 @@ class DefaultMailServiceTest {
 
     assertRecipient(email, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com");
     assertThat(email.getSubject()).isEqualTo("Hello Tricia");
-    assertThat(email.getTextHTML()).isEqualTo("Don't Panic");
+    assertThat(email.getText()).isEqualTo("Don't Panic");
   }
 
   @Test
@@ -123,14 +124,14 @@ class DefaultMailServiceTest {
       .toUser("trillian")
       .withSubject("Hello Tricia")
       .withSubject(Locale.GERMAN, "Hallo Tricia")
-      .withTemplate("my-template")
+      .withTemplate("my-template", MailTemplateType.TEXT)
       .andModel("model")
       .send();
 
     Email email = captureAndReturn();
 
     assertThat(email.getSubject()).isEqualTo("Hallo Tricia");
-    assertThat(email.getTextHTML()).isEqualTo("Keine Panik");
+    assertThat(email.getText()).isEqualTo("Keine Panik");
   }
 
   @Test
@@ -140,7 +141,7 @@ class DefaultMailServiceTest {
     mailService.emailTemplateBuilder()
       .toUser("trillian")
       .withSubject("Hello Tricia")
-      .withTemplate("my-template")
+      .withTemplate("my-template", MailTemplateType.TEXT)
       .andModel("model")
       .send();
 
@@ -161,14 +162,14 @@ class DefaultMailServiceTest {
       .toAddress("tricia.mcmillan@hitchhiker.com")
       .withSubject("Hello Tricia")
       .withSubject(Locale.GERMAN, "Hallo Tricia")
-      .withTemplate("my-template")
+      .withTemplate("my-template", MailTemplateType.TEXT)
       .andModel("model")
       .send();
 
     Email email = captureAndReturn();
 
     assertThat(email.getSubject()).isEqualTo("Hallo Tricia");
-    assertThat(email.getTextHTML()).isEqualTo("Keine Panik");
+    assertThat(email.getText()).isEqualTo("Keine Panik");
   }
 
   @Test
@@ -180,7 +181,7 @@ class DefaultMailServiceTest {
       .from("Arthur Dent")
       .toAddress(Locale.ENGLISH, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com")
       .withSubject("Hello World")
-      .withTemplate("my-template")
+      .withTemplate("my-template", MailTemplateType.TEXT)
       .andModel("model")
       .send();
 
@@ -206,7 +207,7 @@ class DefaultMailServiceTest {
         .fromCurrentUser()
         .toAddress(Locale.ENGLISH, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com")
         .withSubject("Hello World")
-        .withTemplate("my-template")
+        .withTemplate("my-template", MailTemplateType.TEXT)
         .andModel("model")
         .send();
 
@@ -217,6 +218,28 @@ class DefaultMailServiceTest {
     Email email = captureAndReturn();
     Recipient fromRecipient = email.getFromRecipient();
     assertThat(fromRecipient.getName()).isEqualTo("Arthur Dent");
+  }
+
+  @Test
+  void shouldSendHtmlAndTextEmail() throws MailSendBatchException, IOException {
+    configureMailer();
+    MailContent mailContent = MailContent.textAndHtml("Don't Panic", "<h1>Don't Panic</h1>");
+    mockContentRenderer(Locale.ENGLISH, "my-template", "model", MailTemplateType.MARKDOWN_HTML, mailContent);
+
+    mailService.emailTemplateBuilder()
+      .toAddress(Locale.ENGLISH, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com")
+      .withSubject("Hello World")
+      .withTemplate("my-template", MailTemplateType.MARKDOWN_HTML)
+      .andModel("model")
+      .send();
+
+    Email email = captureAndReturn();
+
+    assertRecipient(email, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com");
+
+    assertThat(email.getSubject()).isEqualTo("Hello World");
+    assertThat(email.getText()).isEqualTo("Don't Panic");
+    assertThat(email.getTextHTML()).isEqualTo("<h1>Don't Panic</h1>");
   }
 
   private void mockUser(User user) {
@@ -238,8 +261,12 @@ class DefaultMailServiceTest {
   }
 
   private void mockContentRenderer(Locale locale, String template, Object model, String result) throws IOException {
-    when(mailContentRendererFactory.createMailContentRenderer(template)).thenReturn(mailContentRenderer);
-    when(mailContentRenderer.createMailContent(locale, model)).thenReturn(result);
+    mockContentRenderer(locale, template, model, MailTemplateType.TEXT, MailContent.text(result));
+  }
+
+  private void mockContentRenderer(Locale locale, String template, Object model, MailTemplateType type, MailContent content) throws IOException {
+    when(mailContentRendererFactory.createMailContentRenderer(template, type)).thenReturn(mailContentRenderer);
+    when(mailContentRenderer.createMailContent(locale, model)).thenReturn(content);
   }
 
   private void configureMailer() {

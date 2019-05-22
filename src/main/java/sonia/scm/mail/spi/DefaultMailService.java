@@ -49,6 +49,7 @@ import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContext;
 import sonia.scm.mail.api.MailSendBatchException;
 import sonia.scm.mail.api.MailSendException;
+import sonia.scm.mail.api.MailTemplateType;
 import sonia.scm.mail.api.UserMailConfiguration;
 import sonia.scm.user.DisplayUser;
 import sonia.scm.user.User;
@@ -401,8 +402,8 @@ public class DefaultMailService extends AbstractMailService
     }
 
     @Override
-    public TemplateBuilder withTemplate(String template) {
-      return new TemplateBuilderImpl(envelopeBuilder, this, template);
+    public TemplateBuilder withTemplate(String template, MailTemplateType type) {
+      return new TemplateBuilderImpl(envelopeBuilder, this, template, type);
     }
   }
 
@@ -411,11 +412,13 @@ public class DefaultMailService extends AbstractMailService
     private final EnvelopeBuilderImpl envelopeBuilder;
     private final SubjectBuilderImpl subjectBuilder;
     private final String template;
+    private final MailTemplateType type;
 
-    private TemplateBuilderImpl(EnvelopeBuilderImpl envelopeBuilder, SubjectBuilderImpl subjectBuilder, String template) {
+    private TemplateBuilderImpl(EnvelopeBuilderImpl envelopeBuilder, SubjectBuilderImpl subjectBuilder, String template, MailTemplateType type) {
       this.envelopeBuilder = envelopeBuilder;
       this.subjectBuilder = subjectBuilder;
       this.template = template;
+      this.type = type;
     }
 
     @Override
@@ -452,12 +455,15 @@ public class DefaultMailService extends AbstractMailService
       email.setFromAddress(envelopeBuilder.fromDisplayName, envelopeBuilder.configuration.getFrom());
       email.addRecipient(recipient.displayName, recipient.address, Message.RecipientType.TO);
       email.setSubject(subjectFor(recipient));
-      email.setTextHTML(createMailContent(recipient));
+
+      MailContent mailContent = createMailContent(recipient);
+      email.setTextHTML(mailContent.getHtml());
+      email.setText(mailContent.getText());
       return email;
     }
 
-    private String createMailContent(Recipient recipient) throws IOException {
-      MailContentRenderer mailContentRenderer = mailContentRendererFactory.createMailContentRenderer(templateBuilder.template);
+    private MailContent createMailContent(Recipient recipient) throws IOException {
+      MailContentRenderer mailContentRenderer = mailContentRendererFactory.createMailContentRenderer(templateBuilder.template, templateBuilder.type);
       return mailContentRenderer.createMailContent(recipient.locale, model);
     }
 
