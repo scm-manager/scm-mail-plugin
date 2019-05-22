@@ -104,18 +104,22 @@ public class MailConfigurationResource {
   @POST
   @Path("config")
   @Consumes(MediaType.APPLICATION_JSON)
-  public synchronized void storeConfiguration(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto) {
+  public void storeConfiguration(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto) {
     ConfigurationPermissions.write("mail").check();
-    context.store(mapper.using(uriInfo).map(mailConfigurationDto));
+    synchronized (context) {
+      context.store(mapper.using(uriInfo).map(mailConfigurationDto));
+    }
   }
 
   @PUT
   @Path("config")
   @Consumes(MediaType.APPLICATION_JSON)
-  public synchronized void updateConfiguration(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto) {
+  public void updateConfiguration(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto) {
     ConfigurationPermissions.write("mail").check();
     MailConfiguration mailConfiguration = mapper.using(uriInfo).map(mailConfigurationDto);
-    context.store(mailConfiguration);
+    synchronized (context) {
+      context.store(mailConfiguration);
+    }
   }
 
   @GET
@@ -140,8 +144,10 @@ public class MailConfigurationResource {
   @PUT
   @Path("user-config")
   @Consumes(MediaType.APPLICATION_JSON)
-  public synchronized void storeUserConfiguration(@Context UriInfo uriInfo, UserMailConfigurationDto userMailConfigurationDto) {
+  public void storeUserConfiguration(@Context UriInfo uriInfo, UserMailConfigurationDto userMailConfigurationDto) {
     User currentUser = SecurityUtils.getSubject().getPrincipals().oneByType(User.class);
-    context.store(currentUser.getId(), mapper.using(uriInfo).map(userMailConfigurationDto));
+    synchronized (context) {
+      context.store(currentUser.getId(), mapper.using(uriInfo).map(userMailConfigurationDto));
+    }
   }
 }
