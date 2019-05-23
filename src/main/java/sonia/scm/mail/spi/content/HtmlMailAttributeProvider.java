@@ -17,12 +17,12 @@ class HtmlMailAttributeProvider implements AttributeProvider {
   private static final String A_STYLE = PREFIX + "font-size: 100%; line-height: 1.65; color: #33b2e8; text-decoration: none;";
   private static final String OL_STYLE = P_STYLE;
   private static final String UL_STYLE = P_STYLE;
-  private static final String LI_STYLE = DEFAULT;
-  private static final String PRE_STYLE = DEFAULT;
-  private static final String CODE_STYLE = PRE_STYLE;
-  private static final String IMG_STYLE = "margin: 0 auto; padding: 0; font-size: 100%; " + FONT_FAMILY + " line-height: 1.65; max-width: 100%; display: block;";
+  private static final String LI_STYLE = DEFAULT + " margin-left: 20px;";
+  private static final String PRE_STYLE = FONT_FAMILY + " margin: 20px auto; padding: 0 16px; background-color: #ccecf9; width: 510px; overflow-x: scroll;";
+  private static final String CODE_STYLE = DEFAULT + " width: 510px;";
+  private static final String IMG_STYLE = "margin: 20px auto; padding: 0; font-size: 100%; " + FONT_FAMILY + " line-height: 1.65; max-width: 100%; display: block;";
   private static final String BLOCKQUOTE_STYLE = DEFAULT;
-  private static final String HR_STYLE = DEFAULT;
+  private static final String HR_STYLE = "margin: 20px auto; padding: 0; " + FONT_FAMILY + " ";
 
   private static final Map<String,StyleProvider> styleProviders = ImmutableMap.<String,StyleProvider>builder()
     .put("h1", () -> String.format(H_STYLE, "32px"))

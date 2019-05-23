@@ -16,7 +16,7 @@
 
       img {
         max-width: 100%;
-        margin: 0 auto;
+        margin: 20px auto;
         display: block;
       }
 
@@ -100,6 +100,22 @@
         margin-bottom: 20px;
       }
 
+      li {
+        margin-left: 16px;
+      }
+
+      pre {
+        background-color: #ccecf9;
+        margin: 20px auto;
+        padding: 0 16px;
+        width: 510px;
+        overflow-x: scroll;
+      }
+
+      code {
+        width: 510px;
+      }
+
       .container {
         display: block !important;
         clear: both !important;
@@ -179,9 +195,17 @@
 
                 <a href="http://someurl">Link</a>
 
-                <pre><code>Some code</code></pre>
+                <pre><code>
+mailService.emailTemplateBuilder()
+  .fromCurrentUser()
+  .toAddress(Locale.ENGLISH, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com")
+  .withSubject("Hello World")
+  .withTemplate("my-template", MailTemplateType.TEXT)
+  .andModel("model")
+  .send();
+                </code></pre>
 
-                <img src="images/placeholder.jpg" alt="placeholder">
+                <img src="https://raw.githubusercontent.com/derekpunsalan/responsive-email/master/images/placeholder.jpg" alt="placeholder">
 
                 <ol>
                   <li>Ordered List</li>
@@ -194,6 +218,7 @@
                 <blockquote>Blockquote</blockquote>
 
                 <hr />
+
               </td>
             </tr>
           </table>
@@ -207,7 +232,7 @@
           <table>
             <tr>
               <td class="content footer" align="center">
-                <p>Sent by <a href="#scm-manager instance">SCM-Manager</a> | Provided by <a href="https://scm-manager.org">SCM-Manager</a></p>
+                <p>Sent by <a href="#scm-manager instance">http://localhost:8080/scm</a> | Provided by <a href="https://scm-manager.org">SCM-Manager</a></p>
               </td>
             </tr>
           </table>

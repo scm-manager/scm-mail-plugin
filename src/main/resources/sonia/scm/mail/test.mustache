@@ -1,3 +1,85 @@
 # Test Mail
 
 This is a test message from SCM-Manager to test the connection to {{ host }}.
+
+---
+
+The rest of the mail contains formatting tests.
+
+---
+
+## Headings
+
+# heading 1
+## heading 2
+### heading 3
+#### heading 4
+##### heading 5
+###### heading 6
+
+
+## Pragraph
+
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore
+magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd
+gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing
+elitr, sed diam nonumy eirmod tempor invidunt.
+
+## Emphasis
+
+**This is bold text**
+
+__This is bold text__
+
+*This is italic text*
+
+_This is italic text_
+
+~~Strikethrough~~
+
+## Code
+
+```
+mailService.emailTemplateBuilder()
+.fromCurrentUser()
+.toAddress(Locale.ENGLISH, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com")
+.withSubject("Hello World")
+.withTemplate("my-template", MailTemplateType.TEXT)
+.andModel("model")
+.send();
+```
+
+## Blockquotes
+
+> Blockquotes can also be nested...
+>> ...by using additional greater-than signs right next to each other...
+> > > ...or with spaces between arrows.
+
+## Lists
+
+Unordered
+
++ Create a list by starting a line with `+`, `-`, or `*`
++ Sub-lists are made by indenting 2 spaces:
+- Marker character change forces new list start:
+* Ac tristique libero volutpat at
++ Facilisis in pretium nisl aliquet
+- Nulla volutpat aliquam velit
++ Very easy!
+
+Ordered
+
+1. Lorem ipsum dolor sit amet
+2. Consectetur adipiscing elit
+3. Integer molestie lorem at massa
+
+
+1. You can use sequential numbers...
+1. ...or keep all the numbers as `1.`
+
+
+## Links
+
+[SCM-Manager](https://scm-manager.org)
+
+[SCM-Manager](https://scm-manager.org "SCM-Manager WebSite!")
