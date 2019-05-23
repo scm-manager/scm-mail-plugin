@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sonia.scm.config.ScmConfiguration;
+import sonia.scm.mail.api.MailTemplateType;
 import sonia.scm.template.Template;
 import sonia.scm.template.TemplateEngine;
 import sonia.scm.template.TemplateEngineFactory;
@@ -26,9 +27,6 @@ class MailContentModuleTest {
 
   @Mock
   private TemplateEngine templateEngine;
-
-  @Mock
-  private ScmConfiguration scmConfiguration;
 
   @InjectMocks
   private MockModule mockModule;
@@ -48,17 +46,14 @@ class MailContentModuleTest {
   public static class MockModule extends AbstractModule {
 
     private TemplateEngineFactory templateEngineFactory;
-    private ScmConfiguration scmConfiguration;
 
-    public MockModule(TemplateEngineFactory templateEngineFactory, ScmConfiguration scmConfiguration) {
+    public MockModule(TemplateEngineFactory templateEngineFactory) {
       this.templateEngineFactory = templateEngineFactory;
-      this.scmConfiguration = scmConfiguration;
     }
 
     @Override
     protected void configure() {
       bind(TemplateEngineFactory.class).toInstance(templateEngineFactory);
-      bind(ScmConfiguration.class).toInstance(scmConfiguration);
     }
   }
 
