@@ -35,10 +35,10 @@ package sonia.scm.mail.internal;
 //~--- non-JDK imports --------------------------------------------------------
 
 import com.google.inject.AbstractModule;
-
 import org.mapstruct.factory.Mappers;
 import sonia.scm.mail.api.MailService;
 import sonia.scm.mail.spi.DefaultMailService;
+import sonia.scm.mail.spi.content.MailContentModule;
 import sonia.scm.plugin.Extension;
 
 /**
@@ -58,5 +58,7 @@ public class MailModule extends AbstractModule
   {
     bind(MailService.class).to(DefaultMailService.class);
     bind(MailConfigurationMapper.class).to(Mappers.getMapper(MailConfigurationMapper.class).getClass());
+
+    install(new MailContentModule());
   }
 }

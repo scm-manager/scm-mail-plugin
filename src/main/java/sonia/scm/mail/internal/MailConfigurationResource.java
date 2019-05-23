@@ -36,18 +36,16 @@ package sonia.scm.mail.internal;
 
 import com.google.inject.Inject;
 import org.apache.shiro.SecurityUtils;
-import org.codemonkey.simplejavamail.Email;
-
 import sonia.scm.config.ConfigurationPermissions;
 import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContext;
 import sonia.scm.mail.api.MailSendBatchException;
 import sonia.scm.mail.api.MailService;
+import sonia.scm.mail.api.MailTemplateType;
 import sonia.scm.mail.api.UserMailConfiguration;
 import sonia.scm.user.User;
 import sonia.scm.util.ValidationUtil;
 
-import javax.mail.Message.RecipientType;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -89,12 +87,14 @@ public class MailConfigurationResource {
     MailConfiguration configuration = mapper.using(uriInfo).map(mailConfigurationDto);
     if (configuration.isValid() && ValidationUtil.isMailAddressValid(to)) {
 
-      Email email = new Email();
+      mailService.emailTemplateBuilder()
+        .withConfiguration(configuration)
+        .toAddress(to)
+        .withSubject("Test Message from SCM-Manager")
+        .withTemplate("sonia/scm/mail/test.mustache", MailTemplateType.MARKDOWN_HTML)
+        .andModel(configuration)
+        .send();
 
-      email.addRecipient(null, to, RecipientType.TO);
-      email.setSubject("Test Message from SCM-Manager");
-      email.setText("Test Message");
-      mailService.send(configuration, email);
       return Response.noContent().build();
     } else {
       return Response.status(Response.Status.BAD_REQUEST).build();
@@ -104,18 +104,22 @@ public class MailConfigurationResource {
   @POST
   @Path("config")
   @Consumes(MediaType.APPLICATION_JSON)
-  public synchronized void storeConfiguration(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto) {
+  public void storeConfiguration(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto) {
     ConfigurationPermissions.write("mail").check();
-    context.store(mapper.using(uriInfo).map(mailConfigurationDto));
+    synchronized (context) {
+      context.store(mapper.using(uriInfo).map(mailConfigurationDto));
+    }
   }
 
   @PUT
   @Path("config")
   @Consumes(MediaType.APPLICATION_JSON)
-  public synchronized void updateConfiguration(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto) {
+  public void updateConfiguration(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto) {
     ConfigurationPermissions.write("mail").check();
     MailConfiguration mailConfiguration = mapper.using(uriInfo).map(mailConfigurationDto);
-    context.store(mailConfiguration);
+    synchronized (context) {
+      context.store(mailConfiguration);
+    }
   }
 
   @GET
@@ -140,8 +144,10 @@ public class MailConfigurationResource {
   @PUT
   @Path("user-config")
   @Consumes(MediaType.APPLICATION_JSON)
-  public synchronized void storeUserConfiguration(@Context UriInfo uriInfo, UserMailConfigurationDto userMailConfigurationDto) {
+  public void storeUserConfiguration(@Context UriInfo uriInfo, UserMailConfigurationDto userMailConfigurationDto) {
     User currentUser = SecurityUtils.getSubject().getPrincipals().oneByType(User.class);
-    context.store(currentUser.getId(), mapper.using(uriInfo).map(userMailConfigurationDto));
+    synchronized (context) {
+      context.store(currentUser.getId(), mapper.using(uriInfo).map(userMailConfigurationDto));
+    }
   }
 }
