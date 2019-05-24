@@ -21,6 +21,7 @@
       "input": "Email Address",
       "button": "Test Configuration",
       "title": "Test SMTP Server Configuration",
+      "close": "Close",
       "error": "Sending test email failed.",
       "success": "Email was sent successfully."
     }

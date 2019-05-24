@@ -1,11 +1,8 @@
 //@flow
 import React from "react";
 import { translate } from "react-i18next";
-import { Button, InputField } from "@scm-manager/ui-components";
-import {
-  apiClient,
-  validation as validator
-} from "@scm-manager/ui-components";
+import { Modal, Button, InputField } from "@scm-manager/ui-components";
+import { apiClient, validation as validator } from "@scm-manager/ui-components";
 import type { MailConfiguration } from "./MailConfiguration";
 
 type Props = {
@@ -63,23 +60,26 @@ class MailConfigurationTest extends React.Component<Props, State> {
 
   renderModal = () => {
     const { t } = this.props;
-    return (
-      <div className="modal is-active">
-        <div className="modal-background" />
-        <div className="modal-card">
-          <header className="modal-card-head">
-            <p className="modal-card-title">
-              {t("scm-mail-plugin.test.title")}
-            </p>
-            <button
-              className="delete"
-              aria-label="close"
-              onClick={() => this.closeModal()}
-            />
-          </header>
-          {this.renderModalContent()}
-        </div>
+
+    const footer = (
+      <div className="field is-grouped">
+        <p className="control">
+          <Button
+            label={t("scm-mail-plugin.test.close")}
+            action={() => this.closeModal()}
+          />
+        </p>
       </div>
+    );
+
+    return (
+      <Modal
+        title={t("scm-mail-plugin.test.title")}
+        closeFunction={() => this.closeModal()}
+        body={this.renderModalContent()}
+        footer={footer}
+        active={true}
+      />
     );
   };
 
