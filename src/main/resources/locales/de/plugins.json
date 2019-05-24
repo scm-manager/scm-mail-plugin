@@ -21,6 +21,7 @@
       "input": "E-Mail-Address",
       "button": "Konfiguration testen",
       "title": "SMTP Server Konfiguration testen",
+      "close": "Schließen",
       "error": "Das Senden der Test E-Mail ist fehlgeschlagen.",
       "success": "Die E-Mail wurde erfolgreich versandt."
     }
