@@ -16,8 +16,7 @@
   <packaging>smp</packaging>
   <url>https://bitbucket.org/sdorra/scm-mail-plugin</url>
   <description>
-    The mail plugin provides an api for sending e-mails.
-    This api can be used by other plugins.
+    Provides an api for sending e-mails and can be used by other plugins
   </description>
 
   <scm>
@@ -95,7 +94,7 @@
           <plugin>
             <groupId>sonia.scm.maven</groupId>
             <artifactId>smp-maven-plugin</artifactId>
-            <version>1.0.0-alpha-4</version>
+            <version>1.0.0-alpha-6</version>
             <extensions>true</extensions>
             <configuration>
               <links>

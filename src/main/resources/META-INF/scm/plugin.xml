@@ -38,9 +38,9 @@
   <scm-version>2</scm-version>
 
   <information>
-    <author>Sebastian Sdorra</author>
-    <wiki>https://bitbucket.org/sdorra/scm-manager/wiki/mail-plugin</wiki>
-    <category>Library Plugin</category>
+    <displayName>Mail</displayName>
+    <author>Cloudogu GmbH</author>
+    <category>Library</category>
   </information>
 
   <conditions>
