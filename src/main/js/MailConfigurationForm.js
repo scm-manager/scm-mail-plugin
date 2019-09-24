@@ -57,13 +57,15 @@ class MailConfigurationForm extends React.Component<Props, State> {
     const { t } = this.props;
     const readOnly = false;
     return (
-      <InputField
-        name={name}
-        label={t("scm-mail-plugin.form." + name)}
-        disabled={readOnly}
-        value={this.state[name]}
-        onChange={this.configChangeHandler}
-      />
+      <div className="column is-half">
+        <InputField
+          name={name}
+          label={t("scm-mail-plugin.form." + name)}
+          disabled={readOnly}
+          value={this.state[name]}
+          onChange={this.configChangeHandler}
+        />
+      </div>
     );
   };
 
@@ -79,48 +81,54 @@ class MailConfigurationForm extends React.Component<Props, State> {
     const { t } = this.props;
     const readOnly = false;
     return (
-      <InputField
-        name="from"
-        label={t("scm-mail-plugin.form.from")}
-        disabled={readOnly}
-        value={this.state["from"]}
-        onChange={(value: string, name: string) => {
-          this.setState({ ...this.state, fromFieldChanged: true });
-          this.configChangeHandler(value, name);
-        }}
-        validationError={this.fromFieldInvalid()}
-        errorMessage={t("scm-mail-plugin.mailValidationError")}
-      />
+      <div className="column is-half">
+        <InputField
+          name="from"
+          label={t("scm-mail-plugin.form.from")}
+          disabled={readOnly}
+          value={this.state["from"]}
+          onChange={(value: string, name: string) => {
+            this.setState({ ...this.state, fromFieldChanged: true });
+            this.configChangeHandler(value, name);
+          }}
+          validationError={this.fromFieldInvalid()}
+          errorMessage={t("scm-mail-plugin.mailValidationError")}
+        />
+      </div>
     );
   };
 
   renderPasswordInpuField = () => {
     const { readOnly, t } = this.props;
     return (
-      <InputField
-        type="password"
-        name="password"
-        label={t("scm-mail-plugin.form.password")}
-        onChange={this.configChangeHandler}
-        disabled={readOnly}
-      />
+      <div className="column is-half">
+        <InputField
+          type="password"
+          name="password"
+          label={t("scm-mail-plugin.form.password")}
+          onChange={this.configChangeHandler}
+          disabled={readOnly}
+        />
+      </div>
     );
   };
 
   renderTransportStrategyDropDown = () => {
     const { readOnly, t } = this.props;
     return (
-      <div className="field">
-        <label className="label">
-          {t("scm-mail-plugin.form.transportStrategy")}
-        </label>
-        <div className="control">
-          <DropDown
-            options={["SMTP_PLAIN", "SMTP_TLS", "SMTP_SSL"]}
-            optionSelected={this.handleDropDownChange}
-            preselectedOption={this.state.transportStrategy}
-            disabled={readOnly}
-          />
+      <div className="column is-half">
+        <div className="field">
+          <label className="label">
+            {t("scm-mail-plugin.form.transportStrategy")}
+          </label>
+          <div className="control">
+            <DropDown
+              options={["SMTP_PLAIN", "SMTP_TLS", "SMTP_SSL"]}
+              optionSelected={this.handleDropDownChange}
+              preselectedOption={this.state.transportStrategy}
+              disabled={readOnly}
+            />
+          </div>
         </div>
       </div>
     );
@@ -129,21 +137,24 @@ class MailConfigurationForm extends React.Component<Props, State> {
   renderLanguageDropDown = () => {
     const { readOnly, t } = this.props;
     return (
-      <div className="field">
-        <label className="label">
-          {t("scm-mail-plugin.form.language")}
-        </label>
-        <div className="control">
-          <DropDown
-            options={[t("scm-mail-plugin.language.de"), t("scm-mail-plugin.language.en")]}
-            optionValues={["de", "en"]}
-            preselectedOption={this.state.language}
-            optionSelected= {selection => {
-              this.setState({ ...this.state, language: selection });
-              this.configChangeHandler(selection, "language");
-            }}
-            disabled={readOnly}
-          />
+      <div className="column is-half">
+        <div className="field">
+          <label className="label">{t("scm-mail-plugin.form.language")}</label>
+          <div className="control">
+            <DropDown
+              options={[
+                t("scm-mail-plugin.language.de"),
+                t("scm-mail-plugin.language.en")
+              ]}
+              optionValues={["de", "en"]}
+              preselectedOption={this.state.language}
+              optionSelected={selection => {
+                this.setState({ ...this.state, language: selection });
+                this.configChangeHandler(selection, "language");
+              }}
+              disabled={readOnly}
+            />
+          </div>
         </div>
       </div>
     );
@@ -163,7 +174,7 @@ class MailConfigurationForm extends React.Component<Props, State> {
 
     return (
       <>
-        {fields}
+        <div className="columns is-multiline">{fields}</div>
         <MailConfigurationTest configuration={this.state} />
       </>
     );
