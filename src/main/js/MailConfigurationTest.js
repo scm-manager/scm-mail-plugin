@@ -1,7 +1,12 @@
 //@flow
 import React from "react";
 import { translate } from "react-i18next";
-import { Modal, Button, InputField } from "@scm-manager/ui-components";
+import {
+  Modal,
+  Button,
+  Notification,
+  InputField
+} from "@scm-manager/ui-components";
 import { apiClient, validation as validator } from "@scm-manager/ui-components";
 import type { MailConfiguration } from "./MailConfiguration";
 
@@ -86,22 +91,13 @@ class MailConfigurationTest extends React.Component<Props, State> {
   renderModalContent = () => {
     const { t } = this.props;
     const { failure } = this.state;
-    if (failure) {
-      return (
-        <section className="modal-card-body has-background-danger">
-          <div className="content has-text-white">
-            {t("scm-mail-plugin.test.error")}
-          </div>
-        </section>
-      );
-    }
 
     return (
-      <section className="modal-card-body has-background-success">
-        <div className="content has-text-white">
-          {t("scm-mail-plugin.test.success")}
-        </div>
-      </section>
+      <Notification type={failure ? "danger" : "success"}>
+        {failure
+          ? t("scm-mail-plugin.test.error")
+          : t("scm-mail-plugin.test.success")}
+      </Notification>
     );
   };
 
