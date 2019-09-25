@@ -166,9 +166,9 @@ class MailConfigurationForm extends React.Component<Props, State> {
     });
 
     fields.push(this.renderFromField());
+    fields.push(this.renderInputField("subjectPrefix"));
     fields.push(this.renderInputField("username"));
     fields.push(this.renderPasswordInpuField());
-    fields.push(this.renderInputField("subjectPrefix"));
     fields.push(this.renderLanguageDropDown());
     fields.push(this.renderTransportStrategyDropDown());
 
