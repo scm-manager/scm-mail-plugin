@@ -1,5 +1,5 @@
 // @flow
-
+import React from "react";
 import { ConfigurationBinder as cfgBinder } from "@scm-manager/ui-components";
 import GlobalMailConfiguration from "./GlobalMailConfiguration";
 import UserMailConfigurationNavLink from "./UserMailConfigurationNavLink";
