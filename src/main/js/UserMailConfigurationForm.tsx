@@ -1,21 +1,15 @@
-//@flow
 import React from "react";
-import {
-  DropDown
-} from "@scm-manager/ui-components";
-import { translate } from "react-i18next";
-import type { UserMailConfiguration} from "./MailConfiguration";
+import { DropDown } from "@scm-manager/ui-components";
+import { withTranslation, WithTranslation } from "react-i18next";
+import { UserMailConfiguration } from "./MailConfiguration";
 
-type Props = {
-  initialConfiguration: UserMailConfiguration,
-  readOnly: boolean,
-  onConfigurationChange: (UserMailConfiguration, boolean) => void,
-
-  // context prop
-  t: string => string
+type Props = WithTranslation & {
+  initialConfiguration: UserMailConfiguration;
+  readOnly: boolean;
+  onConfigurationChange: (p1: UserMailConfiguration, p2: boolean) => void;
 };
 
-type State = UserMailConfiguration ;
+type State = UserMailConfiguration;
 
 class UserMailConfigurationForm extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -31,7 +25,12 @@ class UserMailConfigurationForm extends React.Component<Props, State> {
         [name]: value
       },
       () =>
-        this.props.onConfigurationChange({ ...this.state }, true)
+        this.props.onConfigurationChange(
+          {
+            ...this.state
+          },
+          true
+        )
     );
   };
 
@@ -39,16 +38,17 @@ class UserMailConfigurationForm extends React.Component<Props, State> {
     const { readOnly, t } = this.props;
     return (
       <div className="field">
-        <label className="label">
-          {t("scm-mail-plugin.form.language")}
-        </label>
+        <label className="label">{t("scm-mail-plugin.form.language")}</label>
         <div className="control">
           <DropDown
             options={[t("scm-mail-plugin.language.de"), t("scm-mail-plugin.language.en")]}
             optionValues={["de", "en"]}
             preselectedOption={this.state.language}
-            optionSelected= {selection => {
-              this.setState({ ...this.state, language: selection });
+            optionSelected={selection => {
+              this.setState({
+                ...this.state,
+                language: selection
+              });
               this.configChangeHandler(selection, "language");
             }}
             disabled={readOnly}
@@ -59,4 +59,4 @@ class UserMailConfigurationForm extends React.Component<Props, State> {
   }
 }
 
-export default translate("plugins")(UserMailConfigurationForm);
+export default withTranslation("plugins")(UserMailConfigurationForm);

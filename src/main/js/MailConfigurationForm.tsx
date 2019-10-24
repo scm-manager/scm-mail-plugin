@@ -1,26 +1,18 @@
-//@flow
 import React from "react";
-import {
-  DropDown,
-  InputField,
-  validation as validator
-} from "@scm-manager/ui-components";
-import { translate } from "react-i18next";
+import { DropDown, InputField, validation as validator } from "@scm-manager/ui-components";
+import { withTranslation, WithTranslation } from "react-i18next";
 import MailConfigurationTest from "./MailConfigurationTest";
-import type { MailConfiguration } from "./MailConfiguration";
+import { MailConfiguration } from "./MailConfiguration";
 
-type Props = {
-  initialConfiguration: MailConfiguration,
-  readOnly: boolean,
-  onConfigurationChange: (MailConfiguration, boolean) => void,
-  transportStrategy: string,
-
-  // context prop
-  t: string => string
+type Props = WithTranslation & {
+  initialConfiguration: MailConfiguration;
+  readOnly: boolean;
+  onConfigurationChange: (p1: MailConfiguration, p2: boolean) => void;
+  transportStrategy: string;
 };
 
 type State = MailConfiguration & {
-  fromFieldChanged: boolean
+  fromFieldChanged: boolean;
 };
 
 class MailConfigurationForm extends React.Component<Props, State> {
@@ -34,13 +26,7 @@ class MailConfigurationForm extends React.Component<Props, State> {
 
   isStateValid = () => {
     const { host, from, port, transportStrategy } = this.state;
-    return (
-      !!host &&
-      !!from &&
-      port > 0 &&
-      transportStrategy !== "" &&
-      validator.isMailValid(this.state["from"])
-    );
+    return !!host && !!from && port > 0 && transportStrategy !== "" && validator.isMailValid(this.state["from"]);
   };
 
   configChangeHandler = (value: string, name: string) => {
@@ -49,7 +35,12 @@ class MailConfigurationForm extends React.Component<Props, State> {
         [name]: value
       },
       () =>
-        this.props.onConfigurationChange({ ...this.state }, this.isStateValid())
+        this.props.onConfigurationChange(
+          {
+            ...this.state
+          },
+          this.isStateValid()
+        )
     );
   };
 
@@ -88,7 +79,10 @@ class MailConfigurationForm extends React.Component<Props, State> {
           disabled={readOnly}
           value={this.state["from"]}
           onChange={(value: string, name: string) => {
-            this.setState({ ...this.state, fromFieldChanged: true });
+            this.setState({
+              ...this.state,
+              fromFieldChanged: true
+            });
             this.configChangeHandler(value, name);
           }}
           validationError={this.fromFieldInvalid()}
@@ -118,9 +112,7 @@ class MailConfigurationForm extends React.Component<Props, State> {
     return (
       <div className="column is-half">
         <div className="field">
-          <label className="label">
-            {t("scm-mail-plugin.form.transportStrategy")}
-          </label>
+          <label className="label">{t("scm-mail-plugin.form.transportStrategy")}</label>
           <div className="control">
             <DropDown
               options={["SMTP_PLAIN", "SMTP_TLS", "SMTP_SSL"]}
@@ -142,14 +134,14 @@ class MailConfigurationForm extends React.Component<Props, State> {
           <label className="label">{t("scm-mail-plugin.form.language")}</label>
           <div className="control">
             <DropDown
-              options={[
-                t("scm-mail-plugin.language.de"),
-                t("scm-mail-plugin.language.en")
-              ]}
+              options={[t("scm-mail-plugin.language.de"), t("scm-mail-plugin.language.en")]}
               optionValues={["de", "en"]}
               preselectedOption={this.state.language}
               optionSelected={selection => {
-                this.setState({ ...this.state, language: selection });
+                this.setState({
+                  ...this.state,
+                  language: selection
+                });
                 this.configChangeHandler(selection, "language");
               }}
               disabled={readOnly}
@@ -181,9 +173,12 @@ class MailConfigurationForm extends React.Component<Props, State> {
   }
 
   handleDropDownChange = (selection: string) => {
-    this.setState({ ...this.state, transportStrategy: selection });
+    this.setState({
+      ...this.state,
+      transportStrategy: selection
+    });
     this.configChangeHandler(selection, "transportStrategy");
   };
 }
 
-export default translate("plugins")(MailConfigurationForm);
+export default withTranslation("plugins")(MailConfigurationForm);

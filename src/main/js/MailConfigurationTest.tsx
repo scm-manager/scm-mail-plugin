@@ -1,26 +1,19 @@
-//@flow
 import React from "react";
-import { translate } from "react-i18next";
-import {
-  Modal,
-  Button,
-  Notification,
-  InputField
-} from "@scm-manager/ui-components";
+import { withTranslation, WithTranslation } from "react-i18next";
+import { Modal, Button, Notification, InputField } from "@scm-manager/ui-components";
 import { apiClient, validation as validator } from "@scm-manager/ui-components";
-import type { MailConfiguration } from "./MailConfiguration";
+import { MailConfiguration } from "./MailConfiguration";
 
-type Props = {
-  configuration: MailConfiguration,
-  t: string => string
+type Props = WithTranslation & {
+  configuration: MailConfiguration;
 };
 
 type State = {
-  showModal: boolean,
-  failure?: Error,
-  mail: string,
-  loading: boolean,
-  mailValidationError?: Error
+  showModal: boolean;
+  failure?: Error;
+  mail: string;
+  loading: boolean;
+  mailValidationError?: Error;
 };
 
 class MailConfigurationTest extends React.Component<Props, State> {
@@ -45,15 +38,25 @@ class MailConfigurationTest extends React.Component<Props, State> {
     const { mail } = this.state;
     const configLink = configuration._links.test.href + "?to=" + mail;
 
-    this.setState({ loading: true });
+    this.setState({
+      loading: true
+    });
 
     return apiClient
       .post(configLink, configuration)
       .then(response => {
-        this.setState({ showModal: true, failure: null, loading: false });
+        this.setState({
+          showModal: true,
+          failure: null,
+          loading: false
+        });
       })
       .catch(err => {
-        this.setState({ showModal: true, failure: err, loading: false });
+        this.setState({
+          showModal: true,
+          failure: err,
+          loading: false
+        });
       });
   };
 
@@ -69,10 +72,7 @@ class MailConfigurationTest extends React.Component<Props, State> {
     const footer = (
       <div className="field is-grouped">
         <p className="control">
-          <Button
-            label={t("scm-mail-plugin.test.close")}
-            action={() => this.closeModal()}
-          />
+          <Button label={t("scm-mail-plugin.test.close")} action={() => this.closeModal()} />
         </p>
       </div>
     );
@@ -94,9 +94,7 @@ class MailConfigurationTest extends React.Component<Props, State> {
 
     return (
       <Notification type={failure ? "danger" : "success"}>
-        {failure
-          ? t("scm-mail-plugin.test.error")
-          : t("scm-mail-plugin.test.success")}
+        {failure ? t("scm-mail-plugin.test.error") : t("scm-mail-plugin.test.success")}
       </Notification>
     );
   };
@@ -122,14 +120,10 @@ class MailConfigurationTest extends React.Component<Props, State> {
           onChange={this.updateEmail}
           errorMessage={t("scm-mail-plugin.mailValidationError")}
         />
-        <Button
-          label={t("scm-mail-plugin.test.button")}
-          action={this.testConfiguration}
-          loading={loading}
-        />
+        <Button label={t("scm-mail-plugin.test.button")} action={this.testConfiguration} loading={loading} />
       </>
     );
   }
 }
 
-export default translate("plugins")(MailConfigurationTest);
+export default withTranslation("plugins")(MailConfigurationTest);

@@ -1,12 +1,10 @@
-// @flow
 import React from "react";
 import { Subtitle, Configuration } from "@scm-manager/ui-components";
-import { translate } from "react-i18next";
+import { withTranslation, WithTranslation } from "react-i18next";
 import UserMailConfigurationForm from "./UserMailConfigurationForm";
 
-type Props = {
-  link: string,
-  t: string => string
+type Props = WithTranslation & {
+  link: string;
 };
 
 class UserMailConfigurationComponent extends React.Component<Props> {
@@ -15,13 +13,10 @@ class UserMailConfigurationComponent extends React.Component<Props> {
     return (
       <>
         <Subtitle subtitle={t("scm-mail-plugin.form.header")} />
-        <Configuration
-          link={link}
-          render={props => <UserMailConfigurationForm {...props} />}
-        />
+        <Configuration link={link} render={props => <UserMailConfigurationForm {...props} />} />
       </>
     );
   }
 }
 
-export default translate("plugins")(UserMailConfigurationComponent);
+export default withTranslation("plugins")(UserMailConfigurationComponent);

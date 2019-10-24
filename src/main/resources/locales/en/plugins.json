@@ -1,6 +1,6 @@
 {
   "scm-mail-plugin": {
-    "nav-link": "Email",
+    "navLink": "Email",
     "mailValidationError": "This is not a valid email address",
     "form": {
       "header": "Email Configuration",
