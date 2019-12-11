@@ -1,6 +1,7 @@
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
-import { Modal, Button, Notification, InputField } from "@scm-manager/ui-components";
+import styled from "styled-components";
+import { Modal, Button, Notification, InputField, Level } from "@scm-manager/ui-components";
 import { apiClient, validation as validator } from "@scm-manager/ui-components";
 import { MailConfiguration } from "./MailConfiguration";
 
@@ -15,6 +16,20 @@ type State = {
   loading: boolean;
   mailValidationError?: Error;
 };
+
+const StretchedLevel = styled(Level)`
+  align-items: stretch;
+  margin-bottom: 1rem !important; // same margin as field
+`;
+
+const FullWidthInputField = styled(InputField)`
+  width: 100%;
+  margin-right: 1.5rem;
+`;
+
+const AlignFlexEndDiv = styled.div`
+  align-self: flex-end;
+`;
 
 class MailConfigurationTest extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -112,15 +127,23 @@ class MailConfigurationTest extends React.Component<Props, State> {
       <>
         {modal}
         <hr />
-        <InputField
-          label={t("scm-mail-plugin.test.title")}
-          placeholder={t("scm-mail-plugin.test.input")}
-          type="email"
-          validationError={this.state.mailValidationError}
-          onChange={this.updateEmail}
-          errorMessage={t("scm-mail-plugin.mailValidationError")}
+        <StretchedLevel
+          children={
+            <FullWidthInputField
+              label={t("scm-mail-plugin.test.title")}
+              placeholder={t("scm-mail-plugin.test.input")}
+              type="email"
+              validationError={this.state.mailValidationError}
+              onChange={this.updateEmail}
+              errorMessage={t("scm-mail-plugin.mailValidationError")}
+            />
+          }
+          right={
+            <AlignFlexEndDiv className="field">
+              <Button label={t("scm-mail-plugin.test.button")} action={this.testConfiguration} loading={loading} />
+            </AlignFlexEndDiv>
+          }
         />
-        <Button label={t("scm-mail-plugin.test.button")} action={this.testConfiguration} loading={loading} />
       </>
     );
   }
