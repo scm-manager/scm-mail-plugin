@@ -35,7 +35,14 @@ package sonia.scm.mail.internal;
 
 
 import com.google.inject.Inject;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.shiro.SecurityUtils;
+import sonia.scm.api.v2.resources.ErrorDto;
 import sonia.scm.config.ConfigurationPermissions;
 import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContext;
@@ -45,6 +52,7 @@ import sonia.scm.mail.api.MailTemplateType;
 import sonia.scm.mail.api.UserMailConfiguration;
 import sonia.scm.user.User;
 import sonia.scm.util.ValidationUtil;
+import sonia.scm.web.VndMediaType;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -62,6 +70,9 @@ import javax.ws.rs.core.UriInfo;
  *
  * @author Sebastian Sdorra
  */
+@OpenAPIDefinition(tags = {
+  @Tag(name = "Mail Plugin", description = "Mail plugin provided endpoints")
+})
 @Path("v2/plugins/mail")
 public class MailConfigurationResource {
 
@@ -79,6 +90,18 @@ public class MailConfigurationResource {
   @POST
   @Path("test")
   @Consumes(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Test mail configuration", description = "Tests the mail configuration and send an email to the given recipient", tags = "Mail Plugin")
+  @ApiResponse(responseCode = "200", description = "success")
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized /  the current user does not have the right privilege")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public Response sendTestMessage(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto,
                                   @QueryParam("to") String to)
     throws MailSendBatchException {
@@ -104,6 +127,18 @@ public class MailConfigurationResource {
   @POST
   @Path("config")
   @Consumes(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Create mail configuration", description = "Creates new mail configuration", tags = "Mail Plugin")
+  @ApiResponse(responseCode = "204", description = "success")
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized /  the current user does not have the right privilege")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public void storeConfiguration(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto) {
     ConfigurationPermissions.write("mail").check();
     synchronized (context) {
@@ -114,6 +149,18 @@ public class MailConfigurationResource {
   @PUT
   @Path("config")
   @Consumes(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Updates mail configuration", description = "Modifies the mail configuration", tags = "Mail Plugin")
+  @ApiResponse(responseCode = "204", description = "success")
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized /  the current user does not have the right privilege")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public void updateConfiguration(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto) {
     ConfigurationPermissions.write("mail").check();
     MailConfiguration mailConfiguration = mapper.using(uriInfo).map(mailConfigurationDto);
@@ -125,6 +172,25 @@ public class MailConfigurationResource {
   @GET
   @Path("config")
   @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Get mail configuration", description = "Returns the mail configuration", tags = "Mail Plugin")
+  @ApiResponse(
+    responseCode = "200",
+    description = "success",
+    content = @Content(
+      mediaType = MediaType.APPLICATION_JSON,
+      schema = @Schema(implementation = MailConfigurationDto.class)
+    )
+  )
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized /  the current user does not have the right privilege")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public MailConfigurationDto getConfiguration(@Context UriInfo uriInfo) {
     ConfigurationPermissions.read("mail").check();
 
@@ -134,6 +200,25 @@ public class MailConfigurationResource {
   @GET
   @Path("user-config")
   @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Get user mail configuration", description = "Returns the user-specific mail configuration", tags = "Mail Plugin")
+  @ApiResponse(
+    responseCode = "200",
+    description = "success",
+    content = @Content(
+      mediaType = MediaType.APPLICATION_JSON,
+      schema = @Schema(implementation = UserMailConfigurationDto.class)
+    )
+  )
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized /  the current user does not have the right privilege")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public UserMailConfigurationDto getUserConfiguration(@Context UriInfo uriInfo) {
     User currentUser = SecurityUtils.getSubject().getPrincipals().oneByType(User.class);
     return mapper.using(uriInfo).map(context
@@ -144,6 +229,18 @@ public class MailConfigurationResource {
   @PUT
   @Path("user-config")
   @Consumes(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Update user mail configuration", description = "Modifies the user-specific mail configuration", tags = "Mail Plugin")
+  @ApiResponse(responseCode = "200", description = "success")
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized /  the current user does not have the right privilege")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public void storeUserConfiguration(@Context UriInfo uriInfo, UserMailConfigurationDto userMailConfigurationDto) {
     User currentUser = SecurityUtils.getSubject().getPrincipals().oneByType(User.class);
     synchronized (context) {
