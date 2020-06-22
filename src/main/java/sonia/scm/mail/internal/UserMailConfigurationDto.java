@@ -28,14 +28,14 @@ import de.otto.edison.hal.Links;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Collection;
+import java.util.Set;
 
 @Getter
 @Setter
 public class UserMailConfigurationDto extends HalRepresentation {
 
   private String language;
-  private Collection<TopicDto> topics;
+  private Set<TopicDto> subscribedTopics;
 
   @Override
   @SuppressWarnings("squid:S1185") // We want to have this method available in this package

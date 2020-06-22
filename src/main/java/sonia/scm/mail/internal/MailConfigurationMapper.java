@@ -65,6 +65,10 @@ public abstract class MailConfigurationMapper {
 
   abstract Category map(CategoryDto dto);
 
+  abstract Set<Topic> mapTopicDtoCollection(Set<TopicDto> dtos);
+
+  abstract Set<TopicDto> mapTopicCollection(Set<Topic> topics);
+
   public MailConfigurationMapper using(UriInfo uriInfo) {
     mailConfigurationResourceLinks = new MailConfigurationResourceLinks(uriInfo::getBaseUri);
     return this;

@@ -67,9 +67,9 @@ import javax.ws.rs.core.UriInfo;
 @Path("v2/plugins/mail")
 public class MailConfigurationResource {
 
-  private MailService mailService;
-  private MailContext context;
-  private MailConfigurationMapper mapper;
+  private final MailService mailService;
+  private final MailContext context;
+  private final MailConfigurationMapper mapper;
 
   @Inject
   public MailConfigurationResource(MailService mailService, MailContext context, MailConfigurationMapper mapper) {
