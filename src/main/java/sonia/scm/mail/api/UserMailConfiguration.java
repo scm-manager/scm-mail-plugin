@@ -26,10 +26,13 @@ package sonia.scm.mail.api;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Getter
 @Setter
 public class UserMailConfiguration {
 
   private String language;
 
+  private Set<Topic> subscribedTopics;
 }

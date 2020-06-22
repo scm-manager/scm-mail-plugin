@@ -21,53 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package sonia.scm.mail.internal;
 
-import sonia.scm.api.v2.resources.LinkBuilder;
-import sonia.scm.api.v2.resources.ScmPathInfo;
+package sonia.scm.mail.api;
 
-@SuppressWarnings("squid:S1192")
-public class MailConfigurationResourceLinks {
-  private final LinkBuilder linkBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-  public MailConfigurationResourceLinks(ScmPathInfo scmPathInfo) {
-    this.linkBuilder = new LinkBuilder(scmPathInfo, MailConfigurationResource.class);
-  }
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
-  public String self() {
-    return linkBuilder
-      .method("getConfiguration").parameters()
-      .href();
-  }
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@XmlRootElement
+@XmlAccessorType(value = XmlAccessType.FIELD)
+public class Topic {
 
-  public String userConfigLink() {
-    return linkBuilder
-      .method("getUserConfiguration").parameters()
-      .href();
-  }
-
-  public String updateUserConfigLink() {
-    return linkBuilder
-      .method("storeUserConfiguration").parameters()
-      .href();
-  }
-
-  public String update() {
-    return linkBuilder
-      .method("updateConfiguration").parameters()
-      .href();
-  }
-
-  public String test() {
-    return linkBuilder
-      .method("sendTestMessage").parameters()
-      .href();
-  }
-
-  public String topics() {
-    return linkBuilder
-      .method("getTopics").parameters()
-      .href();
-  }
+  private Category category;
+  private String name;
 }
-

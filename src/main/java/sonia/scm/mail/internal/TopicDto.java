@@ -21,53 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package sonia.scm.mail.internal;
 
-import sonia.scm.api.v2.resources.LinkBuilder;
-import sonia.scm.api.v2.resources.ScmPathInfo;
+import lombok.Data;
 
-@SuppressWarnings("squid:S1192")
-public class MailConfigurationResourceLinks {
-  private final LinkBuilder linkBuilder;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
-  public MailConfigurationResourceLinks(ScmPathInfo scmPathInfo) {
-    this.linkBuilder = new LinkBuilder(scmPathInfo, MailConfigurationResource.class);
-  }
-
-  public String self() {
-    return linkBuilder
-      .method("getConfiguration").parameters()
-      .href();
-  }
-
-  public String userConfigLink() {
-    return linkBuilder
-      .method("getUserConfiguration").parameters()
-      .href();
-  }
-
-  public String updateUserConfigLink() {
-    return linkBuilder
-      .method("storeUserConfiguration").parameters()
-      .href();
-  }
-
-  public String update() {
-    return linkBuilder
-      .method("updateConfiguration").parameters()
-      .href();
-  }
-
-  public String test() {
-    return linkBuilder
-      .method("sendTestMessage").parameters()
-      .href();
-  }
-
-  public String topics() {
-    return linkBuilder
-      .method("getTopics").parameters()
-      .href();
-  }
+@Data
+public class TopicDto {
+  @NotNull
+  private CategoryDto category;
+  @NotBlank
+  private String name;
 }
-

@@ -21,53 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package sonia.scm.mail.internal;
 
-import sonia.scm.api.v2.resources.LinkBuilder;
-import sonia.scm.api.v2.resources.ScmPathInfo;
+package sonia.scm.mail.api;
 
-@SuppressWarnings("squid:S1192")
-public class MailConfigurationResourceLinks {
-  private final LinkBuilder linkBuilder;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import sonia.scm.store.SerializationTestUtil;
 
-  public MailConfigurationResourceLinks(ScmPathInfo scmPathInfo) {
-    this.linkBuilder = new LinkBuilder(scmPathInfo, MailConfigurationResource.class);
-  }
+class TopicTest {
 
-  public String self() {
-    return linkBuilder
-      .method("getConfiguration").parameters()
-      .href();
-  }
+  @Test
+  void canSerialize() {
+    Topic input = new Topic(new Category("category"), "topig");
+    Topic result = SerializationTestUtil.toAndFromXml(Topic.class, input);
 
-  public String userConfigLink() {
-    return linkBuilder
-      .method("getUserConfiguration").parameters()
-      .href();
-  }
-
-  public String updateUserConfigLink() {
-    return linkBuilder
-      .method("storeUserConfiguration").parameters()
-      .href();
-  }
-
-  public String update() {
-    return linkBuilder
-      .method("updateConfiguration").parameters()
-      .href();
-  }
-
-  public String test() {
-    return linkBuilder
-      .method("sendTestMessage").parameters()
-      .href();
-  }
-
-  public String topics() {
-    return linkBuilder
-      .method("getTopics").parameters()
-      .href();
+    Assertions.assertThat(result).isEqualTo(input);
   }
 }
-
