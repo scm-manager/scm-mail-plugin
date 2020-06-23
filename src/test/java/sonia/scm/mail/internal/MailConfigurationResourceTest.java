@@ -109,7 +109,7 @@ class MailConfigurationResourceTest {
       .contains("\"self\":{\"href\":\"/v2/plugins/mail/user-config\"}")
       .contains("\"update\":{\"href\":\"/v2/plugins/mail/user-config\"}")
       .contains("\"language\":\"vogon\"")
-      .contains("\"subscribedTopics\":[{\"category\":{\"name\":\"hitchhiker\"},\"name\":\"towel\"}]");
+      .contains("\"unsubscribedTopics\":[{\"category\":{\"name\":\"hitchhiker\"},\"name\":\"towel\"}]");
   }
 
   @Test
@@ -126,7 +126,7 @@ class MailConfigurationResourceTest {
         .contentType("application/json")
         .content(("{\"" +
           "language\":\"vogon\"," +
-          "\"subscribedTopics\":[{\"category\":{\"name\":\"hitchhiker\"},\"name\":\"towel\"}]" +
+          "\"unsubscribedTopics\":[{\"category\":{\"name\":\"hitchhiker\"},\"name\":\"towel\"}]" +
           "}").getBytes()),
       response);
 
