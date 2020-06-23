@@ -37,24 +37,11 @@ type State = UserMailConfiguration;
 class UserMailConfigurationForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = {
-      ...props.initialConfiguration
-    };
+    this.state = props.initialConfiguration;
   }
 
-  configChangeHandler = (value: string, name: string) => {
-    this.setState(
-      {
-        [name]: value
-      },
-      () =>
-        this.props.onConfigurationChange(
-          {
-            ...this.state
-          },
-          true
-        )
-    );
+  languageChangedHandler = (value: string) => {
+    this.setState({ language: value }, () => this.props.onConfigurationChange(this.state, true));
   };
 
   render() {
@@ -67,13 +54,7 @@ class UserMailConfigurationForm extends React.Component<Props, State> {
             options={[t("scm-mail-plugin.language.de"), t("scm-mail-plugin.language.en")]}
             optionValues={["de", "en"]}
             preselectedOption={this.state.language}
-            optionSelected={selection => {
-              this.setState({
-                ...this.state,
-                language: selection
-              });
-              this.configChangeHandler(selection, "language");
-            }}
+            optionSelected={this.languageChangedHandler}
             disabled={readOnly}
           />
         </div>
