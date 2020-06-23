@@ -23,6 +23,7 @@
  */
 package sonia.scm.mail.spi;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
@@ -36,11 +37,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import sonia.scm.mail.api.Category;
 import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContext;
 import sonia.scm.mail.api.MailSendBatchException;
 import sonia.scm.mail.api.MailService;
 import sonia.scm.mail.api.MailTemplateType;
+import sonia.scm.mail.api.Topic;
 import sonia.scm.mail.api.UserMailConfiguration;
 import sonia.scm.mail.spi.content.MailContent;
 import sonia.scm.mail.spi.content.MailContentRenderer;
@@ -52,8 +55,8 @@ import sonia.scm.user.UserTestData;
 
 import java.io.IOException;
 import java.util.Locale;
-import java.util.Optional;
 
+import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -90,6 +93,7 @@ class DefaultMailServiceTest {
   void setUpMocks() {
     this.mailService = new TestingMailService();
     when(context.getConfiguration()).thenReturn(configuration);
+    lenient().doNothing().when(mailer).sendMail(emailCaptor.capture());
   }
 
   @Test
@@ -104,18 +108,12 @@ class DefaultMailServiceTest {
       .andModel("model")
       .send();
 
-    Email email = captureAndReturn();
+    Email email = emailCaptor.getValue();
 
     assertRecipient(email, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com");
 
     assertThat(email.getSubject()).isEqualTo("Hello World");
     assertThat(email.getText()).isEqualTo("Don't Panic");
-  }
-
-  private Email captureAndReturn() {
-    verify(mailer).sendMail(emailCaptor.capture());
-
-    return emailCaptor.getValue();
   }
 
   @Test
@@ -131,7 +129,7 @@ class DefaultMailServiceTest {
       .andModel("model")
       .send();
 
-    Email email = captureAndReturn();
+    Email email = emailCaptor.getValue();
 
     assertRecipient(email, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com");
     assertThat(email.getSubject()).isEqualTo("Hello Tricia");
@@ -152,7 +150,7 @@ class DefaultMailServiceTest {
       .andModel("model")
       .send();
 
-    Email email = captureAndReturn();
+    Email email = emailCaptor.getValue();
 
     assertThat(email.getSubject()).isEqualTo("Hallo Tricia");
     assertThat(email.getText()).isEqualTo("Keine Panik");
@@ -190,7 +188,7 @@ class DefaultMailServiceTest {
       .andModel("model")
       .send();
 
-    Email email = captureAndReturn();
+    Email email = emailCaptor.getValue();
 
     assertThat(email.getSubject()).isEqualTo("Hallo Tricia");
     assertThat(email.getText()).isEqualTo("Keine Panik");
@@ -209,7 +207,7 @@ class DefaultMailServiceTest {
       .andModel("model")
       .send();
 
-    Email email = captureAndReturn();
+    Email email = emailCaptor.getValue();
     Recipient fromRecipient = email.getFromRecipient();
     assertThat(fromRecipient.getName()).isEqualTo("Arthur Dent");
   }
@@ -239,7 +237,7 @@ class DefaultMailServiceTest {
       ThreadContext.unbindSubject();
     }
 
-    Email email = captureAndReturn();
+    Email email = emailCaptor.getValue();
     Recipient fromRecipient = email.getFromRecipient();
     assertThat(fromRecipient.getName()).isEqualTo("Arthur Dent");
   }
@@ -257,7 +255,7 @@ class DefaultMailServiceTest {
       .andModel("model")
       .send();
 
-    Email email = captureAndReturn();
+    Email email = emailCaptor.getValue();
 
     assertRecipient(email, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com");
 
@@ -266,16 +264,54 @@ class DefaultMailServiceTest {
     assertThat(email.getTextHTML()).isEqualTo("<h1>Don't Panic</h1>");
   }
 
-  private void mockUser(User user) {
-    when(userDisplayManager.get(user.getId())).thenReturn(Optional.of(DisplayUser.from(user)));
+  @Test
+  void shouldNotSendEmailToUnsubscribedUser() throws IOException, MailSendBatchException {
+    Topic unsubscribedTopic = new Topic(new Category("boring"), "stuff");
+    mockUserWithConfiguration(UserTestData.createTrillian(), Locale.ENGLISH, unsubscribedTopic);
+    mockContentRenderer(Locale.ENGLISH, "my-template", "model", "Don't Panic");
+
+    mailService.emailTemplateBuilder()
+      .toUser("trillian")
+      .onTopic(unsubscribedTopic)
+      .withSubject("Hello Tricia")
+      .withTemplate("my-template", MailTemplateType.TEXT)
+      .andModel("model")
+      .send();
+
+    assertThat(emailCaptor.getAllValues()).isEmpty();
   }
 
-  private void mockUserWithConfiguration(User user, Locale locale) {
+  @Test
+  void shouldSendEmailToUserWhenUnsubscribedFromOtherTopic() throws IOException, MailSendBatchException {
+    configureMailer();
+    Topic unsubscribedTopic = new Topic(new Category("boring"), "stuff");
+    mockUserWithConfiguration(UserTestData.createTrillian(), Locale.ENGLISH, unsubscribedTopic);
+    mockContentRenderer(Locale.ENGLISH, "my-template", "model", "Don't Panic");
+
+    mailService.emailTemplateBuilder()
+      .toUser("trillian")
+      .onTopic(new Topic(new Category("mice"), "the question"))
+      .withSubject("Hello Tricia")
+      .withTemplate("my-template", MailTemplateType.TEXT)
+      .andModel("model")
+      .send();
+
+    assertThat(emailCaptor.getAllValues()).isNotEmpty();
+  }
+
+  private void mockUser(User user) {
+    lenient().when(userDisplayManager.get(user.getId())).thenReturn(of(DisplayUser.from(user)));
+  }
+
+  private void mockUserWithConfiguration(User user, Locale locale, Topic... unsubscribedTopics) {
     mockUser(user);
 
     UserMailConfiguration userMailConfiguration = new UserMailConfiguration();
     userMailConfiguration.setLanguage(locale.getLanguage());
-    when(context.getUserConfiguration(user.getId())).thenReturn(Optional.of(userMailConfiguration));
+    if (unsubscribedTopics.length > 0) {
+      userMailConfiguration.setUnsubscribedTopics(ImmutableSet.copyOf(unsubscribedTopics));
+    }
+    when(context.getUserConfiguration(user.getId())).thenReturn(of(userMailConfiguration));
   }
 
   private void assertRecipient(Email email, String displayName, String address) {
@@ -289,8 +325,8 @@ class DefaultMailServiceTest {
   }
 
   private void mockContentRenderer(Locale locale, String template, Object model, MailTemplateType type, MailContent content) throws IOException {
-    when(mailContentRendererFactory.createMailContentRenderer(template, type)).thenReturn(mailContentRenderer);
-    when(mailContentRenderer.createMailContent(locale, model)).thenReturn(content);
+    lenient().when(mailContentRendererFactory.createMailContentRenderer(template, type)).thenReturn(mailContentRenderer);
+    lenient().when(mailContentRenderer.createMailContent(locale, model)).thenReturn(content);
   }
 
   private void configureMailer() {

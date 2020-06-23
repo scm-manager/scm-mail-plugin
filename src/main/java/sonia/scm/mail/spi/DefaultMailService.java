@@ -42,6 +42,7 @@ import sonia.scm.mail.api.MailContext;
 import sonia.scm.mail.api.MailSendBatchException;
 import sonia.scm.mail.api.MailSendException;
 import sonia.scm.mail.api.MailTemplateType;
+import sonia.scm.mail.api.Topic;
 import sonia.scm.mail.api.UserMailConfiguration;
 import sonia.scm.mail.spi.content.MailContent;
 import sonia.scm.mail.spi.content.MailContentRenderer;
@@ -315,6 +316,7 @@ public class DefaultMailService extends AbstractMailService
 
     private MailConfiguration configuration;
     private String fromDisplayName;
+    private Topic topic;
     private final Set<String> users = new HashSet<>();
     private final Set<Recipient> external = new HashSet<>();
 
@@ -368,6 +370,12 @@ public class DefaultMailService extends AbstractMailService
     @Override
     public EnvelopeBuilder toAddress(Locale locale, String emailAddress) {
       external.add(new Recipient(locale, emailAddress));
+      return this;
+    }
+
+    @Override
+    public EnvelopeBuilder onTopic(Topic topic) {
+      this.topic = topic;
       return this;
     }
 
@@ -498,9 +506,24 @@ public class DefaultMailService extends AbstractMailService
 
     private Set<Recipient> collectUserRecipients() {
       return envelopeBuilder.users.stream()
+        .filter(this::subscribedToTopic)
         .map(this::mapUserToRecipient)
         .filter(Objects::nonNull)
         .collect(Collectors.toSet());
+    }
+
+    private boolean subscribedToTopic(String userId) {
+      if (envelopeBuilder.topic == null) {
+        return true;
+      }
+      return getContext().getUserConfiguration(userId)
+        .map(this::subscribedToTopic)
+        .orElse(true);
+    }
+
+    private Boolean subscribedToTopic(UserMailConfiguration userMailConfiguration) {
+      Set<Topic> unsubscribedTopics = userMailConfiguration.getUnsubscribedTopics();
+      return unsubscribedTopics == null || !unsubscribedTopics.contains(envelopeBuilder.topic);
     }
 
     private Recipient mapUserToRecipient(String username) {
