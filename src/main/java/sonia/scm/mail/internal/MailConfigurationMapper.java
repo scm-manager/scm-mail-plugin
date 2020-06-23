@@ -90,6 +90,7 @@ public abstract class MailConfigurationMapper {
     Links.Builder links = Links.linkingTo();
     links.self(mailConfigurationResourceLinks.userConfigLink());
     links.single(link("update", mailConfigurationResourceLinks.updateUserConfigLink()));
+    links.single(link("availableTopics", mailConfigurationResourceLinks.topics()));
     dto.add(links.build());
   }
 

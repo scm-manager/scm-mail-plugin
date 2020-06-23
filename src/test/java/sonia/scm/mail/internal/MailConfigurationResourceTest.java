@@ -99,7 +99,7 @@ class MailConfigurationResourceTest {
   void shouldReturnConfigurationForUser() throws URISyntaxException, UnsupportedEncodingException {
     UserMailConfiguration userMailConfiguration = new UserMailConfiguration();
     userMailConfiguration.setLanguage("vogon");
-    userMailConfiguration.setSubscribedTopics(singleton(new Topic(new Category("hitchhiker"), "towel")));
+    userMailConfiguration.setUnsubscribedTopics(singleton(new Topic(new Category("hitchhiker"), "towel")));
     when(context.getUserConfiguration("dent")).thenReturn(of(userMailConfiguration));
 
     dispatcher.invoke(create("GET", "/v2/plugins/mail/user-config"), response);
@@ -118,7 +118,7 @@ class MailConfigurationResourceTest {
 
     UserMailConfigurationDto userMailConfigurationDto = new UserMailConfigurationDto();
     userMailConfigurationDto.setLanguage("vogon");
-    userMailConfigurationDto.setSubscribedTopics(singleton(new TopicDto(new CategoryDto("hitchhiker"), "towel")));
+    userMailConfigurationDto.setUnsubscribedTopics(singleton(new TopicDto(new CategoryDto("hitchhiker"), "towel")));
     doNothing().when(context).store(eq("dent"), configCaptor.capture());
 
     dispatcher.invoke(
@@ -131,7 +131,7 @@ class MailConfigurationResourceTest {
       response);
 
     assertThat(response.getStatus()).isEqualTo(204);
-    assertThat(configCaptor.getValue().getSubscribedTopics()).containsExactly(new Topic(new Category("hitchhiker"), "towel"));
+    assertThat(configCaptor.getValue().getUnsubscribedTopics()).containsExactly(new Topic(new Category("hitchhiker"), "towel"));
     assertThat(configCaptor.getValue().getLanguage()).isEqualTo("vogon");
   }
 }

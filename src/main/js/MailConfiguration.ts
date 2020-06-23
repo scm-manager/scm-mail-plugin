@@ -23,8 +23,23 @@
  */
 import { Links } from "@scm-manager/ui-types";
 
+export type Category = {
+  name: string;
+};
+
+export type Topic = {
+  category: Category;
+  name: string;
+};
+
+export type AvailableTopics = {
+  topics: Topic[];
+}
+
 export type UserMailConfiguration = {
   language: string;
+  unsubscribedTopics?: Topic[];
+  _links: Links;
 };
 
 export type MailConfiguration = {

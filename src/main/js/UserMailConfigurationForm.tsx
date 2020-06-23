@@ -21,10 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import { DropDown } from "@scm-manager/ui-components";
-import { withTranslation, WithTranslation } from "react-i18next";
-import { UserMailConfiguration } from "./MailConfiguration";
+import React, { FC, useEffect, useState } from "react";
+import { Link } from "@scm-manager/ui-types";
+import { Checkbox, DropDown, ErrorNotification, Loading, apiClient } from "@scm-manager/ui-components";
+import { useTranslation, WithTranslation } from "react-i18next";
+import { AvailableTopics, Topic, UserMailConfiguration } from "./MailConfiguration";
 
 type Props = WithTranslation & {
   initialConfiguration: UserMailConfiguration;
@@ -32,35 +33,120 @@ type Props = WithTranslation & {
   onConfigurationChange: (p1: UserMailConfiguration, p2: boolean) => void;
 };
 
-type State = UserMailConfiguration;
+const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, onConfigurationChange }) => {
+  const [config, setConfig] = useState<UserMailConfiguration>(initialConfiguration);
+  const [availableTopics, setAvailableTopics] = useState<AvailableTopics>({ topics: [] });
+  const [topicsLoading, setTopicsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<Error>();
+  const [t] = useTranslation("plugins");
 
-class UserMailConfigurationForm extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = props.initialConfiguration;
-  }
-
-  languageChangedHandler = (value: string) => {
-    this.setState({ language: value }, () => this.props.onConfigurationChange(this.state, true));
+  const getContent = (url: string) => {
+    return apiClient.get(url).then(response => response.json());
   };
 
-  render() {
-    const { readOnly, t } = this.props;
-    return (
+  useEffect(() => {
+    getContent((config._links.availableTopics as Link).href)
+      .then(topics => {
+        setTopicsLoading(false);
+        setAvailableTopics(topics);
+      })
+      .catch(error => {
+        setTopicsLoading(false);
+        setError(error);
+      });
+  }, [initialConfiguration]);
+
+  if (error) {
+    return <ErrorNotification error={error} />;
+  }
+
+  const topicsEqual = (t1: Topic) => {
+    return (t2: Topic) => {
+      return t1.category.name === t2.category.name && t1.name === t2.name;
+    };
+  };
+
+  const languageChangedHandler = (value: string) => {
+    const newConfig = { ...config, language: value };
+    setConfig(newConfig);
+    onConfigurationChange(newConfig, true);
+  };
+
+  const topicChangedHandler = (topic: Topic) => {
+    return (value: boolean) => {
+      let newUnsubscribedTopics;
+      if (value) {
+        if (config.unsubscribedTopics) {
+          newUnsubscribedTopics = config.unsubscribedTopics.filter(other => !topicsEqual(topic)(other));
+        }
+      } else {
+        newUnsubscribedTopics = config.unsubscribedTopics ? [...config.unsubscribedTopics] : [];
+        newUnsubscribedTopics.push(topic);
+      }
+      const newConfig = { ...config, unsubscribedTopics: newUnsubscribedTopics };
+      setConfig(newConfig);
+      onConfigurationChange(newConfig, true);
+    };
+  };
+
+  type TopicInCategories = {
+    [name: string]: Topic[];
+  };
+
+  const groupedTopics = () => {
+    return availableTopics.topics.reduce((categories: TopicInCategories, topic) => {
+      (categories[topic.category.name] = categories[topic.category.name] || []).push(topic);
+      return categories;
+    }, {});
+  };
+
+  const topicSelected = (topic: Topic) => {
+    if (!config?.unsubscribedTopics) {
+      return true;
+    }
+    return !config.unsubscribedTopics.find(topicsEqual(topic));
+  };
+
+  const topics = topicsLoading ? (
+    <Loading />
+  ) : availableTopics?.topics?.length > 0 ? (
+    <div className="field">
+      <label className="label">{t("scm-mail-plugin.topics.header")}</label>
+      {Object.entries(groupedTopics()).map(categoryWithTopics => (
+        <>
+          <label className="label">{t("scm-mail-plugin.topics.categories." + categoryWithTopics[0] + ".label")}</label>
+          {categoryWithTopics[1].map(topic => (
+            <Checkbox
+              name={topic.category.name + "/" + topic.name}
+              label={t(
+                "scm-mail-plugin.topics.categories." + categoryWithTopics[0] + ".topics." + topic.name + ".label"
+              )}
+              checked={topicSelected(topic)}
+              onChange={topicChangedHandler(topic)}
+            />
+          ))}
+        </>
+      ))}
+    </div>
+  ) : null;
+
+  return (
+    <>
       <div className="field">
         <label className="label">{t("scm-mail-plugin.form.language")}</label>
         <div className="control">
           <DropDown
             options={[t("scm-mail-plugin.language.de"), t("scm-mail-plugin.language.en")]}
             optionValues={["de", "en"]}
-            preselectedOption={this.state.language}
-            optionSelected={this.languageChangedHandler}
+            preselectedOption={config.language}
+            optionSelected={languageChangedHandler}
             disabled={readOnly}
           />
         </div>
       </div>
-    );
-  }
-}
+      {topics}
+    </>
+  );
+};
 
-export default withTranslation("plugins")(UserMailConfigurationForm);
+export default UserMailConfigurationForm;

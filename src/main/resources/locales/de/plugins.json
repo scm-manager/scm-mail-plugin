@@ -24,6 +24,9 @@
       "close": "Schließen",
       "error": "Das Senden der Test E-Mail ist fehlgeschlagen.",
       "success": "Die E-Mail wurde erfolgreich versandt."
+    },
+    "topics": {
+      "header": "Abonnierte Kanäle"
     }
   },
   "permissions": {

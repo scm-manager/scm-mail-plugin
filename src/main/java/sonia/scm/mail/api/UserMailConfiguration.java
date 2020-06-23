@@ -34,5 +34,5 @@ public class UserMailConfiguration {
 
   private String language;
 
-  private Set<Topic> subscribedTopics;
+  private Set<Topic> unsubscribedTopics;
 }
