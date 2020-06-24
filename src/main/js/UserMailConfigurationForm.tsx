@@ -93,7 +93,7 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
     [name: string]: Topic[];
   };
 
-  const groupedTopics = () => {
+  const groupTopics = () => {
     const categories: TopicInCategories = {};
     new Set(availableTopics.topics.map(topic => topic.category.name)).forEach(
       categoryName =>
@@ -109,26 +109,80 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
     return !config.excludedTopics.find(topicsEqual(topic));
   };
 
-  const topics = topicsLoading ? (
-    <Loading />
-  ) : availableTopics?.topics?.length > 0 ? (
-    <div className="field">
-      <label className="label">{t("scm-mail-plugin.topics.header")}</label>
-      {Object.entries(groupedTopics()).map(categoryWithTopics => (
-        <>
-          <label className="label">{t("mailTopics." + categoryWithTopics[0] + ".label")}</label>
-          {categoryWithTopics[1].map(topic => (
-            <Checkbox
-              name={topic.category.name + "/" + topic.name}
-              label={t("mailTopics." + categoryWithTopics[0] + "." + topic.name + ".label")}
-              checked={topicSelected(topic)}
-              onChange={topicChangedHandler(topic)}
-            />
-          ))}
-        </>
-      ))}
-    </div>
-  ) : null;
+  const divideTopicsIntoColumns = () => {
+    // We will create two 'column' objects containing the categories with their
+    // corresponding topics.
+    // To get two columns with a more or less equal number of topics, first we
+    // fill up the second column unless we have not put more than the half of
+    // all topics into it. The rest of the topics will go into the first column.
+    // Doing this we will assure that we utilize the columns best and that the
+    // second column is not longer than the first.
+    // To take the category headings into account, we count them as topics.
+    const firstColumn: TopicInCategories = {};
+    const secondColumn: TopicInCategories = {};
+    const groupedTopics = groupTopics();
+    const topicCount = Object.entries(groupedTopics)
+      .map(categoryWithTopics => categoryWithTopics[1])
+      .map(topics => topics.length)
+      .reduce((accumulator, n) => n + accumulator);
+    const lineCount = topicCount + Object.entries(groupedTopics).length;
+
+    let currentCount = 0;
+    Object.entries(groupedTopics).forEach(categoryWithTopics => {
+      if (currentCount + categoryWithTopics[1].length <= lineCount / 2) {
+        currentCount += categoryWithTopics[1].length + 1;
+        secondColumn[categoryWithTopics[0]] = categoryWithTopics[1];
+      }
+    });
+    Object.entries(groupedTopics).forEach(categoryWithTopics => {
+      if (!secondColumn[categoryWithTopics[0]]) {
+        firstColumn[categoryWithTopics[0]] = categoryWithTopics[1];
+      }
+    });
+
+    return [firstColumn, secondColumn];
+  };
+
+  let topics;
+
+  const createTopicColumn = (topicsInCategories: TopicInCategories) => {
+    return (
+      <div className={"column is-half"}>
+        {Object.entries(topicsInCategories).map(categoryWithTopics => (
+          <>
+            <label className="label">{t("mailTopics." + categoryWithTopics[0] + ".label")}</label>
+            {categoryWithTopics[1].map(topic => (
+              <Checkbox
+                name={topic.category.name + "/" + topic.name}
+                label={t("mailTopics." + categoryWithTopics[0] + "." + topic.name + ".label")}
+                checked={topicSelected(topic)}
+                onChange={topicChangedHandler(topic)}
+              />
+            ))}
+          </>
+        ))}
+      </div>
+    );
+  };
+
+  if (topicsLoading) {
+    topics = <Loading />;
+  } else if (availableTopics?.topics?.length > 0) {
+    const topicColumns = divideTopicsIntoColumns();
+    const firstColumn = topicColumns[0];
+    const secondColumn = topicColumns[1];
+    topics = (
+      <>
+        <label className="label">{t("scm-mail-plugin.topics.header")}</label>
+        <div className="columns">
+          {createTopicColumn(firstColumn)}
+          {createTopicColumn(secondColumn)}
+        </div>
+      </>
+    );
+  } else {
+    topics = null;
+  }
 
   return (
     <>
