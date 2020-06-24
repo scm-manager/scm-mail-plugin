@@ -114,12 +114,12 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
       <label className="label">{t("scm-mail-plugin.topics.header")}</label>
       {Object.entries(groupedTopics()).map(categoryWithTopics => (
         <>
-          <label className="label">{t("scm-mail-plugin.topics.categories." + categoryWithTopics[0] + ".label")}</label>
+          <label className="label">{t("mailTopics." + categoryWithTopics[0] + ".label")}</label>
           {categoryWithTopics[1].map(topic => (
             <Checkbox
               name={topic.category.name + "/" + topic.name}
               label={t(
-                "scm-mail-plugin.topics.categories." + categoryWithTopics[0] + ".topics." + topic.name + ".label"
+                "mailTopics." + categoryWithTopics[0] + "." + topic.name + ".label"
               )}
               checked={topicSelected(topic)}
               onChange={topicChangedHandler(topic)}
