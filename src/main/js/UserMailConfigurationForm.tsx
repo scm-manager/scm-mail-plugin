@@ -89,6 +89,23 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
     };
   };
 
+  const categoryChangedHandler = (category: string) => {
+    return (value: boolean) => {
+      let newExcludedTopics;
+      if (value) {
+        if (config.excludedTopics) {
+          newExcludedTopics = config.excludedTopics.filter(other => other.category.name !== category);
+        }
+      } else {
+        newExcludedTopics = config.excludedTopics ? [...config.excludedTopics] : [];
+        availableTopics.topics.filter(topic => topic.category.name === category).forEach(topic => newExcludedTopics.push(topic));
+      }
+      const newConfig = { ...config, excludedTopics: newExcludedTopics };
+      setConfig(newConfig);
+      onConfigurationChange(newConfig, true);
+    };
+  };
+
   type TopicInCategories = {
     [name: string]: Topic[];
   };
@@ -102,7 +119,7 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
     return categories;
   };
 
-  const topicSelected = (topic: Topic) => {
+  const isTopicSelected = (topic: Topic) => {
     if (!config?.excludedTopics) {
       return true;
     }
@@ -150,12 +167,23 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
       <div className={"column is-half"}>
         {Object.entries(topicsInCategories).map(categoryWithTopics => (
           <>
-            <label className="label">{t("mailTopics." + categoryWithTopics[0] + ".label")}</label>
+            <label className="label">
+              <Checkbox
+                label={t("mailTopics." + categoryWithTopics[0] + ".label")}
+                name={categoryWithTopics[0]}
+                checked={!!categoryWithTopics[1].find(isTopicSelected)}
+                indeterminate={
+                  categoryWithTopics[1].find(isTopicSelected) &&
+                  categoryWithTopics[1].find(topic => !isTopicSelected(topic))
+                }
+                onChange={categoryChangedHandler(categoryWithTopics[0])}
+              />
+            </label>
             {categoryWithTopics[1].map(topic => (
               <Checkbox
                 name={topic.category.name + "/" + topic.name}
                 label={t("mailTopics." + categoryWithTopics[0] + "." + topic.name + ".label")}
-                checked={topicSelected(topic)}
+                checked={isTopicSelected(topic)}
                 onChange={topicChangedHandler(topic)}
                 helpText={t("mailTopics." + categoryWithTopics[0] + "." + topic.name + ".helpText")}
               />
