@@ -157,6 +157,7 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
                 label={t("mailTopics." + categoryWithTopics[0] + "." + topic.name + ".label")}
                 checked={topicSelected(topic)}
                 onChange={topicChangedHandler(topic)}
+                helpText={t("mailTopics." + categoryWithTopics[0] + "." + topic.name + ".helpText")}
               />
             ))}
           </>
