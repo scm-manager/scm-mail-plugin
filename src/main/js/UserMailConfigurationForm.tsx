@@ -94,10 +94,12 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
   };
 
   const groupedTopics = () => {
-    return availableTopics.topics.reduce((categories: TopicInCategories, topic) => {
-      (categories[topic.category.name] = categories[topic.category.name] || []).push(topic);
-      return categories;
-    }, {});
+    const categories: TopicInCategories = {};
+    new Set(availableTopics.topics.map(topic => topic.category.name)).forEach(
+      categoryName =>
+        (categories[categoryName] = availableTopics.topics.filter(topic => topic.category.name === categoryName))
+    );
+    return categories;
   };
 
   const topicSelected = (topic: Topic) => {
@@ -118,9 +120,7 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
           {categoryWithTopics[1].map(topic => (
             <Checkbox
               name={topic.category.name + "/" + topic.name}
-              label={t(
-                "mailTopics." + categoryWithTopics[0] + "." + topic.name + ".label"
-              )}
+              label={t("mailTopics." + categoryWithTopics[0] + "." + topic.name + ".label")}
               checked={topicSelected(topic)}
               onChange={topicChangedHandler(topic)}
             />

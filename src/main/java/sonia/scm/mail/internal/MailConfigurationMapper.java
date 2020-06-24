@@ -36,6 +36,7 @@ import sonia.scm.mail.api.UserMailConfiguration;
 
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -94,7 +95,7 @@ public abstract class MailConfigurationMapper {
     dto.add(links.build());
   }
 
-  public TopicCollectionDto map(Set<Topic> availableTopics) {
+  public TopicCollectionDto map(Collection<Topic> availableTopics) {
     Links.Builder links = Links.linkingTo();
     links.self(mailConfigurationResourceLinks.topics());
     List<TopicDto> collection = availableTopics.stream().map(this::map).collect(Collectors.toList());

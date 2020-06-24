@@ -38,7 +38,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Context for the {@link MailService}. This class stores and load the default
@@ -66,7 +66,7 @@ public class MailContext
   private final ConfigurationStore<MailConfiguration> configurationStore;
   private final ConfigurationEntryStore<UserMailConfiguration> userConfigurationStore;
 
-  private final Set<Topic> availableTopics;
+  private final Collection<Topic> availableTopics;
 
   @Inject
   public MailContext(ConfigurationStoreFactory storeFactory, ConfigurationEntryStoreFactory entryStoreFactory, Set<TopicProvider> topicProviders) {
@@ -76,7 +76,7 @@ public class MailContext
     this.availableTopics = topicProviders.stream()
       .map(TopicProvider::topics)
       .flatMap(Collection::stream)
-      .collect(toSet());
+      .collect(toList());
   }
 
   /**
@@ -118,7 +118,7 @@ public class MailContext
     return Optional.ofNullable(userConfigurationStore.get(userId));
   }
 
-  public Set<Topic> availableTopics() {
+  public Collection<Topic> availableTopics() {
     return availableTopics;
   }
 }
