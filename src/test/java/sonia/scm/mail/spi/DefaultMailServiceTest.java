@@ -265,14 +265,14 @@ class DefaultMailServiceTest {
   }
 
   @Test
-  void shouldNotSendEmailToUnsubscribedUser() throws IOException, MailSendBatchException {
-    Topic unsubscribedTopic = new Topic(new Category("boring"), "stuff");
-    mockUserWithConfiguration(UserTestData.createTrillian(), Locale.ENGLISH, unsubscribedTopic);
+  void shouldNotSendEmailToUserWhoExcludedTopic() throws IOException, MailSendBatchException {
+    Topic excludedTopic = new Topic(new Category("boring"), "stuff");
+    mockUserWithConfiguration(UserTestData.createTrillian(), Locale.ENGLISH, excludedTopic);
     mockContentRenderer(Locale.ENGLISH, "my-template", "model", "Don't Panic");
 
     mailService.emailTemplateBuilder()
       .toUser("trillian")
-      .onTopic(unsubscribedTopic)
+      .onTopic(excludedTopic)
       .withSubject("Hello Tricia")
       .withTemplate("my-template", MailTemplateType.TEXT)
       .andModel("model")
@@ -282,10 +282,10 @@ class DefaultMailServiceTest {
   }
 
   @Test
-  void shouldSendEmailToUserWhenUnsubscribedFromOtherTopic() throws IOException, MailSendBatchException {
+  void shouldSendEmailToUserWhenOtherTopicExcluded() throws IOException, MailSendBatchException {
     configureMailer();
-    Topic unsubscribedTopic = new Topic(new Category("boring"), "stuff");
-    mockUserWithConfiguration(UserTestData.createTrillian(), Locale.ENGLISH, unsubscribedTopic);
+    Topic excludedTopic = new Topic(new Category("boring"), "stuff");
+    mockUserWithConfiguration(UserTestData.createTrillian(), Locale.ENGLISH, excludedTopic);
     mockContentRenderer(Locale.ENGLISH, "my-template", "model", "Don't Panic");
 
     mailService.emailTemplateBuilder()
@@ -303,13 +303,13 @@ class DefaultMailServiceTest {
     lenient().when(userDisplayManager.get(user.getId())).thenReturn(of(DisplayUser.from(user)));
   }
 
-  private void mockUserWithConfiguration(User user, Locale locale, Topic... unsubscribedTopics) {
+  private void mockUserWithConfiguration(User user, Locale locale, Topic... excludedTopics) {
     mockUser(user);
 
     UserMailConfiguration userMailConfiguration = new UserMailConfiguration();
     userMailConfiguration.setLanguage(locale.getLanguage());
-    if (unsubscribedTopics.length > 0) {
-      userMailConfiguration.setUnsubscribedTopics(ImmutableSet.copyOf(unsubscribedTopics));
+    if (excludedTopics.length > 0) {
+      userMailConfiguration.setExcludedTopics(ImmutableSet.copyOf(excludedTopics));
     }
     when(context.getUserConfiguration(user.getId())).thenReturn(of(userMailConfiguration));
   }

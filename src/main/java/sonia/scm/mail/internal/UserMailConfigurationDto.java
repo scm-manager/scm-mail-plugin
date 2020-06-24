@@ -35,7 +35,7 @@ import java.util.Set;
 public class UserMailConfigurationDto extends HalRepresentation {
 
   private String language;
-  private Set<TopicDto> unsubscribedTopics;
+  private Set<TopicDto> excludedTopics;
 
   @Override
   @SuppressWarnings("squid:S1185") // We want to have this method available in this package

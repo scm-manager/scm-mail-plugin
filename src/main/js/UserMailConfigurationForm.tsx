@@ -74,16 +74,16 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
 
   const topicChangedHandler = (topic: Topic) => {
     return (value: boolean) => {
-      let newUnsubscribedTopics;
+      let newExcludedTopics;
       if (value) {
-        if (config.unsubscribedTopics) {
-          newUnsubscribedTopics = config.unsubscribedTopics.filter(other => !topicsEqual(topic)(other));
+        if (config.excludedTopics) {
+          newExcludedTopics = config.excludedTopics.filter(other => !topicsEqual(topic)(other));
         }
       } else {
-        newUnsubscribedTopics = config.unsubscribedTopics ? [...config.unsubscribedTopics] : [];
-        newUnsubscribedTopics.push(topic);
+        newExcludedTopics = config.excludedTopics ? [...config.excludedTopics] : [];
+        newExcludedTopics.push(topic);
       }
-      const newConfig = { ...config, unsubscribedTopics: newUnsubscribedTopics };
+      const newConfig = { ...config, excludedTopics: newExcludedTopics };
       setConfig(newConfig);
       onConfigurationChange(newConfig, true);
     };
@@ -101,10 +101,10 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
   };
 
   const topicSelected = (topic: Topic) => {
-    if (!config?.unsubscribedTopics) {
+    if (!config?.excludedTopics) {
       return true;
     }
-    return !config.unsubscribedTopics.find(topicsEqual(topic));
+    return !config.excludedTopics.find(topicsEqual(topic));
   };
 
   const topics = topicsLoading ? (

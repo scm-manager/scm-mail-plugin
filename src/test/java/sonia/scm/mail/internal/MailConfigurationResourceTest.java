@@ -99,7 +99,7 @@ class MailConfigurationResourceTest {
   void shouldReturnConfigurationForUser() throws URISyntaxException, UnsupportedEncodingException {
     UserMailConfiguration userMailConfiguration = new UserMailConfiguration();
     userMailConfiguration.setLanguage("vogon");
-    userMailConfiguration.setUnsubscribedTopics(singleton(new Topic(new Category("hitchhiker"), "towel")));
+    userMailConfiguration.setExcludedTopics(singleton(new Topic(new Category("hitchhiker"), "towel")));
     when(context.getUserConfiguration("dent")).thenReturn(of(userMailConfiguration));
 
     dispatcher.invoke(create("GET", "/v2/plugins/mail/user-config"), response);
@@ -109,7 +109,7 @@ class MailConfigurationResourceTest {
       .contains("\"self\":{\"href\":\"/v2/plugins/mail/user-config\"}")
       .contains("\"update\":{\"href\":\"/v2/plugins/mail/user-config\"}")
       .contains("\"language\":\"vogon\"")
-      .contains("\"unsubscribedTopics\":[{\"category\":{\"name\":\"hitchhiker\"},\"name\":\"towel\"}]");
+      .contains("\"excludedTopics\":[{\"category\":{\"name\":\"hitchhiker\"},\"name\":\"towel\"}]");
   }
 
   @Test
@@ -118,7 +118,7 @@ class MailConfigurationResourceTest {
 
     UserMailConfigurationDto userMailConfigurationDto = new UserMailConfigurationDto();
     userMailConfigurationDto.setLanguage("vogon");
-    userMailConfigurationDto.setUnsubscribedTopics(singleton(new TopicDto(new CategoryDto("hitchhiker"), "towel")));
+    userMailConfigurationDto.setExcludedTopics(singleton(new TopicDto(new CategoryDto("hitchhiker"), "towel")));
     doNothing().when(context).store(eq("dent"), configCaptor.capture());
 
     dispatcher.invoke(
@@ -126,12 +126,12 @@ class MailConfigurationResourceTest {
         .contentType("application/json")
         .content(("{\"" +
           "language\":\"vogon\"," +
-          "\"unsubscribedTopics\":[{\"category\":{\"name\":\"hitchhiker\"},\"name\":\"towel\"}]" +
+          "\"excludedTopics\":[{\"category\":{\"name\":\"hitchhiker\"},\"name\":\"towel\"}]" +
           "}").getBytes()),
       response);
 
     assertThat(response.getStatus()).isEqualTo(204);
-    assertThat(configCaptor.getValue().getUnsubscribedTopics()).containsExactly(new Topic(new Category("hitchhiker"), "towel"));
+    assertThat(configCaptor.getValue().getExcludedTopics()).containsExactly(new Topic(new Category("hitchhiker"), "towel"));
     assertThat(configCaptor.getValue().getLanguage()).isEqualTo("vogon");
   }
 }

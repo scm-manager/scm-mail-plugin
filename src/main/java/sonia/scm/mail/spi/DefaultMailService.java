@@ -522,8 +522,8 @@ public class DefaultMailService extends AbstractMailService
     }
 
     private Boolean subscribedToTopic(UserMailConfiguration userMailConfiguration) {
-      Set<Topic> unsubscribedTopics = userMailConfiguration.getUnsubscribedTopics();
-      return unsubscribedTopics == null || !unsubscribedTopics.contains(envelopeBuilder.topic);
+      Set<Topic> excludedTopics = userMailConfiguration.getExcludedTopics();
+      return excludedTopics == null || !excludedTopics.contains(envelopeBuilder.topic);
     }
 
     private Recipient mapUserToRecipient(String username) {

@@ -38,7 +38,7 @@ export type AvailableTopics = {
 
 export type UserMailConfiguration = {
   language: string;
-  unsubscribedTopics?: Topic[];
+  excludedTopics?: Topic[];
   _links: Links;
 };
 
