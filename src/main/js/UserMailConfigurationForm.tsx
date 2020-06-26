@@ -23,7 +23,7 @@
  */
 import React, { FC, useEffect, useState } from "react";
 import { Link } from "@scm-manager/ui-types";
-import { Checkbox, DropDown, ErrorNotification, Loading, apiClient } from "@scm-manager/ui-components";
+import { Checkbox, DropDown, ErrorNotification, Help, Loading, apiClient } from "@scm-manager/ui-components";
 import { useTranslation, WithTranslation } from "react-i18next";
 import { AvailableTopics, Topic, UserMailConfiguration } from "./MailConfiguration";
 
@@ -202,7 +202,7 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
     const secondColumn = topicColumns[1];
     topics = (
       <>
-        <label className="label">{t("scm-mail-plugin.topics.header")}</label>
+        <label className="label">{t("scm-mail-plugin.topics.header")} <Help message={t("scm-mail-plugin.topics.helpText")} /></label>
         <div className="columns">
           {createTopicColumn(firstColumn)}
           {createTopicColumn(secondColumn)}

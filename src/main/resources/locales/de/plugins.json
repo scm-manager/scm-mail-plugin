@@ -26,7 +26,8 @@
       "success": "Die E-Mail wurde erfolgreich versandt."
     },
     "topics": {
-      "header": "Abonnierte Kanäle"
+      "header": "Abonnierte Kanäle",
+      "helpText": "Hier können Sie auswählen, zu welchen Themen Sie Benachrichtigungen per Mail erhalten wollen."
     }
   },
   "permissions": {
