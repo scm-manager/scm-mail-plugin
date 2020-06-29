@@ -26,11 +26,13 @@ package sonia.scm.mail.internal;
 
 import de.otto.edison.hal.HalRepresentation;
 import de.otto.edison.hal.Links;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Collection;
 
-@Data
+@Getter
+@Setter
 public class TopicCollectionDto extends HalRepresentation {
   private Collection<TopicDto> topics;
 
