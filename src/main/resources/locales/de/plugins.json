@@ -27,7 +27,7 @@
     },
     "topics": {
       "header": "Abonnierte Kanäle",
-      "helpText": "Hier können Sie auswählen, zu welchen Themen Sie Benachrichtigungen per Mail erhalten wollen."
+      "helpText": "Zu den ausgewählten Themen werden Benachrichtigungen per Mail verschickt."
     }
   },
   "permissions": {
