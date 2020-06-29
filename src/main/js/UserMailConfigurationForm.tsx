@@ -26,6 +26,7 @@ import { Link } from "@scm-manager/ui-types";
 import { Checkbox, DropDown, ErrorNotification, Help, Loading, apiClient } from "@scm-manager/ui-components";
 import { useTranslation, WithTranslation } from "react-i18next";
 import { AvailableTopics, Topic, UserMailConfiguration } from "./MailConfiguration";
+import { divideTopicsIntoColumns } from "./divideTopicsIntoColumns";
 
 type Props = WithTranslation & {
   initialConfiguration: UserMailConfiguration;
@@ -98,7 +99,9 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
         }
       } else {
         newExcludedTopics = config.excludedTopics ? [...config.excludedTopics] : [];
-        availableTopics.topics.filter(topic => topic.category.name === category).forEach(topic => newExcludedTopics.push(topic));
+        availableTopics.topics
+          .filter(topic => topic.category.name === category)
+          .forEach(topic => newExcludedTopics.push(topic));
       }
       const newConfig = { ...config, excludedTopics: newExcludedTopics };
       setConfig(newConfig);
@@ -110,54 +113,11 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
     [name: string]: Topic[];
   };
 
-  const groupTopics = () => {
-    const categories: TopicInCategories = {};
-    new Set(availableTopics.topics.map(topic => topic.category.name)).forEach(
-      categoryName =>
-        (categories[categoryName] = availableTopics.topics.filter(topic => topic.category.name === categoryName))
-    );
-    return categories;
-  };
-
   const isTopicSelected = (topic: Topic) => {
     if (!config?.excludedTopics) {
       return true;
     }
     return !config.excludedTopics.find(topicsEqual(topic));
-  };
-
-  const divideTopicsIntoColumns = () => {
-    // We will create two 'column' objects containing the categories with their
-    // corresponding topics.
-    // To get two columns with a more or less equal number of topics, first we
-    // fill up the second column unless we have not put more than the half of
-    // all topics into it. The rest of the topics will go into the first column.
-    // Doing this we will assure that we utilize the columns best and that the
-    // second column is not longer than the first.
-    // To take the category headings into account, we count them as topics.
-    const firstColumn: TopicInCategories = {};
-    const secondColumn: TopicInCategories = {};
-    const groupedTopics = groupTopics();
-    const topicCount = Object.entries(groupedTopics)
-      .map(categoryWithTopics => categoryWithTopics[1])
-      .map(topics => topics.length)
-      .reduce((accumulator, n) => n + accumulator);
-    const lineCount = topicCount + Object.entries(groupedTopics).length;
-
-    let currentCount = 0;
-    Object.entries(groupedTopics).forEach(categoryWithTopics => {
-      if (currentCount + categoryWithTopics[1].length <= lineCount / 2) {
-        currentCount += categoryWithTopics[1].length + 1;
-        secondColumn[categoryWithTopics[0]] = categoryWithTopics[1];
-      }
-    });
-    Object.entries(groupedTopics).forEach(categoryWithTopics => {
-      if (!secondColumn[categoryWithTopics[0]]) {
-        firstColumn[categoryWithTopics[0]] = categoryWithTopics[1];
-      }
-    });
-
-    return [firstColumn, secondColumn];
   };
 
   let topics;
@@ -197,12 +157,14 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
   if (topicsLoading) {
     topics = <Loading />;
   } else if (availableTopics?.topics?.length > 0) {
-    const topicColumns = divideTopicsIntoColumns();
+    const topicColumns = divideTopicsIntoColumns(availableTopics);
     const firstColumn = topicColumns[0];
     const secondColumn = topicColumns[1];
     topics = (
       <>
-        <label className="label">{t("scm-mail-plugin.topics.header")} <Help message={t("scm-mail-plugin.topics.helpText")} /></label>
+        <label className="label">
+          {t("scm-mail-plugin.topics.header")} <Help message={t("scm-mail-plugin.topics.helpText")} />
+        </label>
         <div className="columns">
           {createTopicColumn(firstColumn)}
           {createTopicColumn(secondColumn)}
