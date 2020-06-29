@@ -61,6 +61,10 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
     return <ErrorNotification error={error} />;
   }
 
+  if (topicsLoading) {
+    return <Loading />;
+  }
+
   const topicsEqual = (t1: Topic) => {
     return (t2: Topic) => {
       return t1.category.name === t2.category.name && t1.name === t2.name;
@@ -154,9 +158,7 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
     );
   };
 
-  if (topicsLoading) {
-    topics = <Loading />;
-  } else if (availableTopics?.topics?.length > 0) {
+  if (availableTopics?.topics?.length > 0) {
     const topicColumns = divideTopicsIntoColumns(availableTopics);
     const firstColumn = topicColumns[0];
     const secondColumn = topicColumns[1];
