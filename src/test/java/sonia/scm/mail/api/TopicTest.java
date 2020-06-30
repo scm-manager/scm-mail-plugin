@@ -21,34 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { Links } from "@scm-manager/ui-types";
 
-export type Category = {
-  name: string;
-};
+package sonia.scm.mail.api;
 
-export type Topic = {
-  category: Category;
-  name: string;
-};
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import sonia.scm.store.SerializationTestUtil;
 
-export type AvailableTopics = {
-  topics: Topic[];
+class TopicTest {
+
+  @Test
+  void canSerialize() {
+    Topic input = new Topic(new Category("category"), "topig");
+    Topic result = SerializationTestUtil.toAndFromXml(Topic.class, input);
+
+    Assertions.assertThat(result).isEqualTo(input);
+  }
 }
-
-export type UserMailConfiguration = {
-  language: string;
-  excludedTopics?: Topic[];
-  _links: Links;
-};
-
-export type MailConfiguration = {
-  host: string;
-  port: number;
-  from: string;
-  username: string;
-  subjectPrefix: string;
-  transportStrategy: string;
-  language: string;
-  _links: Links;
-};

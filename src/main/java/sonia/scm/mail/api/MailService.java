@@ -194,6 +194,14 @@ public interface MailService
     EnvelopeBuilder toAddress(Locale locale, String displayName, String emailAddress);
 
     /**
+     * If this is set, emails are only sent to those recipients, that have not unsubscribed from the given topic.
+     * @param topic The topic for this mail.
+     *
+     * @return {@code this}
+     */
+    EnvelopeBuilder onTopic(Topic topic);
+
+    /**
      * Sets the default subject for the mail and returns the next step of the builder.
      *
      * @param subject default mail subject

@@ -21,34 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { Links } from "@scm-manager/ui-types";
 
-export type Category = {
-  name: string;
-};
+package sonia.scm.mail.api;
 
-export type Topic = {
-  category: Category;
-  name: string;
-};
+import sonia.scm.plugin.ExtensionPoint;
 
-export type AvailableTopics = {
-  topics: Topic[];
+import java.util.Collection;
+
+@ExtensionPoint
+public interface TopicProvider {
+  Collection<Topic> topics();
 }
-
-export type UserMailConfiguration = {
-  language: string;
-  excludedTopics?: Topic[];
-  _links: Links;
-};
-
-export type MailConfiguration = {
-  host: string;
-  port: number;
-  from: string;
-  username: string;
-  subjectPrefix: string;
-  transportStrategy: string;
-  language: string;
-  _links: Links;
-};

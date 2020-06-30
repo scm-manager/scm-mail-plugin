@@ -63,5 +63,11 @@ public class MailConfigurationResourceLinks {
       .method("sendTestMessage").parameters()
       .href();
   }
+
+  public String topics() {
+    return linkBuilder
+      .method("getTopics").parameters()
+      .href();
+  }
 }
 

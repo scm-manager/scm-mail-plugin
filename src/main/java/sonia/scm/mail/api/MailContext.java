@@ -34,7 +34,11 @@ import sonia.scm.store.ConfigurationStore;
 import sonia.scm.store.ConfigurationStoreFactory;
 import sonia.scm.util.AssertUtil;
 
+import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Context for the {@link MailService}. This class stores and load the default
@@ -56,16 +60,24 @@ public class MailContext
   private static final Logger logger =
     LoggerFactory.getLogger(MailContext.class);
 
-  //~--- constructors ---------------------------------------------------------
+
+  private MailConfiguration configuration;
+
+  private final ConfigurationStore<MailConfiguration> configurationStore;
+  private final ConfigurationEntryStore<UserMailConfiguration> userConfigurationStore;
+
+  private final Collection<Topic> availableTopics;
 
   @Inject
-  public MailContext(ConfigurationStoreFactory storeFactory, ConfigurationEntryStoreFactory entryStoreFactory) {
+  public MailContext(ConfigurationStoreFactory storeFactory, ConfigurationEntryStoreFactory entryStoreFactory, Set<TopicProvider> topicProviders) {
     this.configurationStore = storeFactory.withType(MailConfiguration.class).withName(CONFIG_STORE_NAME).build();
     this.userConfigurationStore = entryStoreFactory.withType(UserMailConfiguration.class).withName(USER_CONFIGURATION_STORE_NAME).build();
     this.configuration = this.configurationStore.get();
+    this.availableTopics = topicProviders.stream()
+      .map(TopicProvider::topics)
+      .flatMap(Collection::stream)
+      .collect(toList());
   }
-
-  //~--- methods --------------------------------------------------------------
 
   /**
    * Stores the given mail configuration as default one.
@@ -85,8 +97,6 @@ public class MailContext
   public void store(String userId, UserMailConfiguration userMailConfiguration) {
     userConfigurationStore.put(userId, userMailConfiguration);
   }
-
-  //~--- get methods ----------------------------------------------------------
 
   /**
    * Returns the current default mail configuration.
@@ -108,11 +118,7 @@ public class MailContext
     return Optional.ofNullable(userConfigurationStore.get(userId));
   }
 
-  //~--- fields ---------------------------------------------------------------
-
-  /** default mail configuration */
-  private MailConfiguration configuration;
-
-  private final ConfigurationStore<MailConfiguration> configurationStore;
-  private final ConfigurationEntryStore<UserMailConfiguration> userConfigurationStore;
+  public Collection<Topic> availableTopics() {
+    return availableTopics;
+  }
 }

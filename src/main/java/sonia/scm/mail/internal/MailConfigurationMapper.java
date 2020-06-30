@@ -29,11 +29,17 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import sonia.scm.config.ConfigurationPermissions;
+import sonia.scm.mail.api.Category;
 import sonia.scm.mail.api.MailConfiguration;
+import sonia.scm.mail.api.Topic;
 import sonia.scm.mail.api.UserMailConfiguration;
 
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static de.otto.edison.hal.Link.link;
 
@@ -43,14 +49,26 @@ public abstract class MailConfigurationMapper {
   private MailConfigurationResourceLinks mailConfigurationResourceLinks = new MailConfigurationResourceLinks(() -> URI.create("/"));
 
   @Mapping(target = "attributes", ignore = true)
-  protected abstract MailConfigurationDto map(MailConfiguration mailConfiguration);
+  abstract MailConfigurationDto map(MailConfiguration mailConfiguration);
 
-  protected abstract MailConfiguration map(MailConfigurationDto dto);
+  abstract MailConfiguration map(MailConfigurationDto dto);
 
   @Mapping(target = "attributes", ignore = true)
-  protected abstract UserMailConfigurationDto map(UserMailConfiguration userConfiguration);
+  abstract UserMailConfigurationDto map(UserMailConfiguration userConfiguration);
 
-  protected abstract UserMailConfiguration map(UserMailConfigurationDto dto);
+  abstract UserMailConfiguration map(UserMailConfigurationDto dto);
+
+  abstract TopicDto map(Topic topic);
+
+  abstract Topic map(TopicDto dto);
+
+  abstract CategoryDto map(Category category);
+
+  abstract Category map(CategoryDto dto);
+
+  abstract Set<Topic> mapTopicDtoCollection(Set<TopicDto> dtos);
+
+  abstract Set<TopicDto> mapTopicCollection(Set<Topic> topics);
 
   public MailConfigurationMapper using(UriInfo uriInfo) {
     mailConfigurationResourceLinks = new MailConfigurationResourceLinks(uriInfo::getBaseUri);
@@ -73,6 +91,14 @@ public abstract class MailConfigurationMapper {
     Links.Builder links = Links.linkingTo();
     links.self(mailConfigurationResourceLinks.userConfigLink());
     links.single(link("update", mailConfigurationResourceLinks.updateUserConfigLink()));
+    links.single(link("availableTopics", mailConfigurationResourceLinks.topics()));
     dto.add(links.build());
+  }
+
+  public TopicCollectionDto map(Collection<Topic> availableTopics) {
+    Links.Builder links = Links.linkingTo();
+    links.self(mailConfigurationResourceLinks.topics());
+    List<TopicDto> collection = availableTopics.stream().map(this::map).collect(Collectors.toList());
+    return new TopicCollectionDto(links.build(), collection);
   }
 }

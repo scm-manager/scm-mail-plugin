@@ -26,15 +26,16 @@ package sonia.scm.mail.internal;
 import de.otto.edison.hal.HalRepresentation;
 import de.otto.edison.hal.Links;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Set;
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class UserMailConfigurationDto extends HalRepresentation {
 
   private String language;
+  private Set<TopicDto> excludedTopics;
 
   @Override
   @SuppressWarnings("squid:S1185") // We want to have this method available in this package

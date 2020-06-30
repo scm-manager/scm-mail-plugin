@@ -24,6 +24,10 @@
       "close": "Close",
       "error": "Sending test email failed.",
       "success": "Email was sent successfully."
+    },
+    "topics": {
+      "header": "Subscribed topics",
+      "helpText": "On the selected topics, email notifications will be sent."
     }
   },
   "permissions": {

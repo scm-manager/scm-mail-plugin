@@ -67,9 +67,9 @@ import javax.ws.rs.core.UriInfo;
 @Path("v2/plugins/mail")
 public class MailConfigurationResource {
 
-  private MailService mailService;
-  private MailContext context;
-  private MailConfigurationMapper mapper;
+  private final MailService mailService;
+  private final MailContext context;
+  private final MailConfigurationMapper mapper;
 
   @Inject
   public MailConfigurationResource(MailService mailService, MailContext context, MailConfigurationMapper mapper) {
@@ -237,5 +237,30 @@ public class MailConfigurationResource {
     synchronized (context) {
       context.store(currentUser.getId(), mapper.using(uriInfo).map(userMailConfigurationDto));
     }
+  }
+
+  @GET
+  @Path("topics")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Get available topics", description = "Returns the available topics that users can subscribe to", tags = "Mail Plugin")
+  @ApiResponse(
+    responseCode = "200",
+    description = "success",
+    content = @Content(
+      mediaType = MediaType.APPLICATION_JSON,
+      schema = @Schema(implementation = TopicCollectionDto.class)
+    )
+  )
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
+  public TopicCollectionDto getTopics(@Context UriInfo uriInfo) {
+    return mapper.using(uriInfo).map(context.availableTopics());
   }
 }
