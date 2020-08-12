@@ -29,6 +29,7 @@ import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
 import org.jboss.resteasy.mock.MockHttpResponse;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -54,6 +55,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static sonia.scm.SCMContext.USER_ANONYMOUS;
 
 @ExtendWith(MockitoExtension.class)
 class MailConfigurationResourceTest {
@@ -74,64 +76,99 @@ class MailConfigurationResourceTest {
     dispatcher.addSingletonResource(resource);
   }
 
-  @BeforeEach
-  void setupUser() {
-    Subject subject = mock(Subject.class);
-    PrincipalCollection principalCollection = mock(PrincipalCollection.class);
-    lenient().when(principalCollection.oneByType(User.class)).thenReturn(new User("dent"));
-    lenient().when(subject.getPrincipals()).thenReturn(principalCollection);
-    ThreadContext.bind(subject);
+  @Nested
+  class withAuthorizedUser {
+
+    @BeforeEach
+    void setupUser() {
+      Subject subject = mock(Subject.class);
+      PrincipalCollection principalCollection = mock(PrincipalCollection.class);
+      lenient().when(principalCollection.oneByType(User.class)).thenReturn(new User("dent"));
+      lenient().when(subject.getPrincipals()).thenReturn(principalCollection);
+      ThreadContext.bind(subject);
+    }
+
+    @Test
+    void shouldGetAllTopics() throws URISyntaxException, UnsupportedEncodingException {
+      when(context.availableTopics()).thenReturn(singleton(new Topic(new Category("hitchhiker"), "towel")));
+
+      dispatcher.invoke(create("GET", "/v2/plugins/mail/topics"), response);
+
+      assertThat(response.getStatus()).isEqualTo(200);
+      assertThat(response.getContentAsString())
+        .contains("\"_links\":{\"self\":{\"href\":\"/v2/plugins/mail/topics\"}}")
+        .contains("\"topics\":[{\"category\":{\"name\":\"hitchhiker\"},\"name\":\"towel\"}]");
+    }
+
+    @Test
+    void shouldReturnConfigurationForUser() throws URISyntaxException, UnsupportedEncodingException {
+      UserMailConfiguration userMailConfiguration = new UserMailConfiguration();
+      userMailConfiguration.setLanguage("vogon");
+      userMailConfiguration.setExcludedTopics(singleton(new Topic(new Category("hitchhiker"), "towel")));
+      when(context.getUserConfiguration("dent")).thenReturn(of(userMailConfiguration));
+
+      dispatcher.invoke(create("GET", "/v2/plugins/mail/user-config"), response);
+
+      assertThat(response.getStatus()).isEqualTo(200);
+      assertThat(response.getContentAsString())
+        .contains("\"self\":{\"href\":\"/v2/plugins/mail/user-config\"}")
+        .contains("\"update\":{\"href\":\"/v2/plugins/mail/user-config\"}")
+        .contains("\"language\":\"vogon\"")
+        .contains("\"excludedTopics\":[{\"category\":{\"name\":\"hitchhiker\"},\"name\":\"towel\"}]");
+    }
+
+    @Test
+    void shouldStoreConfigurationForUser() throws URISyntaxException {
+      ArgumentCaptor<UserMailConfiguration> configCaptor = ArgumentCaptor.forClass(UserMailConfiguration.class);
+
+      UserMailConfigurationDto userMailConfigurationDto = new UserMailConfigurationDto();
+      userMailConfigurationDto.setLanguage("vogon");
+      userMailConfigurationDto.setExcludedTopics(singleton(new TopicDto(new CategoryDto("hitchhiker"), "towel")));
+      doNothing().when(context).store(eq("dent"), configCaptor.capture());
+
+      dispatcher.invoke(
+        create("PUT", "/v2/plugins/mail/user-config")
+          .contentType("application/json")
+          .content(("{\"" +
+            "language\":\"vogon\"," +
+            "\"excludedTopics\":[{\"category\":{\"name\":\"hitchhiker\"},\"name\":\"towel\"}]" +
+            "}").getBytes()),
+        response);
+
+      assertThat(response.getStatus()).isEqualTo(204);
+      assertThat(configCaptor.getValue().getExcludedTopics()).containsExactly(new Topic(new Category("hitchhiker"), "towel"));
+      assertThat(configCaptor.getValue().getLanguage()).isEqualTo("vogon");
+    }
   }
 
-  @Test
-  void shouldGetAllTopics() throws URISyntaxException, UnsupportedEncodingException {
-    when(context.availableTopics()).thenReturn(singleton(new Topic(new Category("hitchhiker"), "towel")));
+  @Nested
+  class withAnonymousUser {
+    @BeforeEach
+    void setupUser() {
+      Subject subject = mock(Subject.class);
+      when(subject.getPrincipal()).thenReturn(USER_ANONYMOUS);
+      ThreadContext.bind(subject);
+    }
 
-    dispatcher.invoke(create("GET", "/v2/plugins/mail/topics"), response);
+    @Test
+    void shouldThrowUnauthorizedExceptionIfAnonymousUserGetsMailConfig() throws URISyntaxException, UnsupportedEncodingException {
+      dispatcher.invoke(create("GET", "/v2/plugins/mail/user-config"), response);
 
-    assertThat(response.getStatus()).isEqualTo(200);
-    assertThat(response.getContentAsString())
-      .contains("\"_links\":{\"self\":{\"href\":\"/v2/plugins/mail/topics\"}}")
-      .contains("\"topics\":[{\"category\":{\"name\":\"hitchhiker\"},\"name\":\"towel\"}]");
-  }
+      assertThat(response.getStatus()).isEqualTo(403);
+      assertThat(response.getContentAsString()).isEqualTo("anonymous may not read the mail configuration");
+    }
 
-  @Test
-  void shouldReturnConfigurationForUser() throws URISyntaxException, UnsupportedEncodingException {
-    UserMailConfiguration userMailConfiguration = new UserMailConfiguration();
-    userMailConfiguration.setLanguage("vogon");
-    userMailConfiguration.setExcludedTopics(singleton(new Topic(new Category("hitchhiker"), "towel")));
-    when(context.getUserConfiguration("dent")).thenReturn(of(userMailConfiguration));
-
-    dispatcher.invoke(create("GET", "/v2/plugins/mail/user-config"), response);
-
-    assertThat(response.getStatus()).isEqualTo(200);
-    assertThat(response.getContentAsString())
-      .contains("\"self\":{\"href\":\"/v2/plugins/mail/user-config\"}")
-      .contains("\"update\":{\"href\":\"/v2/plugins/mail/user-config\"}")
-      .contains("\"language\":\"vogon\"")
-      .contains("\"excludedTopics\":[{\"category\":{\"name\":\"hitchhiker\"},\"name\":\"towel\"}]");
-  }
-
-  @Test
-  void shouldStoreConfigurationForUser() throws URISyntaxException {
-    ArgumentCaptor<UserMailConfiguration> configCaptor = ArgumentCaptor.forClass(UserMailConfiguration.class);
-
-    UserMailConfigurationDto userMailConfigurationDto = new UserMailConfigurationDto();
-    userMailConfigurationDto.setLanguage("vogon");
-    userMailConfigurationDto.setExcludedTopics(singleton(new TopicDto(new CategoryDto("hitchhiker"), "towel")));
-    doNothing().when(context).store(eq("dent"), configCaptor.capture());
-
-    dispatcher.invoke(
-      create("PUT", "/v2/plugins/mail/user-config")
+    @Test
+    void shouldThrowUnauthorizedExceptionIfAnonymousUserChangesMailConfig() throws URISyntaxException, UnsupportedEncodingException {
+      dispatcher.invoke(create("PUT", "/v2/plugins/mail/user-config")
         .contentType("application/json")
         .content(("{\"" +
           "language\":\"vogon\"," +
           "\"excludedTopics\":[{\"category\":{\"name\":\"hitchhiker\"},\"name\":\"towel\"}]" +
-          "}").getBytes()),
-      response);
+          "}").getBytes()), response);
 
-    assertThat(response.getStatus()).isEqualTo(204);
-    assertThat(configCaptor.getValue().getExcludedTopics()).containsExactly(new Topic(new Category("hitchhiker"), "towel"));
-    assertThat(configCaptor.getValue().getLanguage()).isEqualTo("vogon");
+      assertThat(response.getStatus()).isEqualTo(403);
+      assertThat(response.getContentAsString()).isEqualTo("anonymous may not change the mail configuration");
+    }
   }
 }

@@ -40,7 +40,7 @@ import javax.inject.Provider;
 @Enrich(Index.class)
 public class MailConfigurationHalEnricher implements HalEnricher {
 
-  private Provider<ScmPathInfoStore> scmPathInfoStoreProvider;
+  private final Provider<ScmPathInfoStore> scmPathInfoStoreProvider;
 
   @Inject
   public MailConfigurationHalEnricher(Provider<ScmPathInfoStore> scmPathInfoStoreProvider) {

@@ -31,6 +31,7 @@ import sonia.scm.api.v2.resources.LinkBuilder;
 import sonia.scm.api.v2.resources.Me;
 import sonia.scm.api.v2.resources.ScmPathInfoStore;
 import sonia.scm.plugin.Extension;
+import sonia.scm.security.Authentications;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -39,7 +40,7 @@ import javax.inject.Provider;
 @Enrich(Me.class)
 public class MeEnricher implements HalEnricher {
 
-  private Provider<ScmPathInfoStore> scmPathInfoStoreProvider;
+  private final Provider<ScmPathInfoStore> scmPathInfoStoreProvider;
 
   @Inject
   public MeEnricher(Provider<ScmPathInfoStore> scmPathInfoStoreProvider) {
@@ -48,10 +49,12 @@ public class MeEnricher implements HalEnricher {
 
   @Override
   public void enrich(HalEnricherContext context, HalAppender appender) {
-    String getUserConfigurationLink = new LinkBuilder(scmPathInfoStoreProvider.get().get(), MailConfigurationResource.class)
-      .method("getUserConfiguration")
-      .parameters()
-      .href();
-    appender.appendLink("mailConfig", getUserConfigurationLink);
+    if (!Authentications.isAuthenticatedSubjectAnonymous()) {
+      String getUserConfigurationLink = new LinkBuilder(scmPathInfoStoreProvider.get().get(), MailConfigurationResource.class)
+        .method("getUserConfiguration")
+        .parameters()
+        .href();
+      appender.appendLink("mailConfig", getUserConfigurationLink);
+    }
   }
 }
