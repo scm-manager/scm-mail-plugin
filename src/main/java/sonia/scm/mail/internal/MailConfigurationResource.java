@@ -33,6 +33,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.AuthorizationException;
 import sonia.scm.api.v2.resources.ErrorDto;
 import sonia.scm.config.ConfigurationPermissions;
 import sonia.scm.mail.api.MailConfiguration;
@@ -41,6 +42,7 @@ import sonia.scm.mail.api.MailSendBatchException;
 import sonia.scm.mail.api.MailService;
 import sonia.scm.mail.api.MailTemplateType;
 import sonia.scm.mail.api.UserMailConfiguration;
+import sonia.scm.security.Authentications;
 import sonia.scm.user.User;
 import sonia.scm.util.ValidationUtil;
 import sonia.scm.web.VndMediaType;
@@ -211,6 +213,10 @@ public class MailConfigurationResource {
     )
   )
   public UserMailConfigurationDto getUserConfiguration(@Context UriInfo uriInfo) {
+    if (Authentications.isAuthenticatedSubjectAnonymous()) {
+      throw new AuthorizationException("anonymous may not read the mail configuration");
+    }
+
     User currentUser = SecurityUtils.getSubject().getPrincipals().oneByType(User.class);
     return mapper.using(uriInfo).map(context
       .getUserConfiguration(currentUser.getId())
@@ -233,6 +239,10 @@ public class MailConfigurationResource {
     )
   )
   public void storeUserConfiguration(@Context UriInfo uriInfo, UserMailConfigurationDto userMailConfigurationDto) {
+    if (Authentications.isAuthenticatedSubjectAnonymous()) {
+      throw new AuthorizationException("anonymous may not change the mail configuration");
+    }
+
     User currentUser = SecurityUtils.getSubject().getPrincipals().oneByType(User.class);
     synchronized (context) {
       context.store(currentUser.getId(), mapper.using(uriInfo).map(userMailConfigurationDto));
