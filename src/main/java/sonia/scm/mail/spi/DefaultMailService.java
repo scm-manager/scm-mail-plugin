@@ -509,6 +509,7 @@ public class DefaultMailService extends AbstractMailService
         .filter(this::subscribedToTopic)
         .map(this::mapUserToRecipient)
         .filter(Objects::nonNull)
+        .filter(recipient -> Objects.nonNull(recipient.address))
         .collect(Collectors.toSet());
     }
 
