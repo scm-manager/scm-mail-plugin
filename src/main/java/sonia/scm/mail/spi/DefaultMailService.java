@@ -47,6 +47,8 @@ import sonia.scm.mail.api.UserMailConfiguration;
 import sonia.scm.mail.spi.content.MailContent;
 import sonia.scm.mail.spi.content.MailContentRenderer;
 import sonia.scm.mail.spi.content.MailContentRendererFactory;
+import sonia.scm.trace.Span;
+import sonia.scm.trace.Tracer;
 import sonia.scm.user.DisplayUser;
 import sonia.scm.user.User;
 import sonia.scm.user.UserDisplayManager;
@@ -82,6 +84,7 @@ public class DefaultMailService extends AbstractMailService
     LoggerFactory.getLogger(DefaultMailService.class);
   private final UserDisplayManager userDisplayManager;
   private final MailContentRendererFactory mailContentRendererFactory;
+  private final Tracer tracer;
 
   //~--- constructors ---------------------------------------------------------
 
@@ -90,13 +93,15 @@ public class DefaultMailService extends AbstractMailService
    *
    *
    * @param context
+   * @param tracer
    */
   @Inject
-  public DefaultMailService(MailContext context, UserDisplayManager userDisplayManager, MailContentRendererFactory mailContentRendererFactory)
+  public DefaultMailService(MailContext context, UserDisplayManager userDisplayManager, MailContentRendererFactory mailContentRendererFactory, Tracer tracer)
   {
     super(context);
     this.userDisplayManager = userDisplayManager;
     this.mailContentRendererFactory = mailContentRendererFactory;
+    this.tracer = tracer;
   }
 
   //~--- methods --------------------------------------------------------------
@@ -129,22 +134,25 @@ public class DefaultMailService extends AbstractMailService
 
       for (Email e : emails)
       {
-        try
-        {
-          sendMail(configuration, mailer, e);
-        }
-        catch (MailException ex)
-        {
-          logger.warn("could not send mail", ex);
+        try (Span span = tracer.span("Mail")) {
+          try {
+            span.label("url", configuration.getHost() + ":" + configuration.getPort());
+            span.label("method", "SMTP");
+            sendMail(configuration, mailer, e);
+          } catch (MailException ex) {
+            span.label("exception", ex.getClass().getName());
+            span.label("message", ex.getMessage());
+            span.failed();
+            logger.warn("could not send mail", ex);
 
-          if (batchEx == null)
-          {
-            batchEx =
-              new MailSendBatchException("some messages could not be send");
+            if (batchEx == null) {
+              batchEx =
+                new MailSendBatchException("some messages could not be send");
+            }
+
+            batchEx.append(new MailSendException("message could not be send", e,
+              ex));
           }
-
-          batchEx.append(new MailSendException("message could not be send", e,
-            ex));
         }
       }
 

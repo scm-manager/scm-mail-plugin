@@ -48,6 +48,8 @@ import sonia.scm.mail.api.UserMailConfiguration;
 import sonia.scm.mail.spi.content.MailContent;
 import sonia.scm.mail.spi.content.MailContentRenderer;
 import sonia.scm.mail.spi.content.MailContentRendererFactory;
+import sonia.scm.trace.Span;
+import sonia.scm.trace.Tracer;
 import sonia.scm.user.DisplayUser;
 import sonia.scm.user.User;
 import sonia.scm.user.UserDisplayManager;
@@ -81,6 +83,11 @@ class DefaultMailServiceTest {
   private MailConfiguration configuration;
 
   @Mock
+  private Tracer tracer;
+  @Mock
+  private Span span;
+
+  @Mock
   private Mailer mailer;
 
   private MailService mailService;
@@ -94,6 +101,7 @@ class DefaultMailServiceTest {
     this.mailService = new TestingMailService();
     when(context.getConfiguration()).thenReturn(configuration);
     lenient().doNothing().when(mailer).sendMail(emailCaptor.capture());
+    lenient().when(tracer.span("Mail")).thenReturn(span);
   }
 
   @Test
@@ -114,6 +122,24 @@ class DefaultMailServiceTest {
 
     assertThat(email.getSubject()).isEqualTo("Hello World");
     assertThat(email.getText()).isEqualTo("Don't Panic");
+  }
+
+  @Test
+  void shouldTraceCall() throws MailSendBatchException, IOException {
+    configureMailer();
+    when(configuration.getHost()).thenReturn("marvin");
+    when(configuration.getPort()).thenReturn(42);
+    mockContentRenderer(Locale.ENGLISH, "my-template", "model", "Don't Panic");
+
+    mailService.emailTemplateBuilder()
+      .toAddress(Locale.ENGLISH, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com")
+      .withSubject("Hello World")
+      .withTemplate("my-template", MailTemplateType.TEXT)
+      .andModel("model")
+      .send();
+
+    verify(span).label("url", "marvin:42");
+    verify(span).label("method", "SMTP");
   }
 
   @Test
@@ -336,7 +362,7 @@ class DefaultMailServiceTest {
 
   public class TestingMailService extends DefaultMailService {
     private TestingMailService() {
-      super(context, userDisplayManager, mailContentRendererFactory);
+      super(context, userDisplayManager, mailContentRendererFactory, tracer);
     }
 
     @Override
