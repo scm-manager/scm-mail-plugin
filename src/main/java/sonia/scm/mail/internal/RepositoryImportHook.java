@@ -27,6 +27,7 @@ import com.github.legman.Subscribe;
 import com.google.common.collect.Maps;
 import org.apache.shiro.SecurityUtils;
 import sonia.scm.EagerSingleton;
+import sonia.scm.config.ScmConfiguration;
 import sonia.scm.mail.api.Category;
 import sonia.scm.mail.api.MailSendBatchException;
 import sonia.scm.mail.api.MailService;
@@ -60,6 +61,7 @@ public class RepositoryImportHook {
   private static final Topic TOPIC_IMPORT_FAILED = new Topic(CATEGORY, IMPORT_FAILED_EVENT_DISPLAY_NAME);
   protected static final String IMPORT_SUCCESS_TEMPLATE_PATH = "sonia/scm/mail/emailnotification/import_success.mustache";
   protected static final String IMPORT_FAILED_TEMPLATE_PATH = "sonia/scm/mail/emailnotification/import_failed.mustache";
+  private static final String SCM_REPOSITORY_URL_PATTERN = "{0}/repo/{1}/{2}/code/sources/";
 
   private static final String SUBJECT_PATTERN = "{0}/{1} {2}";
 
@@ -67,10 +69,12 @@ public class RepositoryImportHook {
     .asMap(new HashSet<>(Arrays.asList(ENGLISH, GERMAN)), locale -> getBundle("sonia.scm.mail.emailnotification.Subjects", locale));
 
   private final MailService mailService;
+  private final ScmConfiguration scmConfiguration;
 
   @Inject
-  public RepositoryImportHook(MailService mailService) {
+  public RepositoryImportHook(MailService mailService, ScmConfiguration scmConfiguration) {
     this.mailService = mailService;
+    this.scmConfiguration = scmConfiguration;
   }
 
   @Subscribe
@@ -107,7 +111,12 @@ public class RepositoryImportHook {
     Map<String, Object> result = Maps.newHashMap();
     result.put("namespace", event.getItem().getNamespace());
     result.put("name", event.getItem().getName());
-    result.put("repository", event.getItem());
+    result.put("link", getRepositoryLink(event.getItem()));
     return result;
+  }
+
+  private String getRepositoryLink(Repository repository) {
+    String baseUrl = scmConfiguration.getBaseUrl();
+    return  MessageFormat.format(SCM_REPOSITORY_URL_PATTERN, baseUrl, repository.getNamespace(), repository.getName());
   }
 }

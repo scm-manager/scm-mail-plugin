@@ -23,6 +23,7 @@
  */
 package sonia.scm.mail.internal;
 
+import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
 import org.junit.jupiter.api.AfterEach;
@@ -34,6 +35,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sonia.scm.HandlerEventType;
+import sonia.scm.config.ScmConfiguration;
 import sonia.scm.mail.api.MailSendBatchException;
 import sonia.scm.mail.api.MailService;
 import sonia.scm.mail.api.MailTemplateType;
@@ -53,6 +55,8 @@ class RepositoryImportHookTest {
 
   @Mock
   private MailService mailService;
+  @Mock
+  private ScmConfiguration scmConfiguration;
   @Mock(answer = Answers.RETURNS_SELF)
   private MailService.EnvelopeBuilder envelopeBuilder;
   @Mock(answer = Answers.RETURNS_SELF)
@@ -62,8 +66,10 @@ class RepositoryImportHookTest {
   @Mock(answer = Answers.RETURNS_SELF)
   private MailService.MailBuilder mailBuilder;
 
-  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+  @Mock
   private Subject subject;
+  @Mock
+  private PrincipalCollection principalCollection;
 
   @InjectMocks
   private RepositoryImportHook hook;
@@ -80,12 +86,27 @@ class RepositoryImportHookTest {
 
   @Test
   void shouldSendEmailForSuccess() throws MailSendBatchException {
-    when(subject.getPrincipals().oneByType(User.class)).thenReturn(new User());
+    when(subject.getPrincipals()).thenReturn(principalCollection);
+    when(principalCollection.oneByType(User.class)).thenReturn(new User());
     when(mailService.emailTemplateBuilder()).thenReturn(envelopeBuilder);
     when(envelopeBuilder.withSubject(anyString())).thenReturn(subjectBuilder);
     when(subjectBuilder.withTemplate(anyString(), any(MailTemplateType.class))).thenReturn(templateBuilder);
     when(templateBuilder.andModel(any())).thenReturn(mailBuilder);
+    when(scmConfiguration.getBaseUrl()).thenReturn("https://scm-manager.org/scm");
 
     hook.handleEvent(new RepositoryImportEvent(HandlerEventType.CREATE, REPOSITORY, false));
+  }
+
+  @Test
+  void shouldSendEmailForFailed() throws MailSendBatchException {
+    when(subject.getPrincipals()).thenReturn(principalCollection);
+    when(principalCollection.oneByType(User.class)).thenReturn(new User());
+    when(mailService.emailTemplateBuilder()).thenReturn(envelopeBuilder);
+    when(envelopeBuilder.withSubject(anyString())).thenReturn(subjectBuilder);
+    when(subjectBuilder.withTemplate(anyString(), any(MailTemplateType.class))).thenReturn(templateBuilder);
+    when(templateBuilder.andModel(any())).thenReturn(mailBuilder);
+    when(scmConfiguration.getBaseUrl()).thenReturn("https://scm-manager.org/scm");
+
+    hook.handleEvent(new RepositoryImportEvent(HandlerEventType.CREATE, REPOSITORY, true));
   }
 }
