@@ -61,7 +61,7 @@ public class RepositoryImportHook {
   private static final Topic TOPIC_IMPORT_FAILED = new Topic(CATEGORY, IMPORT_FAILED_EVENT_DISPLAY_NAME);
   protected static final String IMPORT_SUCCESS_TEMPLATE_PATH = "sonia/scm/mail/emailnotification/import_success.mustache";
   protected static final String IMPORT_FAILED_TEMPLATE_PATH = "sonia/scm/mail/emailnotification/import_failed.mustache";
-  private static final String SCM_REPOSITORY_URL_PATTERN = "{0}/repo/{1}/{2}/code/sources/";
+  private static final String SCM_REPOSITORY_URL_PATTERN = "{0}/importlog/{1}/";
 
   private static final String SUBJECT_PATTERN = "{0}/{1} {2}";
 
@@ -112,11 +112,17 @@ public class RepositoryImportHook {
     result.put("namespace", event.getItem().getNamespace());
     result.put("name", event.getItem().getName());
     result.put("link", getRepositoryLink(event.getItem()));
+    result.put("logLink", getImportLogLink(event.getLogId()));
     return result;
   }
 
   private String getRepositoryLink(Repository repository) {
     String baseUrl = scmConfiguration.getBaseUrl();
     return  MessageFormat.format(SCM_REPOSITORY_URL_PATTERN, baseUrl, repository.getNamespace(), repository.getName());
+  }
+
+  private String getImportLogLink(String logId) {
+    String baseUrl = scmConfiguration.getBaseUrl();
+    return  MessageFormat.format(SCM_REPOSITORY_URL_PATTERN, baseUrl, logId);
   }
 }
