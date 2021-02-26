@@ -94,7 +94,7 @@ class RepositoryImportHookTest {
     when(templateBuilder.andModel(any())).thenReturn(mailBuilder);
     when(scmConfiguration.getBaseUrl()).thenReturn("https://scm-manager.org/scm");
 
-    hook.handleEvent(new RepositoryImportEvent(HandlerEventType.CREATE, REPOSITORY, false));
+    hook.handleEvent(new RepositoryImportEvent(REPOSITORY, false));
   }
 
   @Test
@@ -107,6 +107,6 @@ class RepositoryImportHookTest {
     when(templateBuilder.andModel(any())).thenReturn(mailBuilder);
     when(scmConfiguration.getBaseUrl()).thenReturn("https://scm-manager.org/scm");
 
-    hook.handleEvent(new RepositoryImportEvent(HandlerEventType.CREATE, REPOSITORY, true));
+    hook.handleEvent(new RepositoryImportEvent(REPOSITORY, true));
   }
 }
