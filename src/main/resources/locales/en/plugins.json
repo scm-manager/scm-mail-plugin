@@ -27,7 +27,7 @@
     },
     "topics": {
       "header": "Subscribed Topics",
-      "helpText": "On the selected topics, email notifications will be sent."
+      "helpText": "On the selected topics, email notifications can be sent. However, a check mark alone does not imply that you will be notified for the respective event. This is to be seen as an opt-out option."
     }
   },
   "mailTopics": {

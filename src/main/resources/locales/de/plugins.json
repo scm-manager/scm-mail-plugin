@@ -27,7 +27,7 @@
     },
     "topics": {
       "header": "Abonnierte Kanäle",
-      "helpText": "Zu den ausgewählten Themen werden Benachrichtigungen per Mail verschickt."
+      "helpText": "Zu den ausgewählten Themen können Benachrichtigungen per Mail verschickt werden. Eine gesetzte Checkbox allein impliziert allerdings nicht, dass man für das jeweilige Event benachrichtigt wird. Dies ist als eine Opt-Out Option anzusehen."
     }
   },
   "mailTopics": {
