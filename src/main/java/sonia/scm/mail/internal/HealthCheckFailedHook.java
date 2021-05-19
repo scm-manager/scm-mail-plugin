@@ -83,9 +83,9 @@ public class HealthCheckFailedHook {
   @Subscribe
   public void handle(HealthCheckEvent event) throws MailSendBatchException {
     if (event.getCurrentFailures() != event.getPreviousFailures() && !event.getCurrentFailures().isEmpty()) {
-      Set<String> notifiedUsers = scmConfiguration.getNotifiedUsers();
+      Set<String> emergencyContacts = scmConfiguration.getEmergencyContacts();
       MailService.EnvelopeBuilder envelopeBuilder = mailService.emailTemplateBuilder();
-      for (String user : notifiedUsers) {
+      for (String user : emergencyContacts) {
         addAddressForUser(envelopeBuilder, user);
       }
 

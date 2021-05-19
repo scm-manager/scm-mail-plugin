@@ -84,7 +84,7 @@ public class HealthCheckFailedHookTest {
     when(envelopeBuilder.withSubject(anyString())).thenReturn(subjectBuilder);
     when(subjectBuilder.withTemplate(anyString(), any(MailTemplateType.class))).thenReturn(templateBuilder);
     when(templateBuilder.andModel(any())).thenReturn(mailBuilder);
-    when(scmConfiguration.getNotifiedUsers()).thenReturn(ImmutableSet.of("name"));
+    when(scmConfiguration.getEmergencyContacts()).thenReturn(ImmutableSet.of("name"));
     when(userDisplayManager.get("name")).thenReturn(of(DisplayUser.from(new User("name", "name", "name@mail.com"))));
 
     HealthCheckEvent healthCheckEvent = new HealthCheckEvent(REPOSITORY, Collections.emptyList(), Collections.singletonList(healthCheckFailure));
