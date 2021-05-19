@@ -36,7 +36,7 @@ dependencies {
 }
 
 scmPlugin {
-  scmVersion = "2.14.0"
+  scmVersion = "2.18.1-SNAPSHOT"
   displayName = "Mail"
   description = "Provides an api for sending e-mails and can be used by other plugins"
   author = "Cloudogu GmbH"
