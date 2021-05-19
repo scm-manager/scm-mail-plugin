@@ -30,6 +30,15 @@
       "helpText": "Zu den ausgewählten Themen werden Benachrichtigungen per Mail verschickt."
     }
   },
+  "mailTopics": {
+    "scm-manager-core": {
+      "label": "SCM-Manager Core",
+      "healthCheckFailed": {
+        "label": "Fehlgeschlagene Health Checks",
+        "helpText": "Mails bei fehlgeschlagenen Repository Health Checks."
+      }
+    }
+  },
   "permissions": {
     "configuration": {
       "read,write": {

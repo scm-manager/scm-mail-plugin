@@ -60,7 +60,7 @@ public class HealthCheckFailedHook {
 
   public static final String HEALTH_CHECK_FAILED_EVENT_DISPLAY_NAME = "healthCheckFailed";
   private static final Category CATEGORY = new Category("scm-manager-core");
-  private static final Topic TOPIC_HEALTH_CHECK_FAILED = new Topic(CATEGORY, HEALTH_CHECK_FAILED_EVENT_DISPLAY_NAME);
+  static final Topic TOPIC_HEALTH_CHECK_FAILED = new Topic(CATEGORY, HEALTH_CHECK_FAILED_EVENT_DISPLAY_NAME);
   protected static final String HEALTH_CHECK_FAILED_TEMPLATE_PATH = "sonia/scm/mail/emailnotification/healthcheck_failed.mustache";
   private static final String SCM_REPOSITORY_URL_PATTERN = "{0}/repo/{1}/{2}/code/sources/";
 

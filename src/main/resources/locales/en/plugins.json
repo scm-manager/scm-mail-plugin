@@ -30,6 +30,15 @@
       "helpText": "On the selected topics, email notifications will be sent."
     }
   },
+  "mailTopics": {
+    "scm-manager-core": {
+      "label": "SCM-Manager Core",
+      "healthCheckFailed": {
+        "label": "Failed health checks",
+        "helpText": "Mails on failed repository health checks."
+      }
+    }
+  },
   "permissions": {
     "configuration": {
       "read,write": {
