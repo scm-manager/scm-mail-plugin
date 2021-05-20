@@ -22,29 +22,24 @@
  * SOFTWARE.
  */
 
+package sonia.scm.mail.internal;
 
-plugins {
-  id 'org.scm-manager.smp' version '0.8.0'
-}
+import sonia.scm.mail.api.Topic;
+import sonia.scm.mail.api.TopicProvider;
+import sonia.scm.plugin.Extension;
 
-dependencies {
-  implementation "org.codemonkey.simplejavamail:simple-java-mail:2.4"
-  implementation "javax.mail:mail:1.4.7"
-  implementation "com.atlassian.commonmark:commonmark:0.12.1"
+import java.util.Collection;
+import java.util.Collections;
 
-  testImplementation "com.github.sdorra:shiro-unit:1.0.1"
-}
+import static sonia.scm.mail.internal.HealthCheckFailedHook.TOPIC_HEALTH_CHECK_FAILED;
 
-scmPlugin {
-  scmVersion = "2.18.1-SNAPSHOT"
-  displayName = "Mail"
-  description = "Provides an api for sending e-mails and can be used by other plugins"
-  author = "Cloudogu GmbH"
-  category = "Library"
+@Extension
+public class HealthCheckTopics implements TopicProvider {
 
-  openapi {
-    packages = [
-      "sonia.scm.mail.internal",
-    ]
+  @Override
+  public Collection<Topic> topics() {
+    return Collections.singletonList(
+      TOPIC_HEALTH_CHECK_FAILED
+    );
   }
 }

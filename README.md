@@ -35,6 +35,24 @@ If the browser does not start automatically, start it manually and go to [http:/
 
 In this mode each change to web files (src/main/js or src/main/webapp), should trigger reload of the browser with the made changes.
 
+## Setup Test Environment
+
+To test this plugin against an email testing tool you may use [MailHog](https://github.com/mailhog/MailHog):
+```
+docker pull mailhog/mailhog
+docker run -p 1025:1025 -p 8025:8025 mailhog/mailhog
+```
+
+Or simply use `docker-compose`:
+```
+docker-compose up
+```
+
+To connect against this container you must set the following settings in your global email configuration:
+* Host to `localhost`
+* Port to `1025`
+* From and Username to any non-empty value.
+
 ## Directory & File structure
 
 A quick look at the files and directories you'll see in an SCM-Manager project.
