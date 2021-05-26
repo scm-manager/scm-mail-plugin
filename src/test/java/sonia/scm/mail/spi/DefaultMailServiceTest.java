@@ -30,6 +30,7 @@ import org.apache.shiro.util.ThreadContext;
 import org.codemonkey.simplejavamail.Email;
 import org.codemonkey.simplejavamail.Mailer;
 import org.codemonkey.simplejavamail.Recipient;
+import org.codemonkey.simplejavamail.TransportStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,8 +56,13 @@ import sonia.scm.user.User;
 import sonia.scm.user.UserDisplayManager;
 import sonia.scm.user.UserTestData;
 
+import javax.inject.Provider;
+import javax.mail.Session;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Properties;
 
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,6 +89,9 @@ class DefaultMailServiceTest {
   private MailConfiguration configuration;
 
   @Mock
+  private Provider<SSLContext> sslContextProvider;
+
+  @Mock
   private Tracer tracer;
   @Mock
   private Span span;
@@ -99,13 +108,13 @@ class DefaultMailServiceTest {
   @BeforeEach
   void setUpMocks() {
     this.mailService = new TestingMailService();
-    when(context.getConfiguration()).thenReturn(configuration);
+    lenient().when(context.getConfiguration()).thenReturn(configuration);
     lenient().doNothing().when(mailer).sendMail(emailCaptor.capture());
     lenient().when(tracer.span("Mail")).thenReturn(span);
   }
 
   @Test
-  void shouldSendEmail() throws MailSendBatchException, IOException {
+  void shouldSendEmail() throws MailSendBatchException {
     configureMailer();
     mockContentRenderer(Locale.ENGLISH, "my-template", "model", "Don't Panic");
 
@@ -125,7 +134,7 @@ class DefaultMailServiceTest {
   }
 
   @Test
-  void shouldTraceCall() throws MailSendBatchException, IOException {
+  void shouldTraceCall() throws MailSendBatchException {
     configureMailer();
     when(configuration.getHost()).thenReturn("marvin");
     when(configuration.getPort()).thenReturn(42);
@@ -143,7 +152,7 @@ class DefaultMailServiceTest {
   }
 
   @Test
-  void shouldSendEmailAndResolveUser() throws IOException, MailSendBatchException {
+  void shouldSendEmailAndResolveUser() throws MailSendBatchException {
     configureMailer();
     mockUser(UserTestData.createTrillian());
     mockContentRenderer(Locale.ENGLISH, "my-template", "model", "Don't Panic");
@@ -163,7 +172,7 @@ class DefaultMailServiceTest {
   }
 
   @Test
-  void shouldSendEmailAndUseLocaleOfUser() throws IOException, MailSendBatchException {
+  void shouldSendEmailAndUseLocaleOfUser() throws MailSendBatchException {
     configureMailer();
     mockContentRenderer(Locale.GERMAN, "my-template", "model", "Keine Panik");
     mockUserWithConfiguration(UserTestData.createTrillian(), Locale.GERMAN);
@@ -183,7 +192,7 @@ class DefaultMailServiceTest {
   }
 
   @Test
-  void shouldNotSendEmailForUnknownUsers() throws MailSendBatchException, IOException {
+  void shouldNotSendEmailForUnknownUsers() throws MailSendBatchException {
     when(configuration.isValid()).thenReturn(Boolean.TRUE);
 
     mailService.emailTemplateBuilder()
@@ -197,7 +206,7 @@ class DefaultMailServiceTest {
   }
 
   @Test
-  void shouldSendEmailAndUseLocaleFromConfiguration() throws MailSendBatchException, IOException {
+  void shouldSendEmailAndUseLocaleFromConfiguration() throws MailSendBatchException {
     mockContentRenderer(Locale.GERMAN, "my-template", "model", "Keine Panik");
 
     MailConfiguration config = mock(MailConfiguration.class);
@@ -221,7 +230,7 @@ class DefaultMailServiceTest {
   }
 
   @Test
-  void shouldSendEmailAndUseConfiguredFrom() throws MailSendBatchException, IOException {
+  void shouldSendEmailAndUseConfiguredFrom() throws MailSendBatchException {
     configureMailer();
     mockContentRenderer(Locale.ENGLISH, "my-template", "model", "Don't Panic");
 
@@ -239,7 +248,7 @@ class DefaultMailServiceTest {
   }
 
   @Test
-  void shouldSendEmailAndUseFromFromSubject() throws MailSendBatchException, IOException {
+  void shouldSendEmailAndUseFromFromSubject() throws MailSendBatchException {
     configureMailer();
     mockContentRenderer(Locale.ENGLISH, "my-template", "model", "Don't Panic");
 
@@ -269,7 +278,7 @@ class DefaultMailServiceTest {
   }
 
   @Test
-  void shouldSendHtmlAndTextEmail() throws MailSendBatchException, IOException {
+  void shouldSendHtmlAndTextEmail() throws MailSendBatchException {
     configureMailer();
     MailContent mailContent = MailContent.textAndHtml("Don't Panic", "<h1>Don't Panic</h1>");
     mockContentRenderer(Locale.ENGLISH, "my-template", "model", MailTemplateType.MARKDOWN_HTML, mailContent);
@@ -325,6 +334,22 @@ class DefaultMailServiceTest {
     assertThat(emailCaptor.getAllValues()).isNotEmpty();
   }
 
+  @Test
+  void shouldSetCustomSSLSocketFactory() {
+    SSLContext sslContext = mock(SSLContext.class);
+    when(sslContextProvider.get()).thenReturn(sslContext);
+    SSLSocketFactory socketFactory = mock(SSLSocketFactory.class);
+    when(sslContext.getSocketFactory()).thenReturn(socketFactory);
+
+    DefaultMailService service = new DefaultMailService(context, userDisplayManager, mailContentRendererFactory, tracer, sslContextProvider);
+    Mailer mailer = service.createMailer(new MailConfiguration("host", 443, TransportStrategy.SMTP_SSL, "trillian", "Testmail"));
+
+    Properties props = mailer.getSession().getProperties();
+    assertThat(props)
+      .containsEntry("mail.smtp.ssl.socketFactory", socketFactory)
+      .containsEntry("mail.smtps.ssl.socketFactory", socketFactory);
+  }
+
   private void mockUser(User user) {
     lenient().when(userDisplayManager.get(user.getId())).thenReturn(of(DisplayUser.from(user)));
   }
@@ -346,11 +371,11 @@ class DefaultMailServiceTest {
     assertThat(recipient.getAddress()).isEqualTo(address);
   }
 
-  private void mockContentRenderer(Locale locale, String template, Object model, String result) throws IOException {
+  private void mockContentRenderer(Locale locale, String template, Object model, String result) {
     mockContentRenderer(locale, template, model, MailTemplateType.TEXT, MailContent.text(result));
   }
 
-  private void mockContentRenderer(Locale locale, String template, Object model, MailTemplateType type, MailContent content) throws IOException {
+  private void mockContentRenderer(Locale locale, String template, Object model, MailTemplateType type, MailContent content) {
     lenient().when(mailContentRendererFactory.createMailContentRenderer(template, type)).thenReturn(mailContentRenderer);
     lenient().when(mailContentRenderer.createMailContent(locale, model)).thenReturn(content);
   }
@@ -362,7 +387,7 @@ class DefaultMailServiceTest {
 
   public class TestingMailService extends DefaultMailService {
     private TestingMailService() {
-      super(context, userDisplayManager, mailContentRendererFactory, tracer);
+      super(context, userDisplayManager, mailContentRendererFactory, tracer, sslContextProvider);
     }
 
     @Override

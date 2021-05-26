@@ -24,8 +24,6 @@
 
 package sonia.scm.mail.spi;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
@@ -54,7 +52,10 @@ import sonia.scm.user.User;
 import sonia.scm.user.UserDisplayManager;
 import sonia.scm.util.AssertUtil;
 
+import javax.inject.Provider;
 import javax.mail.Message;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -64,76 +65,41 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-//~--- JDK imports ------------------------------------------------------------
+public class DefaultMailService extends AbstractMailService {
 
-/**
- *
- * @author Sebastian Sdorra
- */
-
-public class DefaultMailService extends AbstractMailService
-{
-
-  /**
-   * the logger for DefaultMailService
-   */
-  private static final Logger logger =
-    LoggerFactory.getLogger(DefaultMailService.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultMailService.class);
   private final UserDisplayManager userDisplayManager;
   private final MailContentRendererFactory mailContentRendererFactory;
   private final Tracer tracer;
+  private final Provider<SSLContext> sslContext;
 
-  //~--- constructors ---------------------------------------------------------
 
-  /**
-   * Constructs ...
-   *
-   *
-   * @param context
-   * @param tracer
-   */
   @Inject
-  public DefaultMailService(MailContext context, UserDisplayManager userDisplayManager, MailContentRendererFactory mailContentRendererFactory, Tracer tracer)
-  {
+  public DefaultMailService(MailContext context, UserDisplayManager userDisplayManager, MailContentRendererFactory mailContentRendererFactory, Tracer tracer, Provider<SSLContext> sslContext) {
     super(context);
     this.userDisplayManager = userDisplayManager;
     this.mailContentRendererFactory = mailContentRendererFactory;
     this.tracer = tracer;
+    this.sslContext = sslContext;
   }
-
-  //~--- methods --------------------------------------------------------------
-
 
   @Override
   public EnvelopeBuilder emailTemplateBuilder() {
     return new EnvelopeBuilderImpl(getContext().getConfiguration());
   }
 
-  /**
-   * Method description
-   *
-   *
-   *
-   * @param configuration
-   * @param emails
-   *
-   * @throws MailException
-   * @throws MailSendBatchException
-   */
   @Override
   public void send(MailConfiguration configuration, Iterable<Email> emails)
-    throws MailSendBatchException
-  {
-    if (configuration.isValid())
-    {
+    throws MailSendBatchException {
+    if (configuration.isValid()) {
       MailSendBatchException batchEx = null;
       Mailer mailer = createMailer(configuration);
 
-      for (Email e : emails)
-      {
+      for (Email e : emails) {
         try (Span span = tracer.span("Mail")) {
           try {
             span.label("url", configuration.getHost() + ":" + configuration.getPort());
@@ -143,7 +109,7 @@ public class DefaultMailService extends AbstractMailService
             span.label("exception", ex.getClass().getName());
             span.label("message", ex.getMessage());
             span.failed();
-            logger.warn("could not send mail", ex);
+            LOG.warn("could not send mail", ex);
 
             if (batchEx == null) {
               batchEx =
@@ -156,94 +122,68 @@ public class DefaultMailService extends AbstractMailService
         }
       }
 
-      if (batchEx != null)
-      {
+      if (batchEx != null) {
         throw batchEx;
       }
 
-    }
-    else if (logger.isWarnEnabled())
-    {
-      logger.warn("mail configuration is not valid");
+    } else if (LOG.isWarnEnabled()) {
+      LOG.warn("mail configuration is not valid");
     }
   }
 
-  /**
-   * Method description
-   *
-   *
-   * @param configuration
-   *
-   * @return
-   */
   @VisibleForTesting
-  Mailer createMailer(MailConfiguration configuration)
-  {
-    //J-
-    return new Mailer(
+  Mailer createMailer(MailConfiguration configuration) {
+    Mailer mailer = new Mailer(
       configuration.getHost(),
       configuration.getPort(),
       Strings.emptyToNull(configuration.getUsername()),
       Strings.emptyToNull(configuration.getPassword()),
       configuration.getTransportStrategy()
     );
-    //J+
+
+    Properties props = mailer.getSession().getProperties();
+    SSLSocketFactory socketFactory = sslContext.get().getSocketFactory();
+    props.put("mail.smtp.ssl.socketFactory", socketFactory);
+    props.put("mail.smtps.ssl.socketFactory", socketFactory);
+
+    return mailer;
   }
 
-  /**
-   * Method description
-   *
-   *
-   * @param configuration
-   * @param mailer
-   * @param e
-   */
-  private void sendMail(MailConfiguration configuration, Mailer mailer, Email e)
-  {
+  private void sendMail(MailConfiguration configuration, Mailer mailer, Email e) {
     AssertUtil.assertIsValid(configuration);
 
     String prefix = configuration.getSubjectPrefix();
 
-    if (!Strings.isNullOrEmpty(prefix))
-    {
+    if (!Strings.isNullOrEmpty(prefix)) {
       String subject = e.getSubject();
 
-      if ((subject != null) &&!subject.startsWith(prefix))
-      {
+      if ((subject != null) && !subject.startsWith(prefix)) {
         String ns = prefix;
 
-        if (!ns.endsWith(" "))
-        {
+        if (!ns.endsWith(" ")) {
           ns = ns.concat(" ");
         }
 
         e.setSubject(ns.concat(subject));
       }
 
-    }
-    else if (logger.isTraceEnabled())
-    {
-      logger.trace("no prefix defined");
+    } else if (LOG.isTraceEnabled()) {
+      LOG.trace("no prefix defined");
     }
 
     org.codemonkey.simplejavamail.Recipient from = e.getFromRecipient();
 
-    if (from == null)
-    {
-      logger.trace("no from recipient found setting default one: {}",
+    if (from == null) {
+      LOG.trace("no from recipient found setting default one: {}",
         configuration.getFrom());
       e.setFromAddress(null, configuration.getFrom());
-    }
-    else if (logger.isTraceEnabled())
-    {
-      logger.trace("use recipient for {} sending", from.getAddress());
+    } else if (LOG.isTraceEnabled()) {
+      LOG.trace("use recipient for {} sending", from.getAddress());
     }
 
-    if (mailer.validate(e))
-    {
-      if (logger.isDebugEnabled())
-      {
-        logger.debug("send email to {} from {}",
+    if (mailer.validate(e)) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("send email to {} from {}",
           getRecipientsString(e.getRecipients()),
           e.getFromRecipient().getAddress());
       }
@@ -252,27 +192,14 @@ public class DefaultMailService extends AbstractMailService
     }
   }
 
-  //~--- get methods ----------------------------------------------------------
-
-  /**
-   * Method description
-   *
-   *
-   * @param recipients
-   *
-   * @return
-   */
-  private String getRecipientsString(Iterable<org.codemonkey.simplejavamail.Recipient> recipients)
-  {
+  private String getRecipientsString(Iterable<org.codemonkey.simplejavamail.Recipient> recipients) {
     StringBuilder content = new StringBuilder();
     Iterator<org.codemonkey.simplejavamail.Recipient> it = recipients.iterator();
 
-    while (it.hasNext())
-    {
+    while (it.hasNext()) {
       content.append(it.next().getAddress());
 
-      if (it.hasNext())
-      {
+      if (it.hasNext()) {
         content.append(", ");
       }
     }
@@ -280,11 +207,11 @@ public class DefaultMailService extends AbstractMailService
     return content.toString();
   }
 
-  private class Recipient {
+  private static class Recipient {
 
     private Locale locale;
     private String displayName;
-    private String address;
+    private final String address;
 
     private Recipient(String address) {
       this.address = address;
@@ -395,7 +322,7 @@ public class DefaultMailService extends AbstractMailService
 
   public class SubjectBuilderImpl implements SubjectBuilder {
 
-    private EnvelopeBuilderImpl envelopeBuilder;
+    private final EnvelopeBuilderImpl envelopeBuilder;
 
     private final String defaultSubject;
     private final Map<Locale, String> localized = new HashMap<>();
@@ -478,14 +405,14 @@ public class DefaultMailService extends AbstractMailService
         MailContentRenderer mailContentRenderer = mailContentRendererFactory.createMailContentRenderer(templateBuilder.template, templateBuilder.type);
         return mailContentRenderer.createMailContent(recipient.locale, model);
       } finally {
-        logger.debug("mail content rendered in {}", sw.stop());
+        LOG.debug("mail content rendered in {}", sw.stop());
       }
     }
 
     private String subjectFor(Recipient recipient) {
       String localized = subjectBuilder.localized.get(recipient.locale);
       if (Strings.isNullOrEmpty(localized)) {
-        logger.debug("could not find subject with locale {}", recipient.locale);
+        LOG.debug("could not find subject with locale {}", recipient.locale);
         return subjectBuilder.defaultSubject;
       }
       return localized;
@@ -543,7 +470,7 @@ public class DefaultMailService extends AbstractMailService
         return new Recipient(locale, user.getDisplayName(), user.getMail());
       }
 
-      logger.warn("could not find user {}", username);
+      LOG.warn("could not find user {}", username);
       return null;
     }
 
@@ -558,8 +485,8 @@ public class DefaultMailService extends AbstractMailService
 
     private Locale defaultLocale() {
       return Optional.ofNullable(envelopeBuilder.configuration.getLanguage())
-          .map(Locale::new)
-          .orElse(Locale.ENGLISH);
+        .map(Locale::new)
+        .orElse(Locale.ENGLISH);
     }
   }
 }
