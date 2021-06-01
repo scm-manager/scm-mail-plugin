@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Notifications for health checks ([#18](https://github.com/scm-manager/scm-mail-plugin/pull/18))
 
+### Fixed
+- Correct mail language selection ([#22](https://github.com/scm-manager/scm-mail-plugin/pull/22))
+
 ## 2.5.0 - 2021-03-01
 ### Added
 - Link to import log in mail ([#12](https://github.com/scm-manager/scm-mail-plugin/pull/12))
