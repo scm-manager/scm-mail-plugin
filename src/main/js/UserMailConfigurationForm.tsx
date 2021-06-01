@@ -23,7 +23,7 @@
  */
 import React, { FC, useEffect, useState } from "react";
 import { Link } from "@scm-manager/ui-types";
-import { Checkbox, DropDown, ErrorNotification, Help, Loading, apiClient } from "@scm-manager/ui-components";
+import { Checkbox, ErrorNotification, Help, Loading, apiClient, Select } from "@scm-manager/ui-components";
 import { useTranslation, WithTranslation } from "react-i18next";
 import { AvailableTopics, Topic, UserMailConfiguration } from "./MailConfiguration";
 import { divideTopicsIntoColumns } from "./divideTopicsIntoColumns";
@@ -65,16 +65,27 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
     return <Loading />;
   }
 
-  const topicsEqual = (t1: Topic) => {
-    return (t2: Topic) => {
-      return t1.category.name === t2.category.name && t1.name === t2.name;
-    };
-  };
-
   const languageChangedHandler = (value: string) => {
     const newConfig = { ...config, language: value };
     setConfig(newConfig);
     onConfigurationChange(newConfig, true);
+  };
+
+  const mapTranslationKeys = (values: string[]) => {
+    const options = [];
+    for (const value of values) {
+      options.push({
+        value,
+        label: t("scm-mail-plugin.language." + value)
+      });
+    }
+    return options;
+  };
+
+  const topicsEqual = (t1: Topic) => {
+    return (t2: Topic) => {
+      return t1.category.name === t2.category.name && t1.name === t2.name;
+    };
   };
 
   const topicChangedHandler = (topic: Topic) => {
@@ -182,12 +193,11 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
       <div className="field">
         <label className="label">{t("scm-mail-plugin.form.language")}</label>
         <div className="control">
-          <DropDown
-            options={[t("scm-mail-plugin.language.de"), t("scm-mail-plugin.language.en")]}
-            optionValues={["de", "en"]}
-            preselectedOption={config.language}
-            optionSelected={languageChangedHandler}
+          <Select
+            onChange={languageChangedHandler}
+            options={mapTranslationKeys(["de", "en"])}
             disabled={readOnly}
+            defaultValue={config.language}
           />
         </div>
       </div>
