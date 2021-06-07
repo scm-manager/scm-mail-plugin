@@ -53,6 +53,33 @@ To connect against this container you must set the following settings in your gl
 * Port to `1025`
 * From and Username to any non-empty value.
 
+### TLS Tests
+The following section describes a setup with self-signed certificates. 
+In order to track the certificate tests, the scm-ssl-context-plugin should be installed.
+
+```
+cd tls-test
+docker-compose up
+```
+
+#### Explicit TLS (STARTTLS)
+
+Config:
+- Host: `localhost`
+- Port: `25`
+- Username: `trillian@hitchhiker.org`
+- Password: `secret`
+- Transport Strategy: `SMTP_TLS`
+
+#### Implicit TLS
+
+Config:
+- Host: `localhost`
+- Port: `465`
+- Username: `trillian@hitchhiker.org`
+- Password: `secret`
+- Transport Strategy: `SMTP_SSL`
+
 ## Directory & File structure
 
 A quick look at the files and directories you'll see in an SCM-Manager project.
