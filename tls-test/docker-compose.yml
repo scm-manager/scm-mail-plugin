@@ -1,0 +1,31 @@
+version: '2.2'
+
+services:
+  mailserver:
+    image: docker.io/mailserver/docker-mailserver:10.0.0
+    hostname: mail # <-- CHANGE THIS
+    domainname: hitchhiker.org # <-- CHANGE THIS
+    container_name: mailserver
+    env_file: mailserver.env
+    # To avoid conflicts with yaml base-60 float, DO NOT remove the quotation marks.
+    # More information about the mailserver ports:
+    # https://docker-mailserver.github.io/docker-mailserver/edge/config/security/understanding-the-ports/
+    ports:
+      - "25:25"    # SMTP  (explicit TLS => STARTTLS)
+      - "465:465"  # ESMTP (implicit TLS)
+      - "587:587"  # ESMTP (explicit TLS => STARTTLS)
+    volumes:
+#      - maildata:/var/mail
+#      - mailstate:/var/mail-state
+#      - maillogs:/var/log/mail
+      - /etc/localtime:/etc/localtime:ro
+      - ./certs:/etc/tls:ro
+      - ./config/:/tmp/docker-mailserver/
+    restart: always
+    stop_grace_period: 1m
+    cap_add: [ "NET_ADMIN", "SYS_PTRACE" ]
+
+#volumes:
+#  maildata:
+#  mailstate:
+#  maillogs:
