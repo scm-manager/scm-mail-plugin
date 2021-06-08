@@ -1990,7 +1990,7 @@
     "@scm-manager/ui-types" "^2.19.0"
     react "^17.0.1"
 
-"@scm-manager/ui-plugins@^2.19.0":
+"@scm-manager/ui-plugins@2.19.0":
   version "2.19.0"
   resolved "https://registry.yarnpkg.com/@scm-manager/ui-plugins/-/ui-plugins-2.19.0.tgz#1d6a9bd043b31ceab7572ad5d674ba0cc265369c"
   integrity sha512-OQ8rcALVooKp6lVRQfahoLMVcRiy8RHN7hNpYHRuP1RqVHykchQ7gp2C4lUoF7pzr8Gmz5JURkBrrj1j7sYUNQ==
