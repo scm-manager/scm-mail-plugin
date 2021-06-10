@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Fixed
+- Usage of mail api ([#24](https://github.com/scm-manager/scm-mail-plugin/pull/24))
+
 ## 2.7.0 - 2021-06-08
 ### Changed
 - Use ssl socket factory from custom ssl context ([#20](https://github.com/scm-manager/scm-mail-plugin/pull/20))
