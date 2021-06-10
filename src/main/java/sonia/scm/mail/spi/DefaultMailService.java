@@ -141,10 +141,11 @@ public class DefaultMailService extends AbstractMailService {
       configuration.getTransportStrategy()
     );
 
-    Properties props = mailer.getSession().getProperties();
     SSLSocketFactory socketFactory = sslContext.get().getSocketFactory();
+    Properties props = new Properties();
     props.put("mail.smtp.ssl.socketFactory", socketFactory);
     props.put("mail.smtps.ssl.socketFactory", socketFactory);
+    mailer.applyProperties(props);
 
     return mailer;
   }
