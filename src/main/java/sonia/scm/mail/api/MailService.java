@@ -137,7 +137,7 @@ public interface MailService
     EnvelopeBuilder from(String displayName);
 
     /**
-     * Use current users display as name for the from address.
+     * Use current users display as name and mail address (if present) for the from address.
      *
      * @return {@code this}
      */

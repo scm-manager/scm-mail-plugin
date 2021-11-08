@@ -31,7 +31,9 @@ import org.codemonkey.simplejavamail.Email;
 import org.codemonkey.simplejavamail.Mailer;
 import org.codemonkey.simplejavamail.Recipient;
 import org.codemonkey.simplejavamail.TransportStrategy;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -57,7 +59,6 @@ import sonia.scm.user.UserDisplayManager;
 import sonia.scm.user.UserTestData;
 
 import javax.inject.Provider;
-import javax.mail.Session;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
@@ -67,12 +68,17 @@ import java.util.Properties;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class DefaultMailServiceTest {
 
 
+  public static final String DEFAULT_FROM_ADDRESS = "scm@hog.com";
   @Mock
   private MailContext context;
 
@@ -128,6 +134,8 @@ class DefaultMailServiceTest {
     Email email = emailCaptor.getValue();
 
     assertRecipient(email, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com");
+
+    assertThat(email.getFromRecipient().getAddress()).isEqualTo(DEFAULT_FROM_ADDRESS);
 
     assertThat(email.getSubject()).isEqualTo("Hello World");
     assertThat(email.getText()).isEqualTo("Don't Panic");
@@ -247,19 +255,29 @@ class DefaultMailServiceTest {
     assertThat(fromRecipient.getName()).isEqualTo("Arthur Dent");
   }
 
-  @Test
-  void shouldSendEmailAndUseFromFromSubject() throws MailSendBatchException {
-    configureMailer();
-    mockContentRenderer(Locale.ENGLISH, "my-template", "model", "Don't Panic");
+  @Nested
+  class WithCurrentUser {
 
-    SimplePrincipalCollection principals = new SimplePrincipalCollection();
-    principals.add(UserTestData.createDent(), "test");
+    @BeforeEach
+    void mockCurrentUser() {
+      SimplePrincipalCollection principals = new SimplePrincipalCollection();
+      principals.add(UserTestData.createDent(), "test");
 
-    Subject subject = mock(Subject.class);
-    when(subject.getPrincipals()).thenReturn(principals);
-    ThreadContext.bind(subject);
+      Subject subject = mock(Subject.class);
+      when(subject.getPrincipals()).thenReturn(principals);
+      ThreadContext.bind(subject);
+    }
 
-    try {
+    @AfterEach
+    void unbindSubject() {
+      ThreadContext.unbindSubject();
+    }
+
+    @Test
+    void shouldSendEmailAndUseFromFromSubject() throws MailSendBatchException {
+      configureMailer();
+      mockContentRenderer(Locale.ENGLISH, "my-template", "model", "Don't Panic");
+
       mailService.emailTemplateBuilder()
         .fromCurrentUser()
         .toAddress(Locale.ENGLISH, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com")
@@ -268,13 +286,11 @@ class DefaultMailServiceTest {
         .andModel("model")
         .send();
 
-    } finally {
-      ThreadContext.unbindSubject();
+      Email email = emailCaptor.getValue();
+      Recipient fromRecipient = email.getFromRecipient();
+      assertThat(fromRecipient.getName()).isEqualTo("Arthur Dent");
+      assertThat(fromRecipient.getAddress()).isEqualTo("arthur.dent@hitchhiker.com");
     }
-
-    Email email = emailCaptor.getValue();
-    Recipient fromRecipient = email.getFromRecipient();
-    assertThat(fromRecipient.getName()).isEqualTo("Arthur Dent");
   }
 
   @Test
@@ -382,6 +398,7 @@ class DefaultMailServiceTest {
 
   private void configureMailer() {
     when(configuration.isValid()).thenReturn(Boolean.TRUE);
+    lenient().when(configuration.getFrom()).thenReturn(DEFAULT_FROM_ADDRESS);
     when(mailer.validate(any(Email.class))).thenReturn(Boolean.TRUE);
   }
 

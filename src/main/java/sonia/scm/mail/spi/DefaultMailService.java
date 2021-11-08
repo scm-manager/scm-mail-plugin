@@ -252,6 +252,7 @@ public class DefaultMailService extends AbstractMailService {
 
     private MailConfiguration configuration;
     private String fromDisplayName;
+    private String fromAddress;
     private Topic topic;
     private final Set<String> users = new HashSet<>();
     private final Set<Recipient> external = new HashSet<>();
@@ -276,6 +277,7 @@ public class DefaultMailService extends AbstractMailService {
     public EnvelopeBuilder fromCurrentUser() {
       User user = SecurityUtils.getSubject().getPrincipals().oneByType(User.class);
       fromDisplayName = user.getDisplayName();
+      fromAddress = user.getMail();
       return this;
     }
 
@@ -390,7 +392,7 @@ public class DefaultMailService extends AbstractMailService {
 
     private Email createMail(Recipient recipient) {
       Email email = new Email();
-      email.setFromAddress(envelopeBuilder.fromDisplayName, envelopeBuilder.configuration.getFrom());
+      email.setFromAddress(envelopeBuilder.fromDisplayName, determineFromAddress());
       email.addRecipient(recipient.displayName, recipient.address, Message.RecipientType.TO);
       email.setSubject(subjectFor(recipient));
 
@@ -398,6 +400,14 @@ public class DefaultMailService extends AbstractMailService {
       email.setTextHTML(mailContent.getHtml());
       email.setText(mailContent.getText());
       return email;
+    }
+
+    private String determineFromAddress() {
+      if (Strings.isNullOrEmpty(envelopeBuilder.fromAddress)) {
+        return envelopeBuilder.configuration.getFrom();
+      } else {
+        return envelopeBuilder.fromAddress;
+      }
     }
 
     private MailContent createMailContent(Recipient recipient) {
