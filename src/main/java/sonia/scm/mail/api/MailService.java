@@ -46,7 +46,7 @@ public interface MailService
    *
    * @throws MailSendBatchException
    */
-  public void send(Email email, Email... emails) throws MailSendBatchException;
+  void send(Email email, Email... emails) throws MailSendBatchException;
 
   /**
    * Send e-mails with the default configuration.
@@ -56,7 +56,7 @@ public interface MailService
    *
    * @throws MailSendBatchException
    */
-  public void send(Iterable<Email> emails) throws MailSendBatchException;
+  void send(Iterable<Email> emails) throws MailSendBatchException;
 
   /**
    * Creating and sending email from a template.
@@ -86,7 +86,7 @@ public interface MailService
    *
    * @throws MailSendBatchException
    */
-  public void send(MailConfiguration configuration, Email email,
+  void send(MailConfiguration configuration, Email email,
     Email... emails)
     throws MailSendBatchException;
 
@@ -99,7 +99,7 @@ public interface MailService
    *
    * @throws MailSendBatchException
    */
-  public void send(MailConfiguration configuration, Iterable<Email> emails)
+  void send(MailConfiguration configuration, Iterable<Email> emails)
     throws MailSendBatchException;
 
   //~--- get methods ----------------------------------------------------------
@@ -110,7 +110,7 @@ public interface MailService
    *
    * @return true if default mail configuration is valid
    */
-  public boolean isConfigured();
+  boolean isConfigured();
 
 
   /**
@@ -135,6 +135,16 @@ public interface MailService
      * @return {@code this}
      */
     EnvelopeBuilder from(String displayName);
+
+    /**
+     * Use given display name and address for the from address.
+     *
+     * @param displayName display name
+     * @param address address
+     *
+     * @return {@code this}
+     */
+    EnvelopeBuilder from(String displayName, String address);
 
     /**
      * Use current users display as name for the from address.
