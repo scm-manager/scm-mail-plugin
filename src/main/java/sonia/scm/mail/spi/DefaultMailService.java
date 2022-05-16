@@ -274,13 +274,6 @@ public class DefaultMailService extends AbstractMailService {
     }
 
     @Override
-    public EnvelopeBuilder from(String displayName, String address) {
-      this.fromDisplayName = displayName;
-      this.fromAddress = address;
-      return this;
-    }
-
-    @Override
     public EnvelopeBuilder fromCurrentUser() {
       User user = SecurityUtils.getSubject().getPrincipals().oneByType(User.class);
       fromDisplayName = user.getDisplayName();
@@ -325,6 +318,8 @@ public class DefaultMailService extends AbstractMailService {
       this.topic = topic;
       return this;
     }
+
+    String effectiveFromAddress() { return !Strings.isNullOrEmpty(fromAddress) ? fromAddress : configuration.getFrom(); }
 
     @Override
     public SubjectBuilderImpl withSubject(String subject) {
@@ -401,8 +396,7 @@ public class DefaultMailService extends AbstractMailService {
 
     private Email createMail(Recipient recipient) {
       Email email = new Email();
-      String fromAddress = !Strings.isNullOrEmpty(envelopeBuilder.fromAddress) ? envelopeBuilder.fromAddress : envelopeBuilder.configuration.getFrom();
-      email.setFromAddress(envelopeBuilder.fromDisplayName, fromAddress);
+      email.setFromAddress(envelopeBuilder.fromDisplayName, envelopeBuilder.effectiveFromAddress());
       email.addRecipient(recipient.displayName, recipient.address, Message.RecipientType.TO);
       email.setSubject(subjectFor(recipient));
 

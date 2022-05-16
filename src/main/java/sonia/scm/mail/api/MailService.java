@@ -137,16 +137,6 @@ public interface MailService
     EnvelopeBuilder from(String displayName);
 
     /**
-     * Use given display name and address for the from address.
-     *
-     * @param displayName display name
-     * @param address address
-     *
-     * @return {@code this}
-     */
-    EnvelopeBuilder from(String displayName, String address);
-
-    /**
      * Use current users display as name for the from address.
      *
      * @return {@code this}
