@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.7.2 - 2022-05-16
+### Fixed
+- Use address from current user correctly ([#39](https://github.com/scm-manager/scm-mail-plugin/pull/39))
+
 ## 2.7.1 - 2021-06-10
 ### Fixed
 - Usage of mail api ([#24](https://github.com/scm-manager/scm-mail-plugin/pull/24))
