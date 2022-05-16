@@ -1,2 +1,2 @@
-- type: added
-  description: Make the from address configurable for outgoing emails ([#39](https://github.com/scm-manager/scm-mail-plugin/pull/39))
+- type: fixed
+  description: Use address from current user correctly ([#39](https://github.com/scm-manager/scm-mail-plugin/pull/39))
