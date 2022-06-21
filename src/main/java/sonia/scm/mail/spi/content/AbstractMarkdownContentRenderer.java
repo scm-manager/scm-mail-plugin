@@ -27,6 +27,8 @@ import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import sonia.scm.template.TemplateEngineFactory;
 
+import java.util.Locale;
+
 abstract class AbstractMarkdownContentRenderer extends AbstractTemplateContentRenderer {
 
   private static final Parser MARKDOWN_PARSER = Parser.builder().build();
@@ -39,8 +41,8 @@ abstract class AbstractMarkdownContentRenderer extends AbstractTemplateContentRe
   public MailContent render(Context context) {
     String markdown = renderAsString(context);
     Node node = MARKDOWN_PARSER.parse(markdown);
-    return render(node);
+    return render(node, context.getPreferredLocale());
   }
 
-  abstract MailContent render(Node node);
+  abstract MailContent render(Node node, Locale locale);
 }

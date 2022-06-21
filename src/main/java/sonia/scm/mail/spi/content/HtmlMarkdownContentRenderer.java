@@ -57,25 +57,27 @@ class HtmlMarkdownContentRenderer extends AbstractMarkdownContentRenderer {
   }
 
   @Override
-  protected MailContent render(Node node) {
+  protected MailContent render(Node node, Locale locale) {
     String text = textRenderer.renderAsString(node);
-    String html = renderHtml(node);
+    String html = renderHtml(node, locale);
     return MailContent.textAndHtml(text, html);
   }
 
-  private String renderHtml(Node node) {
+  private String renderHtml(Node node, Locale locale) {
     String html = HTML_RENDERER.render(node);
-    return renderTemplate(layoutTemplate, new LayoutModel(html, configuration.getBaseUrl()));
+    return renderTemplate(layoutTemplate, new LayoutModel(html, configuration.getBaseUrl(), locale.getLanguage()));
   }
 
-  private final class LayoutModel {
+  private static final class LayoutModel {
 
-    private String content;
-    private String url;
+    private final String content;
+    private final String url;
+    private final String language;
 
-    private LayoutModel(String content, String url) {
+    private LayoutModel(String content, String url, String language) {
       this.content = content;
       this.url = url;
+      this.language = language;
     }
 
     public String getContent() {
@@ -86,11 +88,16 @@ class HtmlMarkdownContentRenderer extends AbstractMarkdownContentRenderer {
       return url;
     }
 
+    public String getLanguage() {
+      return language;
+    }
+
     @Override
     public String toString() {
       return MoreObjects.toStringHelper(this)
         .add("content", content)
         .add("url", url)
+        .add("language", language)
         .toString();
     }
   }

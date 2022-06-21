@@ -29,6 +29,7 @@ import org.commonmark.renderer.text.TextContentRenderer;
 import sonia.scm.template.TemplateEngineFactory;
 
 import javax.inject.Inject;
+import java.util.Locale;
 
 class TextMarkdownContentRenderer extends AbstractMarkdownContentRenderer {
 
@@ -44,7 +45,7 @@ class TextMarkdownContentRenderer extends AbstractMarkdownContentRenderer {
   }
 
   @Override
-  protected MailContent render(Node node) {
+  protected MailContent render(Node node, Locale locale) {
     return MailContent.text(renderAsString(node));
   }
 }
