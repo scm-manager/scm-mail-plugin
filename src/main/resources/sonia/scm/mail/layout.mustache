@@ -1,214 +1,140 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      style="margin: 0;padding: 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;">
-
-<head
-  style="margin: 0;padding: 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;">
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"
-        style="margin: 0;padding: 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;">
-  <meta name="viewport" content="width=device-width"
-        style="margin: 0;padding: 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;">
-
-  <style type="text/css"
-         style="margin: 0;padding: 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;">
-    * {
-      margin: 0;
-      padding: 0;
-      font-size: 100%;
-      font-family: 'Avenir Next', "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
-      line-height: 1.65;
+<!DOCTYPE html>
+<html lang="{{language}}" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="x-apple-disable-message-reformatting">
+  <title></title>
+  <!--[if mso]>
+  <style>
+    table {border-collapse:collapse;border-spacing:0;border:none;margin:0;}
+    div, td {padding:0;}
+    div {margin:0 !important;}
+  </style>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+  <style>
+    table, td, div, h1, p {
+      font-family:  BlinkMacSystemFont,-apple-system,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,Helvetica,Arial,sans-serif;
     }
-
-    img {
-      max-width: 100%;
-      margin: 0 auto;
-      display: block;
+    @media screen and (max-width: 530px) {
+      .unsub {
+        display: block;
+        padding: 8px;
+        margin-top: 14px;
+        border-radius: 6px;
+        background-color: #555555;
+        text-decoration: none !important;
+        font-weight: bold;
+      }
+      .col-lge {
+        max-width: 100% !important;
+      }
     }
-
-    body, .body-wrap {
-      width: 100% !important;
-      height: 100%;
-      background: #f8f8f8;
+    @media screen and (min-width: 531px) {
+      .col-sml {
+        max-width: 27% !important;
+      }
+      .col-lge {
+        max-width: 73% !important;
+        padding-top: 20px;
+      }
     }
-
-    a {
-      color: #33b2e8;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    .text-center {
-      text-align: center;
-    }
-
-    .text-right {
-      text-align: right;
-    }
-
-    .text-left {
-      text-align: left;
-    }
-
-    .button {
-      display: inline-block;
-      color: white;
-      background: #33b2e8;
-      border: solid #33b2e8;
-      border-width: 10px 20px 8px;
-      font-weight: bold;
-      border-radius: 4px;
-    }
-
-    .button:hover {
-      text-decoration: none;
-    }
-
-    h1, h2, h3, h4, h5, h6 {
-      margin-bottom: 20px;
-      line-height: 1.25;
-    }
-
-    h1 {
-      font-size: 32px;
-    }
-
-    h2 {
-      font-size: 28px;
-    }
-
-    h3 {
-      font-size: 24px;
-    }
-
-    h4 {
-      font-size: 20px;
-    }
-
-    h5 {
-      font-size: 16px;
-    }
-
-    p, ul, ol {
-      font-size: 16px;
-      font-weight: normal;
-      margin-bottom: 20px;
-    }
-
-    .container {
-      display: block !important;
-      clear: both !important;
-      margin: 0 auto !important;
-      max-width: 580px !important;
-    }
-
-    .container table {
-      width: 100% !important;
-      border-collapse: collapse;
-    }
-
-    .container .masthead {
-      padding: 80px 0;
-      background: #33b2e8;
-      color: white;
-    }
-
-    .container .masthead h1 {
-      margin: 0 auto !important;
-      max-width: 90%;
-      text-transform: uppercase;
-    }
-
-    .container .content {
-      background: white;
-      padding: 30px 35px;
-    }
-
-    .container .content.footer {
-      background: none;
-    }
-
-    .container .content.footer p {
-      margin-bottom: 0;
-      color: #888;
-      text-align: center;
-      font-size: 14px;
-    }
-
-    .container .content.footer a {
-      color: #888;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .container .content.footer a:hover {
-      text-decoration: underline;
-    }
-
   </style>
 </head>
-
-<body
-  style="margin: 0;padding: 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;height: 100%;background: #f8f8f8;width: 100% !important;">
-<table class="body-wrap"
-       style="margin: 0;padding: 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;height: 100%;background: #f8f8f8;width: 100% !important;">
-  <tr
-    style="margin: 0;padding: 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;">
-    <td class="container"
-        style="margin: 0 auto !important;padding: 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;display: block !important;clear: both !important;max-width: 580px !important;">
-
-      <!-- Message start -->
-      <table
-        style="margin: 0;padding: 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;border-collapse: collapse;width: 100% !important;">
-        <tr
-          style="margin: 0;padding: 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;">
-          <td align="center" class="masthead"
-              style="margin: 0;padding: 80px 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;background: #33b2e8;color: white;">
-
-            <h1
-              style="margin: 0 auto !important;padding: 0;font-size: 32px;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.25;margin-bottom: 20px;max-width: 90%;text-transform: uppercase;">
-              SCM-Manager</h1>
-
-          </td>
+<body style="margin:0;padding:0;word-spacing:normal;background-color:#f8f8f8;">
+<div role="article" aria-roledescription="email" lang="{{language}}" style="text-size-adjust:100%;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;background-color:#f8f8f8;">
+  <table role="presentation" style="width:100%;border:none;border-spacing:0;">
+    <tr>
+      <td align="center" style="padding:0;">
+        <!--[if mso]>
+        <table role="presentation" align="center" style="width:600px;">
+          <tr>
+            <td>
+        <![endif]-->
+        <table role="presentation" style="width:94%;max-width:600px;border:none;border-spacing:0;text-align:left;font-family:BlinkMacSystemFont,-apple-system,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.65;color:#333333;">
+          <tr>
+            <td style="padding:40px 30px 30px 30px;text-align:center;font-size:24px;font-weight:bold;background-color:#003D66;">
+              <!--[if mso]>
+              <table role="presentation" width="100%">
+                <tr>
+                  <td style="width:145px;" align="left" valign="top">
+              <![endif]-->
+              <div class="col-sml" style="display:inline-block;max-width:150px;vertical-align:top;text-align:center;font-family:BlinkMacSystemFont,-apple-system,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,Helvetica,Arial,sans-serif;font-size:14px;color:#ffffff;">
+                <img src="data:image/png; base64, iVBORw0KGgoAAAANSUhEUgAAAGQAAABVCAMAAACIGrFuAAADAFBMVEVMaXHHx8bHx8bHx8bHx8bHx8bHx8bHx8bHx8bHx8bHx8bHx8bHx8bHx8bHx8Y3suTHx8YvqeApl9RBu+k1sOMsn9o/uug9t+c4suUtots6tOUsodsto9wupd40r+M6teUuqN8/uegrntkup98wq+Eso9wsodtEv+o8tuYyreIzreI5s+UzruI8tuY+uOdCvOlDveooldMtpN0qnNcpmNUrndg2sOQupt4rntkqmtcwquHHx8YuqOA1r+M3
+seRDvekvquFDvek+ueg+uOc/ueg+uOdCvOnHx8ZAuuhAuugxrOIqmdYvqeApl9Qpl9QsoNoqmNUrndgrm9ctpN0qmtYvqeAwq+Eup98up98qmdUwq+Esn9kyreI4suU0pdw2sOMto9w2seTHx8Y0r+M2
+seQ7tuY7tebHx8Y8t+ZCvOk9t+ZBu+lDvepEv+pEvuo+uOdAuuhBvOk/uuhBu+goldIrnNcpltMpl9MsoNoqmtZFv+rHx8Ypl9Qsn9kolNIup94rnNcsoNopldIupd4sotvHx8Y3suTHx8ZFv+owq+FE
+vupEv+ovquE8tuYup99EvulEvulFv+pDverHx8ZDvuo+uOdDvenHx8ZAu+hCvOk/uedFv+opltMpltMto9wrm9YqmdVFv+ovp98upd3Hx8YqmdVFv+oolNIpldIpmNQ5s+UpmNQrntgsn9ksoNpFv+oo
+lNJEvuktodsolNIto9zHx8Y2sOM2sOMsodopl9QpldIxq+EtpN02sOPHx8bHx8Yupt47teU3seTHx8Y8tuZBu+jHx8ZAuug+uOc7teU6tOXHx8ZDvelBu+jHx8ZEvuk+uOdCvOk3rODHx8Yrndgxq+Eu
+pt42sOMvqeAzreI8tuYsn9kto9wtots4suQqmNUsoNoqm9Yup98rnNctpN0wquE3seQ1r+MqmdUvqN80ruI6tOUupd1Auugpl9Q+uOc5s+U7teUpltMqmtYrntgtodsyrOIsodosntk9t+Yvp98/uecr
+m9dBu+hDvulCvOmaN3vbAAAA03RSTlMA8CBgEOCgQMCAULCQ0DAQcBAQEDAQIDDQMKBA8GBA8IBwIDAgIGCAoMBgYNCA8PBAgIBwMKBg8GBg0KZg0KDgoNCR4IBgsEvA8IBQQCAmkEDggLDgsPDg0NDg
+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" alt="Logo SCM-Manager" width="150px" style="width:115px;max-width:80%;margin-bottom:20px;" />
+              </div>
+              <!--[if mso]>
+              </td>
+              <td style="width:395px;padding-bottom:20px;" valign="top">
+              <![endif]-->
+              <div class="col-lge" style="display:inline-block;max-width:395px;vertical-align:top;font-family:BlinkMacSystemFont,-apple-system,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,Helvetica,Arial,sans-serif;font-size:16px;line-height:22px;color:#ffffff;">
+                <h1
+                  style="margin: 0 auto !important;padding: 0 0 20px 0;font-size: 32px;line-height: 1.25;text-transform: uppercase;">
+                  SCM-Manager</h1>
+              </div>
+              <!--[if mso]>
+              </td>
+              </tr>
+              </table>
+              <![endif]-->
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:30px;background-color:#ffffff;">
+              {{{ content }}}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:30px;text-align:center;font-size:12px;background-color:#fafafa;color:#4a4a4a;">
+              <p
+                style="margin: 0;padding: 0;font-size: 14px;line-height: 1.65;font-weight: normal;margin-bottom: 0;color: #4a4a4a;text-align: center;">
+                Sent by <a href="{{ url }}" style="margin: 0;padding: 0;font-size: 100%;line-height: 1.65;color: #4a4a4a;text-decoration: none;font-weight: bold;word-break: break-word">{{ url }}</a>
+              </p>
+              <p style="margin: 0;padding: 0;font-size: 14px;font-weight: normal;margin-bottom: 0;color: #4a4a4a;text-align: center;">
+                Provided by <a href="https://scm-manager.org" style="margin: 0;padding: 0;font-size: 100%;line-height: 1.65;color: #4a4a4a;text-decoration: none;font-weight: bold;">SCM-Manager</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+        <!--[if mso]>
+        </td>
         </tr>
-        <tr
-          style="margin: 0;padding: 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;">
-          <td class="content"
-              style="margin: 0;padding: 30px 35px;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;background: white;">
-
-            {{{ content }}}
-
-          </td>
-        </tr>
-      </table>
-
-    </td>
-  </tr>
-  <tr
-    style="margin: 0;padding: 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;">
-    <td class="container"
-        style="margin: 0 auto !important;padding: 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;display: block !important;clear: both !important;max-width: 580px !important;">
-
-      <!-- Message start -->
-      <table
-        style="margin: 0;padding: 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;border-collapse: collapse;width: 100% !important;">
-        <tr
-          style="margin: 0;padding: 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;">
-          <td class="content footer" align="center"
-              style="margin: 0;padding: 30px 35px;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;background: none;">
-            <p
-              style="margin: 0;padding: 0;font-size: 14px;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;font-weight: normal;margin-bottom: 0;color: #888;text-align: center;">
-              Sent by <a href="{{ url }}" style="margin: 0;padding: 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;color: #888;text-decoration: none;font-weight: bold;">{{ url }}</a> | Provided by <a href="https://scm-manager.org" style="margin: 0;padding: 0;font-size: 100%;font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;line-height: 1.65;color: #888;text-decoration: none;font-weight: bold;">SCM-Manager</a>
-            </p>
-          </td>
-        </tr>
-      </table>
-
-    </td>
-  </tr>
-</table>
+        </table>
+        <![endif]-->
+      </td>
+    </tr>
+  </table>
+</div>
 </body>
-
 </html>

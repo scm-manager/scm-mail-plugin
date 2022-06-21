@@ -1,0 +1,3 @@
+- type: changed
+  description: enhance email template, remove superfluous CSS ([#43](https://github.com/scm-manager/scm-mail-plugin/pull/43))
+
