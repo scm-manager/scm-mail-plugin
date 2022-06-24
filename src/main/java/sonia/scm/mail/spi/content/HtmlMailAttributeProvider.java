@@ -31,7 +31,7 @@ import java.util.Map;
 
 class HtmlMailAttributeProvider implements AttributeProvider {
 
-  private static final String FONT_FAMILY = "font-family: 'Avenir Next', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;";
+  private static final String FONT_FAMILY = "font-family: BlinkMacSystemFont,-apple-system,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,Helvetica,Arial,sans-serif;";
   private static final String PREFIX = "margin: 0; padding: 0; " + FONT_FAMILY + " ";
   private static final String DEFAULT = PREFIX + "font-size: 100%; line-height: 1.65;";
 
