@@ -24,15 +24,6 @@
       font-family:  BlinkMacSystemFont,-apple-system,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,Helvetica,Arial,sans-serif;
     }
     @media screen and (max-width: 530px) {
-      .unsub {
-        display: block;
-        padding: 8px;
-        margin-top: 14px;
-        border-radius: 6px;
-        background-color: #555555;
-        text-decoration: none !important;
-        font-weight: bold;
-      }
       .col-lge {
         max-width: 100% !important;
       }
@@ -40,10 +31,11 @@
     @media screen and (min-width: 531px) {
       .col-sml {
         max-width: 27% !important;
+        padding-right: 15px;
       }
       .col-lge {
         max-width: 73% !important;
-        padding-top: 20px;
+        padding-top: 30px;
       }
     }
   </style>
@@ -60,48 +52,71 @@
         <![endif]-->
         <table role="presentation" style="width:94%;max-width:600px;border:none;border-spacing:0;text-align:left;font-family:BlinkMacSystemFont,-apple-system,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.65;color:#333333;">
           <tr>
-            <td style="padding:40px 30px 30px 30px;text-align:center;font-size:24px;font-weight:bold;background-color:#003D66;">
+            <td style="padding:40px 30px 30px 30px;text-align:center;font-size:24px;font-weight:bold;background-color:#33b2e8;">
               <!--[if mso]>
               <table role="presentation" width="100%">
                 <tr>
                   <td style="width:145px;" align="left" valign="top">
               <![endif]-->
               <div class="col-sml" style="display:inline-block;max-width:150px;vertical-align:top;text-align:center;font-family:BlinkMacSystemFont,-apple-system,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,Helvetica,Arial,sans-serif;font-size:14px;color:#ffffff;">
-                <img src="data:image/png; base64, iVBORw0KGgoAAAANSUhEUgAAAGQAAABVCAMAAACIGrFuAAADAFBMVEVMaXHHx8bHx8bHx8bHx8bHx8bHx8bHx8bHx8bHx8bHx8bHx8bHx8bHx8bHx8Y3suTHx8YvqeApl9RBu+k1sOMsn9o/uug9t+c4suUtots6tOUsodsto9wupd40r+M6teUuqN8/uegrntkup98wq+Eso9wsodtEv+o8tuYyreIzreI5s+UzruI8tuY+uOdCvOlDveooldMtpN0qnNcpmNUrndg2sOQupt4rntkqmtcwquHHx8YuqOA1r+M3
-seRDvekvquFDvek+ueg+uOc/ueg+uOdCvOnHx8ZAuuhAuugxrOIqmdYvqeApl9Qpl9QsoNoqmNUrndgrm9ctpN0qmtYvqeAwq+Eup98up98qmdUwq+Esn9kyreI4suU0pdw2sOMto9w2seTHx8Y0r+M2
-seQ7tuY7tebHx8Y8t+ZCvOk9t+ZBu+lDvepEv+pEvuo+uOdAuuhBvOk/uuhBu+goldIrnNcpltMpl9MsoNoqmtZFv+rHx8Ypl9Qsn9kolNIup94rnNcsoNopldIupd4sotvHx8Y3suTHx8ZFv+owq+FE
-vupEv+ovquE8tuYup99EvulEvulFv+pDverHx8ZDvuo+uOdDvenHx8ZAu+hCvOk/uedFv+opltMpltMto9wrm9YqmdVFv+ovp98upd3Hx8YqmdVFv+oolNIpldIpmNQ5s+UpmNQrntgsn9ksoNpFv+oo
-lNJEvuktodsolNIto9zHx8Y2sOM2sOMsodopl9QpldIxq+EtpN02sOPHx8bHx8Yupt47teU3seTHx8Y8tuZBu+jHx8ZAuug+uOc7teU6tOXHx8ZDvelBu+jHx8ZEvuk+uOdCvOk3rODHx8Yrndgxq+Eu
-pt42sOMvqeAzreI8tuYsn9kto9wtots4suQqmNUsoNoqm9Yup98rnNctpN0wquE3seQ1r+MqmdUvqN80ruI6tOUupd1Auugpl9Q+uOc5s+U7teUpltMqmtYrntgtodsyrOIsodosntk9t+Yvp98/uecr
-m9dBu+hDvulCvOmaN3vbAAAA03RSTlMA8CBgEOCgQMCAULCQ0DAQcBAQEDAQIDDQMKBA8GBA8IBwIDAgIGCAoMBgYNCA8PBAgIBwMKBg8GBg0KZg0KDgoNCR4IBgsEvA8IBQQCAmkEDggLDgsPDg0NDg
-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" alt="Logo SCM-Manager" width="150px" style="width:115px;max-width:80%;margin-bottom:20px;" />
+                <img src="data:image/png; base64, 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
+wH8AxWKvi0jAD1gAAAAASUVORK5CYII=" alt="Logo SCM-Manager" width="150px" style="width:150px;max-width:80%;" />
               </div>
               <!--[if mso]>
               </td>
               <td style="width:395px;padding-bottom:20px;" valign="top">
               <![endif]-->
               <div class="col-lge" style="display:inline-block;max-width:395px;vertical-align:top;font-family:BlinkMacSystemFont,-apple-system,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,Helvetica,Arial,sans-serif;font-size:16px;line-height:22px;color:#ffffff;">
-                <h1
-                  style="margin: 0 auto !important;padding: 0 0 20px 0;font-size: 32px;line-height: 1.25;text-transform: uppercase;">
-                  SCM-Manager</h1>
+                <p
+                  style="margin: 0 auto !important;font-size: 32px;line-height: 1.25;text-transform: uppercase;">
+                  SCM-Manager</p>
               </div>
               <!--[if mso]>
               </td>
@@ -118,10 +133,10 @@ tJ/8oek7559QGNLD4fxzzyjM6CEynxyuPiT7qwr3SE/xxf+DEHxe4R7pMe7s038D+AjdU+B0Rl3oHAAA
           <tr>
             <td style="padding:30px;text-align:center;font-size:12px;background-color:#fafafa;color:#4a4a4a;">
               <p
-                style="margin: 0;padding: 0;font-size: 14px;line-height: 1.65;font-weight: normal;margin-bottom: 0;color: #4a4a4a;text-align: center;">
+                style="margin: 0;padding: 0;font-size: 14px;line-height: 1.65;font-weight: normal;color: #4a4a4a;text-align: center;">
                 Sent by <a href="{{ url }}" style="margin: 0;padding: 0;font-size: 100%;line-height: 1.65;color: #4a4a4a;text-decoration: none;font-weight: bold;word-break: break-word">{{ url }}</a>
               </p>
-              <p style="margin: 0;padding: 0;font-size: 14px;font-weight: normal;margin-bottom: 0;color: #4a4a4a;text-align: center;">
+              <p style="margin: 0;padding: 0;font-size: 14px;font-weight: normal;color: #4a4a4a;text-align: center;">
                 Provided by <a href="https://scm-manager.org" style="margin: 0;padding: 0;font-size: 100%;line-height: 1.65;color: #4a4a4a;text-decoration: none;font-weight: bold;">SCM-Manager</a>
               </p>
             </td>
