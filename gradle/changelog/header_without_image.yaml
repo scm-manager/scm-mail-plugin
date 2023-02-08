@@ -1,0 +1,2 @@
+- type: changed
+  description: Remove embedded image and change css-styles to support more email clients.
