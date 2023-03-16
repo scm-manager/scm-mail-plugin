@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mail-configuration>
+    <from>marvin@hog.com</from>
+    <host>localhost</host>
+    <password>{enc}ENCRYPTED_PASSWORD</password>
+    <port>8025</port>
+    <subject-prefix>[SCM] </subject-prefix>
+    <transport-strategy>SMTP_PLAIN</transport-strategy>
+    <username>marvin</username>
+    <language>en</language>
+</mail-configuration>

@@ -81,7 +81,8 @@ public class UseStandardEncryptionUpdateStep implements UpdateStep {
 
   @XmlAccessorType(XmlAccessType.FIELD)
   @XmlRootElement(name = "mail-configuration")
-  private static class LegacyMailConfiguration {
+  @SuppressWarnings("unused")
+  static class LegacyMailConfiguration {
     private String from;
     private String host;
     @XmlJavaTypeAdapter(XmlCipherStringAdapter.class)
