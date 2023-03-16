@@ -46,6 +46,8 @@ import static de.otto.edison.hal.Link.link;
 @Mapper
 public abstract class MailConfigurationMapper {
 
+  private static final String DUMMY_PASSWORD = "__DUMMY__";
+
   private MailConfigurationResourceLinks mailConfigurationResourceLinks = new MailConfigurationResourceLinks(() -> URI.create("/"));
 
   @Mapping(target = "attributes", ignore = true)
@@ -93,6 +95,18 @@ public abstract class MailConfigurationMapper {
     links.single(link("update", mailConfigurationResourceLinks.updateUserConfigLink()));
     links.single(link("availableTopics", mailConfigurationResourceLinks.topics()));
     dto.add(links.build());
+  }
+
+  @AfterMapping
+  void maskPassword(@MappingTarget MailConfigurationDto dto) {
+    dto.setPassword(DUMMY_PASSWORD);
+  }
+
+  @AfterMapping
+  void removeDummyPassword(@MappingTarget MailConfiguration configuration) {
+    if (DUMMY_PASSWORD.equals(configuration.getPassword())) {
+      configuration.setPassword(null);
+    }
   }
 
   public TopicCollectionDto map(Collection<Topic> availableTopics) {

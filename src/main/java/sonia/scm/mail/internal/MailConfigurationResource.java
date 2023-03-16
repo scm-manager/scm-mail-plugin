@@ -101,6 +101,7 @@ public class MailConfigurationResource {
     ConfigurationPermissions.write("mail").check();
 
     MailConfiguration configuration = mapper.using(uriInfo).map(mailConfigurationDto);
+    recoverOriginalPasswordIfNotChanged(configuration);
     if (configuration.isValid() && ValidationUtil.isMailAddressValid(to)) {
 
       mailService.emailTemplateBuilder()
@@ -134,8 +135,10 @@ public class MailConfigurationResource {
   )
   public void storeConfiguration(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto) {
     ConfigurationPermissions.write("mail").check();
+    MailConfiguration newConfiguration = mapper.using(uriInfo).map(mailConfigurationDto);
+    recoverOriginalPasswordIfNotChanged(newConfiguration);
     synchronized (context) {
-      context.store(mapper.using(uriInfo).map(mailConfigurationDto));
+      context.store(newConfiguration);
     }
   }
 
@@ -157,8 +160,15 @@ public class MailConfigurationResource {
   public void updateConfiguration(@Context UriInfo uriInfo, MailConfigurationDto mailConfigurationDto) {
     ConfigurationPermissions.write("mail").check();
     MailConfiguration mailConfiguration = mapper.using(uriInfo).map(mailConfigurationDto);
+    recoverOriginalPasswordIfNotChanged(mailConfiguration);
     synchronized (context) {
       context.store(mailConfiguration);
+    }
+  }
+
+  private void recoverOriginalPasswordIfNotChanged(MailConfiguration newConfiguration) {
+    if (newConfiguration.getPassword() == null) {
+      newConfiguration.setPassword(context.getConfiguration().getPassword());
     }
   }
 

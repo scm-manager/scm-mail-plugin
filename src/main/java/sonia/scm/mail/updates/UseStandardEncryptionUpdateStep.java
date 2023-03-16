@@ -51,19 +51,22 @@ public class UseStandardEncryptionUpdateStep implements UpdateStep {
 
   @Override
   public void doUpdate() {
-    LegacyMailConfiguration legacyMailConfiguration = storeFactory.withType(LegacyMailConfiguration.class).withName("mail").build().get();
-    MailConfiguration newMailConfiguration = new MailConfiguration(
-      legacyMailConfiguration.host,
-      legacyMailConfiguration.port,
-      legacyMailConfiguration.transportStrategy,
-      legacyMailConfiguration.from,
-      legacyMailConfiguration.username,
-      legacyMailConfiguration.password,
-      legacyMailConfiguration.subjectPrefix
-    );
-    newMailConfiguration.setLanguage(legacyMailConfiguration.language);
+    storeFactory.withType(LegacyMailConfiguration.class).withName("mail").build().getOptional().ifPresent(
+      legacyMailConfiguration -> {
+        MailConfiguration newMailConfiguration = new MailConfiguration(
+          legacyMailConfiguration.host,
+          legacyMailConfiguration.port,
+          legacyMailConfiguration.transportStrategy,
+          legacyMailConfiguration.from,
+          legacyMailConfiguration.username,
+          legacyMailConfiguration.password,
+          legacyMailConfiguration.subjectPrefix
+        );
+        newMailConfiguration.setLanguage(legacyMailConfiguration.language);
 
-    storeFactory.withType(MailConfiguration.class).withName("mail").build().set(newMailConfiguration);
+        storeFactory.withType(MailConfiguration.class).withName("mail").build().set(newMailConfiguration);
+      }
+    );
   }
 
   @Override
