@@ -24,11 +24,12 @@
 
 package sonia.scm.mail.updates;
 
+import com.google.common.base.Strings;
 import org.codemonkey.simplejavamail.TransportStrategy;
 import sonia.scm.mail.api.MailConfiguration;
-import sonia.scm.mail.internal.XmlCipherStringAdapter;
 import sonia.scm.migration.UpdateStep;
 import sonia.scm.plugin.Extension;
+import sonia.scm.security.CipherUtil;
 import sonia.scm.store.ConfigurationStoreFactory;
 import sonia.scm.version.Version;
 
@@ -37,6 +38,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @Extension
@@ -94,5 +96,24 @@ public class UseStandardEncryptionUpdateStep implements UpdateStep {
     private TransportStrategy transportStrategy;
     private String username;
     private String language;
+  }
+}
+
+class XmlCipherStringAdapter extends XmlAdapter<String, String> {
+
+  private static final String PREFIX = "{enc}";
+
+  @Override
+  public String marshal(String v) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String unmarshal(String v) {
+    if (v.startsWith(PREFIX)) {
+      return CipherUtil.getInstance().decode(v.substring(PREFIX.length()));
+    }
+
+    return v;
   }
 }
