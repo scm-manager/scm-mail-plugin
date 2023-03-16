@@ -46,6 +46,7 @@ import static de.otto.edison.hal.Link.link;
 @Mapper
 public abstract class MailConfigurationMapper {
 
+  @SuppressWarnings("java:S2068")
   private static final String DUMMY_PASSWORD = "__DUMMY__";
 
   private MailConfigurationResourceLinks mailConfigurationResourceLinks = new MailConfigurationResourceLinks(() -> URI.create("/"));
