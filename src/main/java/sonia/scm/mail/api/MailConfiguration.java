@@ -26,7 +26,7 @@ package sonia.scm.mail.api;
 import lombok.Setter;
 import org.codemonkey.simplejavamail.TransportStrategy;
 import sonia.scm.Validateable;
-import sonia.scm.mail.internal.XmlCipherStringAdapter;
+import sonia.scm.xml.XmlCipherStringAdapter;
 import sonia.scm.util.Util;
 import sonia.scm.util.ValidationUtil;
 
