@@ -24,7 +24,6 @@
 
 package sonia.scm.mail.updates;
 
-import com.google.common.base.Strings;
 import org.codemonkey.simplejavamail.TransportStrategy;
 import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.migration.UpdateStep;
