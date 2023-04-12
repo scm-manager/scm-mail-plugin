@@ -1,4 +1,0 @@
-- type: fixed
-  description: Missing encryption in the audit log
-- type: fixed
-  description: Masking of passwort network layer
