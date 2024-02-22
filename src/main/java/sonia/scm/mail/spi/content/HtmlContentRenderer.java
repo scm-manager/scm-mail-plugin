@@ -23,9 +23,8 @@
  */
 package sonia.scm.mail.spi.content;
 
+import jakarta.inject.Inject;
 import sonia.scm.template.TemplateEngineFactory;
-
-import javax.inject.Inject;
 
 class HtmlContentRenderer extends AbstractTemplateContentRenderer {
 

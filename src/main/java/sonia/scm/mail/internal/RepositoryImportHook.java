@@ -25,6 +25,7 @@ package sonia.scm.mail.internal;
 
 import com.github.legman.Subscribe;
 import com.google.common.collect.Maps;
+import jakarta.inject.Inject;
 import org.apache.shiro.SecurityUtils;
 import sonia.scm.EagerSingleton;
 import sonia.scm.config.ScmConfiguration;
@@ -38,7 +39,6 @@ import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryImportEvent;
 import sonia.scm.user.User;
 
-import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -119,11 +119,11 @@ public class RepositoryImportHook {
 
   private String getRepositoryLink(Repository repository) {
     String baseUrl = scmConfiguration.getBaseUrl();
-    return  MessageFormat.format(SCM_REPOSITORY_URL_PATTERN, baseUrl, repository.getNamespace(), repository.getName());
+    return MessageFormat.format(SCM_REPOSITORY_URL_PATTERN, baseUrl, repository.getNamespace(), repository.getName());
   }
 
   private String getImportLogLink(String logId) {
     String baseUrl = scmConfiguration.getBaseUrl();
-    return  MessageFormat.format(SCM_LOG_URL_PATTERN, baseUrl, logId);
+    return MessageFormat.format(SCM_LOG_URL_PATTERN, baseUrl, logId);
   }
 }

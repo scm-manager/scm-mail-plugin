@@ -23,12 +23,12 @@
  */
 package sonia.scm.mail.spi.content;
 
+import jakarta.inject.Inject;
 import org.commonmark.node.Node;
 import org.commonmark.renderer.Renderer;
 import org.commonmark.renderer.text.TextContentRenderer;
 import sonia.scm.template.TemplateEngineFactory;
 
-import javax.inject.Inject;
 import java.util.Locale;
 
 class TextMarkdownContentRenderer extends AbstractMarkdownContentRenderer {

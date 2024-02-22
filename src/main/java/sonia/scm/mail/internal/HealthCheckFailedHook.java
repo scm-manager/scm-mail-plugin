@@ -27,6 +27,7 @@ package sonia.scm.mail.internal;
 import com.github.legman.Subscribe;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import jakarta.inject.Inject;
 import sonia.scm.EagerSingleton;
 import sonia.scm.config.ScmConfiguration;
 import sonia.scm.mail.api.Category;
@@ -40,7 +41,6 @@ import sonia.scm.repository.Repository;
 import sonia.scm.user.DisplayUser;
 import sonia.scm.user.UserDisplayManager;
 
-import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashSet;

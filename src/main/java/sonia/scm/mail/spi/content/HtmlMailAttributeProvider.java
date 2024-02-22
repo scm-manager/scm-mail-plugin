@@ -47,7 +47,7 @@ class HtmlMailAttributeProvider implements AttributeProvider {
   private static final String BLOCKQUOTE_STYLE = DEFAULT;
   private static final String HR_STYLE = "margin: 20px auto; padding: 0; " + FONT_FAMILY + " ";
 
-  private static final Map<String,StyleProvider> styleProviders = ImmutableMap.<String,StyleProvider>builder()
+  private static final Map<String, StyleProvider> styleProviders = ImmutableMap.<String, StyleProvider>builder()
     .put("h1", () -> String.format(H_STYLE, "32px"))
     .put("h2", () -> String.format(H_STYLE, "28px"))
     .put("h3", () -> String.format(H_STYLE, "24px"))

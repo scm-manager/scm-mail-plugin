@@ -28,6 +28,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sonia.scm.event.ScmEventBus;
 import sonia.scm.store.ConfigurationEntryStore;
 import sonia.scm.store.ConfigurationEntryStoreFactory;
 import sonia.scm.store.ConfigurationStore;
@@ -47,10 +48,11 @@ import static java.util.stream.Collectors.toList;
  * @author Sebastian Sdorra
  */
 @Singleton
-public class MailContext
-{
+public class MailContext {
 
-  /** name of the store */
+  /**
+   * name of the store
+   */
   private static final String CONFIG_STORE_NAME = "mail";
   private static final String USER_CONFIGURATION_STORE_NAME = "user-mail";
 
@@ -82,11 +84,9 @@ public class MailContext
   /**
    * Stores the given mail configuration as default one.
    *
-   *
    * @param configuration default mail configuration
    */
-  public void store(MailConfiguration configuration)
-  {
+  public void store(MailConfiguration configuration) {
     AssertUtil.assertIsValid(configuration);
     this.configuration = configuration;
     logger.debug("store new mail configuration");
@@ -95,19 +95,29 @@ public class MailContext
   }
 
   public void store(String userId, UserMailConfiguration userMailConfiguration) {
+    UserMailConfiguration previousConfig = this.getUserConfiguration(userId).orElse(new UserMailConfiguration());
+
+    if (isMailSummaryChanged(previousConfig, userMailConfiguration)) {
+      ScmEventBus.getInstance().post(new SummarizeMailConfigChangedEvent(
+        userId, previousConfig, userMailConfiguration
+      ));
+    }
+
     userConfigurationStore.put(userId, userMailConfiguration);
+  }
+
+  private boolean isMailSummaryChanged(UserMailConfiguration previous, UserMailConfiguration current) {
+    return previous.isSummarizeMails() != current.isSummarizeMails() ||
+      previous.getSummaryFrequency() != current.getSummaryFrequency();
   }
 
   /**
    * Returns the current default mail configuration.
    *
-   *
    * @return default mail configuration
    */
-  public MailConfiguration getConfiguration()
-  {
-    if (configuration == null)
-    {
+  public MailConfiguration getConfiguration() {
+    if (configuration == null) {
       configuration = new MailConfiguration();
     }
 

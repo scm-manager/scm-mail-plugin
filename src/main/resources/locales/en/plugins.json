@@ -3,7 +3,7 @@
     "navLink": "Email",
     "mailValidationError": "This is not a valid email address",
     "form": {
-      "header": "Email Configuration",
+      "header": "Configuration of email notifications",
       "host": "Host",
       "port": "Port",
       "from": "From",
@@ -11,11 +11,21 @@
       "password": "Password",
       "subjectPrefix": "Subject Prefix",
       "language": "Language",
-      "transportStrategy": "Transport Strategy"
+      "transportStrategy": "Transport Strategy",
+      "summarizeMails": "Summarize emails by category into one summary email",
+      "summarizeMailsHelpText": "Not every email gets summarized. Some of them are deemed to have a high priority and therefore always get send out directly.",
+      "summarizeByEntity": "Additionally summarize emails by event source",
+      "summarizeByEntityHelpText": "Pull Requests of a repository is an example of an event source",
+      "summaryFrequency": "Frequency of summary emails"
     },
     "language" : {
       "de" : "German",
       "en" : "English"
+    },
+    "summaryFrequency": {
+      "MINUTES_15": "Every 15 minutes",
+      "HOURS_2": "Every 2 hours",
+      "HOURS_8": "Every 8 hours"
     },
     "test": {
       "input": "Email address",
@@ -26,8 +36,7 @@
       "success": "Email was sent successfully."
     },
     "topics": {
-      "header": "Subscribed Topics",
-      "helpText": "On the selected topics, email notifications can be sent. However, a check mark alone does not imply that you will be notified for the respective event. This is to be seen as an opt-out option."
+      "header": "Subscribed Topics"
     }
   },
   "mailTopics": {

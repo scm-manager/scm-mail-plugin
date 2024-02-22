@@ -23,9 +23,9 @@
  */
 package sonia.scm.mail.spi.content;
 
+import jakarta.inject.Inject;
 import sonia.scm.mail.api.MailTemplateType;
 
-import javax.inject.Inject;
 import java.util.Map;
 
 public class MailContentRendererFactory {

@@ -24,13 +24,10 @@
 package sonia.scm.mail.spi;
 
 import com.google.common.collect.ImmutableSet;
+import jakarta.inject.Provider;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
-import org.codemonkey.simplejavamail.Email;
-import org.codemonkey.simplejavamail.Mailer;
-import org.codemonkey.simplejavamail.Recipient;
-import org.codemonkey.simplejavamail.TransportStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,17 +35,23 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.simplejavamail.api.email.Email;
+import org.simplejavamail.api.email.Recipient;
+import org.simplejavamail.api.mailer.Mailer;
 import sonia.scm.mail.api.Category;
 import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContext;
 import sonia.scm.mail.api.MailSendBatchException;
 import sonia.scm.mail.api.MailService;
 import sonia.scm.mail.api.MailTemplateType;
+import sonia.scm.mail.api.ScmRecipient;
+import sonia.scm.mail.api.ScmTransportStrategy;
 import sonia.scm.mail.api.Topic;
 import sonia.scm.mail.api.UserMailConfiguration;
 import sonia.scm.mail.spi.content.MailContent;
 import sonia.scm.mail.spi.content.MailContentRenderer;
 import sonia.scm.mail.spi.content.MailContentRendererFactory;
+import sonia.scm.schedule.Scheduler;
 import sonia.scm.trace.Span;
 import sonia.scm.trace.Tracer;
 import sonia.scm.user.DisplayUser;
@@ -56,18 +59,26 @@ import sonia.scm.user.User;
 import sonia.scm.user.UserDisplayManager;
 import sonia.scm.user.UserTestData;
 
-import javax.inject.Provider;
-import javax.mail.Session;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class DefaultMailServiceTest {
@@ -92,6 +103,12 @@ class DefaultMailServiceTest {
   private Provider<SSLContext> sslContextProvider;
 
   @Mock
+  private MailSummaryQueueStore summaryQueueStore;
+
+  @Mock
+  private Scheduler scheduler;
+
+  @Mock
   private Tracer tracer;
   @Mock
   private Span span;
@@ -101,15 +118,17 @@ class DefaultMailServiceTest {
 
   private MailService mailService;
 
-
   @Captor
   private ArgumentCaptor<Email> emailCaptor;
+
+  @Captor
+  private ArgumentCaptor<Iterable<Email>> multipleEmailsCaptor;
 
   @BeforeEach
   void setUpMocks() {
     this.mailService = new TestingMailService();
     lenient().when(context.getConfiguration()).thenReturn(configuration);
-    lenient().doNothing().when(mailer).sendMail(emailCaptor.capture());
+    lenient().when(mailer.sendMail(emailCaptor.capture())).thenReturn(CompletableFuture.completedFuture(null));
     lenient().when(tracer.span("Mail")).thenReturn(span);
   }
 
@@ -130,7 +149,7 @@ class DefaultMailServiceTest {
     assertRecipient(email, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com");
 
     assertThat(email.getSubject()).isEqualTo("Hello World");
-    assertThat(email.getText()).isEqualTo("Don't Panic");
+    assertThat(email.getPlainText()).isEqualTo("Don't Panic");
   }
 
   @Test
@@ -168,7 +187,7 @@ class DefaultMailServiceTest {
 
     assertRecipient(email, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com");
     assertThat(email.getSubject()).isEqualTo("Hello Tricia");
-    assertThat(email.getText()).isEqualTo("Don't Panic");
+    assertThat(email.getPlainText()).isEqualTo("Don't Panic");
   }
 
   @Test
@@ -188,7 +207,7 @@ class DefaultMailServiceTest {
     Email email = emailCaptor.getValue();
 
     assertThat(email.getSubject()).isEqualTo("Hallo Tricia");
-    assertThat(email.getText()).isEqualTo("Keine Panik");
+    assertThat(email.getPlainText()).isEqualTo("Keine Panik");
   }
 
   @Test
@@ -210,6 +229,7 @@ class DefaultMailServiceTest {
     mockContentRenderer(Locale.GERMAN, "my-template", "model", "Keine Panik");
 
     MailConfiguration config = mock(MailConfiguration.class);
+    when(config.getFrom()).thenReturn("test@test.de");
     when(config.isValid()).thenReturn(Boolean.TRUE);
     when(config.getLanguage()).thenReturn("de");
     when(mailer.validate(any(Email.class))).thenReturn(Boolean.TRUE);
@@ -226,12 +246,13 @@ class DefaultMailServiceTest {
     Email email = emailCaptor.getValue();
 
     assertThat(email.getSubject()).isEqualTo("Hallo Tricia");
-    assertThat(email.getText()).isEqualTo("Keine Panik");
+    assertThat(email.getPlainText()).isEqualTo("Keine Panik");
   }
 
   @Test
   void shouldSendEmailAndUseConfiguredFrom() throws MailSendBatchException {
     configureMailer();
+    when(configuration.getFrom()).thenReturn("test@test.de");
     mockContentRenderer(Locale.ENGLISH, "my-template", "model", "Don't Panic");
 
     mailService.emailTemplateBuilder()
@@ -295,8 +316,8 @@ class DefaultMailServiceTest {
     assertRecipient(email, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com");
 
     assertThat(email.getSubject()).isEqualTo("Hello World");
-    assertThat(email.getText()).isEqualTo("Don't Panic");
-    assertThat(email.getTextHTML()).isEqualTo("<h1>Don't Panic</h1>");
+    assertThat(email.getPlainText()).isEqualTo("Don't Panic");
+    assertThat(email.getHTMLText()).isEqualTo("<h1>Don't Panic</h1>");
   }
 
   @Test
@@ -341,13 +362,99 @@ class DefaultMailServiceTest {
     SSLSocketFactory socketFactory = mock(SSLSocketFactory.class);
     when(sslContext.getSocketFactory()).thenReturn(socketFactory);
 
-    DefaultMailService service = new DefaultMailService(context, userDisplayManager, mailContentRendererFactory, tracer, sslContextProvider);
-    Mailer mailer = service.createMailer(new MailConfiguration("host", 443, TransportStrategy.SMTP_SSL, "trillian", "Testmail"));
+    DefaultMailService service = new DefaultMailService(
+      context, userDisplayManager, mailContentRendererFactory, new MailSender(tracer, sslContextProvider), summaryQueueStore, scheduler
+    );
+
+    Mailer mailer = service
+      .getMailSender()
+      .createMailer(
+        new MailConfiguration("host", 443, ScmTransportStrategy.SMTPS, "trillian", "Testmail")
+      );
 
     Properties props = mailer.getSession().getProperties();
     assertThat(props)
       .containsEntry("mail.smtp.ssl.socketFactory", socketFactory)
       .containsEntry("mail.smtps.ssl.socketFactory", socketFactory);
+  }
+
+  @Test
+  void shouldBuildEmailsForRecipients() throws MailSendBatchException {
+    mockContentRenderer(Locale.ENGLISH, "my-template", "model", "TEST CONTENT");
+
+    Topic topic = new Topic(new Category("Pull Request"), "Mentions");
+
+    User trillian = UserTestData.createTrillian();
+    mockUserWithConfiguration(trillian, Locale.ENGLISH, topic);
+
+    User dent = UserTestData.createDent();
+    mockUserWithConfiguration(dent, Locale.ENGLISH);
+
+    User adams = UserTestData.createAdams();
+    mockUserWithConfiguration(adams, Locale.ENGLISH);
+
+    DefaultMailService service = new DefaultMailService(
+      context, userDisplayManager, mailContentRendererFactory, new MailSender(tracer, sslContextProvider), summaryQueueStore, scheduler
+    );
+    MailService.EnvelopeBuilder envelopeBuilder = service.emailTemplateBuilder();
+    List.of(trillian, dent, adams).forEach(user -> envelopeBuilder.toUser(user.getId()));
+    envelopeBuilder
+      .onTopic(topic)
+      .onEntity("1")
+      .withSubject("Mentioned")
+      .withTemplate("my-template", MailTemplateType.TEXT)
+      .andModel("model")
+      .queueMails();
+
+    assertThat(service.getMailSummarizer().getSummaryQueuesByUserId().keySet()).isEqualTo(
+      Set.of(dent.getId(), adams.getId())
+    );
+  }
+
+  @Test
+  void shouldSendMailDirectlyAndSetProperFrom() throws MailSendBatchException {
+    mockContentRenderer(Locale.ENGLISH, "my-template", "model", "TEST CONTENT");
+    mockContentRenderer(
+      Locale.ENGLISH,
+      "sonia/scm/mail/emailnotification/single_queued_mail.mustache",
+      Map.of("content", "TEST CONTENT"),
+      MailTemplateType.MARKDOWN_HTML,
+      MailContent.text("TEST CONTENT")
+    );
+
+    ScmRecipient from = new ScmRecipient("Test", "test@test.com");
+    Topic topic = new Topic(new Category("Pull Request"), "Mentions");
+
+    User trillian = UserTestData.createTrillian();
+    mockUser(trillian);
+    UserMailConfiguration userMailConfiguration = new UserMailConfiguration();
+    userMailConfiguration.setSummarizeMails(false);
+    userMailConfiguration.setLanguage(Locale.ENGLISH.getLanguage());
+    when(context.getUserConfiguration(trillian.getId())).thenReturn(Optional.of(userMailConfiguration));
+
+    MailSender mailSender = mock(MailSender.class);
+    DefaultMailService service = new DefaultMailService(
+      context, userDisplayManager, mailContentRendererFactory, mailSender, summaryQueueStore, scheduler
+    );
+    MailService.EnvelopeBuilder envelopeBuilder = service.emailTemplateBuilder();
+    envelopeBuilder
+      .from(from)
+      .toUser(trillian.getId())
+      .onTopic(topic)
+      .onEntity("1")
+      .withSubject("Mentioned")
+      .withTemplate("my-template", MailTemplateType.TEXT)
+      .andModel("model")
+      .queueMails();
+
+    assertThat(service.getMailSummarizer().getSummaryQueuesByUserId()).hasSize(0);
+    verify(mailSender).send(any(MailConfiguration.class), multipleEmailsCaptor.capture());
+    List<Email> capturedEmails = new ArrayList<>();
+    multipleEmailsCaptor.getValue().forEach(capturedEmails::add);
+
+    assertThat(capturedEmails).hasSize(1);
+    assertThat(capturedEmails.get(0).getFromRecipient().getName()).isEqualTo(from.getDisplayName());
+    assertThat(capturedEmails.get(0).getFromRecipient().getAddress()).isEqualTo(from.getAddress());
   }
 
   private void mockUser(User user) {
@@ -359,6 +466,7 @@ class DefaultMailServiceTest {
 
     UserMailConfiguration userMailConfiguration = new UserMailConfiguration();
     userMailConfiguration.setLanguage(locale.getLanguage());
+    userMailConfiguration.setSummarizeMails(true);
     if (excludedTopics.length > 0) {
       userMailConfiguration.setExcludedTopics(ImmutableSet.copyOf(excludedTopics));
     }
@@ -386,8 +494,16 @@ class DefaultMailServiceTest {
   }
 
   public class TestingMailService extends DefaultMailService {
+
     private TestingMailService() {
-      super(context, userDisplayManager, mailContentRendererFactory, tracer, sslContextProvider);
+      super(context, userDisplayManager, mailContentRendererFactory, new TestingMailSender(), summaryQueueStore, scheduler);
+    }
+
+  }
+
+  public class TestingMailSender extends MailSender {
+    public TestingMailSender() {
+      super(tracer, sslContextProvider);
     }
 
     @Override

@@ -23,18 +23,16 @@
  */
 package sonia.scm.mail.api;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import lombok.Setter;
-import org.codemonkey.simplejavamail.TransportStrategy;
 import sonia.scm.Validateable;
-import sonia.scm.xml.XmlCipherStringAdapter;
 import sonia.scm.util.Util;
 import sonia.scm.util.ValidationUtil;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import sonia.scm.xml.XmlCipherStringAdapter;
 
 
 /**
@@ -47,28 +45,42 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @Setter
 public class MailConfiguration implements Validateable {
 
-  /** default from address */
+  /**
+   * default from address
+   */
   private String from;
 
-  /** hostname of the smtp server */
+  /**
+   * hostname of the smtp server
+   */
   private String host;
 
-  /** password for smtp authentication */
+  /**
+   * password for smtp authentication
+   */
   @XmlJavaTypeAdapter(XmlCipherStringAdapter.class)
   private String password;
 
-  /** port of the smtp server */
+  /**
+   * port of the smtp server
+   */
   private int port = 25;
 
-  /** prefix for the mail subject */
+  /**
+   * prefix for the mail subject
+   */
   @XmlElement(name = "subject-prefix")
   private String subjectPrefix = "[SCM] ";
 
-  /** transoport strategy for the smtp connection */
+  /**
+   * transoport strategy for the smtp connection
+   */
   @XmlElement(name = "transport-strategy")
-  private TransportStrategy transportStrategy = TransportStrategy.SMTP_PLAIN;
+  private ScmTransportStrategy transportStrategy = ScmTransportStrategy.SMTP;
 
-  /** username for smtp authentication */
+  /**
+   * username for smtp authentication
+   */
   private String username;
 
   /**
@@ -79,24 +91,22 @@ public class MailConfiguration implements Validateable {
   /**
    * Constructs a new MailConfiguration.
    * This constructor should only be use from JAXB.
-   *
    */
-  public MailConfiguration() {}
+  public MailConfiguration() {
+  }
 
 
   /**
    * Constructs a new MailConfiguration.
    *
-   *
-   * @param host hostname of the smtp server
-   * @param port port of the smtp server
+   * @param host              hostname of the smtp server
+   * @param port              port of the smtp server
    * @param transportStrategy transoport strategy for the smtp connection
-   * @param from default from address
-   * @param subjectPrefix prefix for the mail subject
+   * @param from              default from address
+   * @param subjectPrefix     prefix for the mail subject
    */
   public MailConfiguration(String host, int port,
-    TransportStrategy transportStrategy, String from, String subjectPrefix)
-  {
+                           ScmTransportStrategy transportStrategy, String from, String subjectPrefix) {
     this(host, port, transportStrategy, from, null, null, subjectPrefix);
   }
 
@@ -104,19 +114,17 @@ public class MailConfiguration implements Validateable {
   /**
    * Constructs a new MailConfiguration.
    *
-   *
-   * @param host hostname of the smtp server
-   * @param port port of the smtp server
+   * @param host              hostname of the smtp server
+   * @param port              port of the smtp server
    * @param transportStrategy transoport strategy for the smtp connection
-   * @param from default from address
-   * @param username username for smtp authentication
-   * @param password password for smtp authentication
-   * @param subjectPrefix prefix for the mail subject
+   * @param from              default from address
+   * @param username          username for smtp authentication
+   * @param password          password for smtp authentication
+   * @param subjectPrefix     prefix for the mail subject
    */
   public MailConfiguration(String host, int port,
-    TransportStrategy transportStrategy, String from, String username,
-    String password, String subjectPrefix)
-  {
+                           ScmTransportStrategy transportStrategy, String from, String username,
+                           String password, String subjectPrefix) {
     this.host = host;
     this.port = port;
     this.transportStrategy = transportStrategy;
@@ -131,89 +139,73 @@ public class MailConfiguration implements Validateable {
   /**
    * Returns the default from address.
    *
-   *
    * @return default from address
    */
-  public String getFrom()
-  {
+  public String getFrom() {
     return from;
   }
 
   /**
    * Returns hostname of the smtp server.
    *
-   *
    * @return hostname of the smtp server
    */
-  public String getHost()
-  {
+  public String getHost() {
     return host;
   }
 
   /**
    * Returns password for smtp authentication.
    *
-   *
    * @return password for smtp authentication
    */
-  public String getPassword()
-  {
+  public String getPassword() {
     return password;
   }
 
   /**
    * Returns port of the smtp server.
    *
-   *
    * @return port of the smtp server
    */
-  public int getPort()
-  {
+  public int getPort() {
     return port;
   }
 
   /**
    * Prefix for the mail subject.
    *
-   *
    * @return prefix for the mail subject
    */
-  public String getSubjectPrefix()
-  {
+  public String getSubjectPrefix() {
     return subjectPrefix;
   }
 
   /**
    * Returns the transoport strategy for the smtp connection.
    *
-   *
    * @return transoport strategy for the smtp connection
    */
-  public TransportStrategy getTransportStrategy()
-  {
+  public ScmTransportStrategy getTransportStrategy() {
     return transportStrategy;
   }
 
   /**
    * Returns the username for smtp authentication.
    *
-   *
    * @return username for smtp authentication
    */
-  public String getUsername()
-  {
+  public String getUsername() {
     return username;
   }
 
   /**
    * Returns true if the configuration is valid.
    *
-   *
    * @return true if the configuration is valid
    */
   @Override
-  public boolean isValid()
-  {
+  public boolean isValid() {
     return Util.isNotEmpty(host) && Util.isNotEmpty(from) && (port > 0) && ValidationUtil.isMailAddressValid(from);
   }
 

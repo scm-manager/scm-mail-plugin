@@ -102,10 +102,10 @@ class MailConfigurationForm extends React.Component<Props, State> {
           disabled={readOnly}
           value={this.state["from"]}
           onChange={(value: string, name: string) => {
-            this.setState({
-              ...this.state,
+            this.setState(prevState => ({
+              ...prevState,
               fromFieldChanged: true
-            });
+            }));
             this.configChangeHandler(value, name);
           }}
           validationError={this.fromFieldInvalid()}
@@ -138,7 +138,7 @@ class MailConfigurationForm extends React.Component<Props, State> {
           <label className="label">{t("scm-mail-plugin.form.transportStrategy")}</label>
           <div className="control">
             <DropDown
-              options={["SMTP_PLAIN", "SMTP_TLS", "SMTP_SSL"]}
+              options={["SMTP", "SMTP_TLS", "SMTPS"]}
               optionSelected={this.handleDropDownChange}
               preselectedOption={this.state.transportStrategy}
               disabled={readOnly}
@@ -161,10 +161,10 @@ class MailConfigurationForm extends React.Component<Props, State> {
               optionValues={["de", "en"]}
               preselectedOption={this.state.language}
               optionSelected={selection => {
-                this.setState({
-                  ...this.state,
+                this.setState(prevState => ({
+                  ...prevState,
                   language: selection
-                });
+                }));
                 this.configChangeHandler(selection, "language");
               }}
               disabled={readOnly}
@@ -196,10 +196,10 @@ class MailConfigurationForm extends React.Component<Props, State> {
   }
 
   handleDropDownChange = (selection: string) => {
-    this.setState({
-      ...this.state,
+    this.setState(prevState => ({
+      ...prevState,
       transportStrategy: selection
-    });
+    }));
     this.configChangeHandler(selection, "transportStrategy");
   };
 }

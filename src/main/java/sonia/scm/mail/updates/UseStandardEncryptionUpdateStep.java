@@ -24,21 +24,20 @@
 
 package sonia.scm.mail.updates;
 
-import org.codemonkey.simplejavamail.TransportStrategy;
+import jakarta.inject.Inject;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import sonia.scm.mail.api.MailConfiguration;
+import sonia.scm.mail.api.ScmTransportStrategy;
 import sonia.scm.migration.UpdateStep;
 import sonia.scm.plugin.Extension;
 import sonia.scm.security.CipherUtil;
 import sonia.scm.store.ConfigurationStoreFactory;
 import sonia.scm.version.Version;
-
-import javax.inject.Inject;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @Extension
 public class UseStandardEncryptionUpdateStep implements UpdateStep {
@@ -57,7 +56,7 @@ public class UseStandardEncryptionUpdateStep implements UpdateStep {
         MailConfiguration newMailConfiguration = new MailConfiguration(
           legacyMailConfiguration.host,
           legacyMailConfiguration.port,
-          legacyMailConfiguration.transportStrategy,
+          mapTransportStrategy(legacyMailConfiguration.transportStrategy),
           legacyMailConfiguration.from,
           legacyMailConfiguration.username,
           legacyMailConfiguration.password,
@@ -70,9 +69,17 @@ public class UseStandardEncryptionUpdateStep implements UpdateStep {
     );
   }
 
+  private ScmTransportStrategy mapTransportStrategy(LegacyTransportStrategy legacyTransportStrategy) {
+    return switch (legacyTransportStrategy) {
+      case SMTP_SSL -> ScmTransportStrategy.SMTPS;
+      case SMTP_TLS -> ScmTransportStrategy.SMTP_TLS;
+      case SMTP_PLAIN -> ScmTransportStrategy.SMTP;
+    };
+  }
+
   @Override
   public Version getTargetVersion() {
-    return Version.parse("2.0.0");
+    return Version.parse("3.0.0");
   }
 
   @Override
@@ -92,9 +99,13 @@ public class UseStandardEncryptionUpdateStep implements UpdateStep {
     @XmlElement(name = "subject-prefix")
     private String subjectPrefix;
     @XmlElement(name = "transport-strategy")
-    private TransportStrategy transportStrategy;
+    private LegacyTransportStrategy transportStrategy;
     private String username;
     private String language;
+  }
+
+  enum LegacyTransportStrategy {
+    SMTP_PLAIN, SMTP_SSL, SMTP_TLS,
   }
 }
 

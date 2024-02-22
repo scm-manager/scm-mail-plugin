@@ -26,6 +26,7 @@ package sonia.scm.mail.internal;
 import com.github.sdorra.shiro.ShiroRule;
 import com.github.sdorra.shiro.SubjectAware;
 import com.google.inject.util.Providers;
+import jakarta.inject.Provider;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,11 +37,10 @@ import sonia.scm.api.v2.resources.HalAppender;
 import sonia.scm.api.v2.resources.HalEnricherContext;
 import sonia.scm.api.v2.resources.ScmPathInfoStore;
 
-import javax.inject.Provider;
 import java.net.URI;
 
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MailConfigurationHalEnricherTest {
@@ -79,6 +79,6 @@ public class MailConfigurationHalEnricherTest {
   )
   public void dontEnrichWhenReadIsNotPermitted() {
     enricher.enrich(HalEnricherContext.of(), appender);
-    verifyZeroInteractions(appender);
+    verifyNoInteractions(appender);
   }
 }

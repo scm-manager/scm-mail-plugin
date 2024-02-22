@@ -27,8 +27,6 @@ package sonia.scm.mail.api;
 
 import com.google.common.collect.Lists;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.List;
 
 /**
@@ -36,10 +34,11 @@ import java.util.List;
  *
  * @author Sebastian Sdorra
  */
-public class MailSendBatchException extends Exception
-{
+public class MailSendBatchException extends Exception {
 
-  /** Field description */
+  /**
+   * Field description
+   */
   private static final long serialVersionUID = 797737794920812556L;
 
   //~--- constructors ---------------------------------------------------------
@@ -47,11 +46,9 @@ public class MailSendBatchException extends Exception
   /**
    * Constructs a new MailSendBatchException.
    *
-   *
    * @param message message for the exception
    */
-  public MailSendBatchException(String message)
-  {
+  public MailSendBatchException(String message) {
     super(message);
   }
 
@@ -60,11 +57,9 @@ public class MailSendBatchException extends Exception
   /**
    * Append a send exception.
    *
-   *
    * @param ex send exception
    */
-  public void append(MailSendException ex)
-  {
+  public void append(MailSendException ex) {
     getSendExceptions().add(ex);
   }
 
@@ -73,13 +68,10 @@ public class MailSendBatchException extends Exception
   /**
    * Returns send exceptions.
    *
-   *
    * @return send exceptions
    */
-  public List<MailSendException> getSendExceptions()
-  {
-    if (exceptions == null)
-    {
+  public List<MailSendException> getSendExceptions() {
+    if (exceptions == null) {
       exceptions = Lists.newArrayList();
     }
 
@@ -88,6 +80,8 @@ public class MailSendBatchException extends Exception
 
   //~--- fields ---------------------------------------------------------------
 
-  /** send exceptions */
+  /**
+   * send exceptions
+   */
   private List<MailSendException> exceptions;
 }

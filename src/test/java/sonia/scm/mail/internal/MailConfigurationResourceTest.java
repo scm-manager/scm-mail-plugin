@@ -24,10 +24,11 @@
 
 package sonia.scm.mail.internal;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
-import org.codemonkey.simplejavamail.TransportStrategy;
 import org.jboss.resteasy.mock.MockHttpResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +42,8 @@ import sonia.scm.mail.api.Category;
 import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContext;
 import sonia.scm.mail.api.MailService;
+import sonia.scm.mail.api.ScmTransportStrategy;
+import sonia.scm.mail.api.SummaryFrequency;
 import sonia.scm.mail.api.Topic;
 import sonia.scm.mail.api.UserMailConfiguration;
 import sonia.scm.user.User;
@@ -73,6 +76,8 @@ class MailConfigurationResourceTest {
   RestDispatcher dispatcher = new RestDispatcher();
 
   MockHttpResponse response = new MockHttpResponse();
+
+  private final ObjectMapper mapper = new ObjectMapper();
 
   @BeforeEach
   void setupResource() {
@@ -114,6 +119,9 @@ class MailConfigurationResourceTest {
     void shouldReturnConfigurationForUser() throws URISyntaxException, UnsupportedEncodingException {
       UserMailConfiguration userMailConfiguration = new UserMailConfiguration();
       userMailConfiguration.setLanguage("vogon");
+      userMailConfiguration.setSummarizeMails(true);
+      userMailConfiguration.setSummaryFrequency(SummaryFrequency.HOURS_2);
+      userMailConfiguration.setSummarizeByEntity(true);
       userMailConfiguration.setExcludedTopics(singleton(new Topic(new Category("hitchhiker"), "towel")));
       when(context.getUserConfiguration("dent")).thenReturn(of(userMailConfiguration));
 
@@ -124,36 +132,42 @@ class MailConfigurationResourceTest {
         .contains("\"self\":{\"href\":\"/v2/plugins/mail/user-config\"}")
         .contains("\"update\":{\"href\":\"/v2/plugins/mail/user-config\"}")
         .contains("\"language\":\"vogon\"")
+        .contains("\"summarizeMails\":true")
+        .contains("\"summaryFrequency\":\"HOURS_2\"")
+        .contains("\"summarizeByEntity\":true")
         .contains("\"excludedTopics\":[{\"category\":{\"name\":\"hitchhiker\"},\"name\":\"towel\"}]");
     }
 
     @Test
-    void shouldStoreConfigurationForUser() throws URISyntaxException {
+    void shouldStoreConfigurationForUser() throws URISyntaxException, JsonProcessingException {
       ArgumentCaptor<UserMailConfiguration> configCaptor = ArgumentCaptor.forClass(UserMailConfiguration.class);
 
       UserMailConfigurationDto userMailConfigurationDto = new UserMailConfigurationDto();
       userMailConfigurationDto.setLanguage("vogon");
+      userMailConfigurationDto.setSummarizeMails(true);
+      userMailConfigurationDto.setSummaryFrequency(SummaryFrequency.HOURS_2);
+      userMailConfigurationDto.setSummarizeByEntity(true);
       userMailConfigurationDto.setExcludedTopics(singleton(new TopicDto(new CategoryDto("hitchhiker"), "towel")));
       doNothing().when(context).store(eq("dent"), configCaptor.capture());
 
       dispatcher.invoke(
         create("PUT", "/v2/plugins/mail/user-config")
           .contentType("application/json")
-          .content(("{\"" +
-            "language\":\"vogon\"," +
-            "\"excludedTopics\":[{\"category\":{\"name\":\"hitchhiker\"},\"name\":\"towel\"}]" +
-            "}").getBytes()),
+          .content(mapper.writeValueAsBytes(userMailConfigurationDto)),
         response);
 
       assertThat(response.getStatus()).isEqualTo(204);
       assertThat(configCaptor.getValue().getExcludedTopics()).containsExactly(new Topic(new Category("hitchhiker"), "towel"));
       assertThat(configCaptor.getValue().getLanguage()).isEqualTo("vogon");
+      assertThat(configCaptor.getValue().isSummarizeMails()).isEqualTo(true);
+      assertThat(configCaptor.getValue().getSummaryFrequency()).isEqualTo(SummaryFrequency.HOURS_2);
+      assertThat(configCaptor.getValue().isSummarizeByEntity()).isEqualTo(true);
     }
 
     @Test
     void shouldGetMailConfigurationWithMaskedPassword() throws URISyntaxException, UnsupportedEncodingException {
       when(context.getConfiguration())
-        .thenReturn(new MailConfiguration("http://hog,org/", 25, TransportStrategy.SMTP_SSL, "marvin@hog.org", "marvin", "hitchhike", "SCM"));
+        .thenReturn(new MailConfiguration("http://hog,org/", 25, ScmTransportStrategy.SMTPS, "marvin@hog.org", "marvin", "hitchhike", "SCM"));
 
       dispatcher.invoke(create("GET", "/v2/plugins/mail/config"), response);
 
@@ -166,7 +180,7 @@ class MailConfigurationResourceTest {
         .contains("\"from\":\"marvin@hog.org\"")
         .contains("\"subjectPrefix\":\"SCM\"")
         .contains("\"_links\":{\"self\":{\"href\":\"/v2/plugins/mail/config\"}")
-        .contains("\"transportStrategy\":\"SMTP_SSL\"");
+        .contains("\"transportStrategy\":\"SMTPS\"");
     }
 
     @Test
@@ -177,7 +191,7 @@ class MailConfigurationResourceTest {
           .content(("{" +
             "\"host\":\"http://hog,org/\"," +
             "\"port\":25," +
-            "\"transportStrategy\":\"SMTP_SSL\"," +
+            "\"transportStrategy\":\"SMTPS\"," +
             "\"username\":\"marvin\"," +
             "\"password\":\"hitchhike\"," +
             "\"from\":\"marvin@hog.org\"," +
@@ -193,7 +207,7 @@ class MailConfigurationResourceTest {
           assertThat(configuration.getHost()).isEqualTo("http://hog,org/");
           assertThat(configuration.getUsername()).isEqualTo("marvin");
           assertThat(configuration.getPassword()).isEqualTo("hitchhike");
-          assertThat(configuration.getTransportStrategy()).isEqualTo(TransportStrategy.SMTP_SSL);
+          assertThat(configuration.getTransportStrategy()).isEqualTo(ScmTransportStrategy.SMTPS);
           assertThat(configuration.getFrom()).isEqualTo("marvin@hog.org");
           assertThat(configuration.getSubjectPrefix()).isEqualTo("SCM");
           assertThat(configuration.getLanguage()).isEqualTo("DE");
@@ -206,7 +220,7 @@ class MailConfigurationResourceTest {
     @Test
     void shouldSetMailConfigurationWithKeepingOldPassword() throws URISyntaxException {
       when(context.getConfiguration())
-        .thenReturn(new MailConfiguration("old/", 0, TransportStrategy.SMTP_PLAIN, "old", "old", "hitchhike", "old"));
+        .thenReturn(new MailConfiguration("old/", 0, ScmTransportStrategy.SMTP, "old", "old", "hitchhike", "old"));
 
       dispatcher.invoke(
         create("POST", "/v2/plugins/mail/config")
@@ -214,7 +228,7 @@ class MailConfigurationResourceTest {
           .content(("{" +
             "\"host\":\"http://hog,org/\"," +
             "\"port\":25," +
-            "\"transportStrategy\":\"SMTP_SSL\"," +
+            "\"transportStrategy\":\"SMTPS\"," +
             "\"username\":\"marvin\"," +
             "\"password\":\"__DUMMY__\"," +
             "\"from\":\"marvin@hog.org\"," +
@@ -230,7 +244,7 @@ class MailConfigurationResourceTest {
           assertThat(configuration.getHost()).isEqualTo("http://hog,org/");
           assertThat(configuration.getUsername()).isEqualTo("marvin");
           assertThat(configuration.getPassword()).isEqualTo("hitchhike");
-          assertThat(configuration.getTransportStrategy()).isEqualTo(TransportStrategy.SMTP_SSL);
+          assertThat(configuration.getTransportStrategy()).isEqualTo(ScmTransportStrategy.SMTPS);
           assertThat(configuration.getFrom()).isEqualTo("marvin@hog.org");
           assertThat(configuration.getSubjectPrefix()).isEqualTo("SCM");
           assertThat(configuration.getLanguage()).isEqualTo("DE");

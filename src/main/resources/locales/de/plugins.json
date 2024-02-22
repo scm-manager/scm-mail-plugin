@@ -3,7 +3,7 @@
     "navLink": "E-Mail",
     "mailValidationError":  "Dies ist keine valide E-Mail-Adresse.",
     "form": {
-      "header": "E-Mail Konfiguration",
+      "header": "Konfiguration von Email-Benachrichtigungen",
       "host": "Host",
       "port": "Port",
       "from": "Von",
@@ -11,11 +11,21 @@
       "password": "Passwort",
       "subjectPrefix": "Betreff Prefix",
       "language": "Sprache",
-      "transportStrategy": "Transport Strategie"
+      "transportStrategy": "Transport Strategie",
+      "summarizeMails": "E-Mails nach Kategorie zu einer Sammel-E-Mail zusammenfassen",
+      "summarizeMailsHelpText": "Nicht alle E-Mails werden zu einer Sammel-E-Mail zusammengefasst. Manche E-Mails haben eine erhöhte Priorität und werden stets direkt versendet.",
+      "summarizeByEntity": "E-Mails zusätzlich nach Event-Quelle zusammenfassen",
+      "summarizeByEntityHelpText": "Event-Quellen können Beispielsweise Pull-Requests eines Repositories sein.",
+      "summaryFrequency": "Sendefrequenz von Sammel-E-Mails"
     },
     "language" : {
       "de" : "Deutsch",
       "en" : "Englisch"
+    },
+    "summaryFrequency": {
+      "MINUTES_15": "Alle 15 Minuten",
+      "HOURS_2": "Alle 2 Stunden",
+      "HOURS_8": "Alle 8 Stunden"
     },
     "test": {
       "input": "E-Mail-Address",
@@ -26,8 +36,7 @@
       "success": "Die E-Mail wurde erfolgreich versandt."
     },
     "topics": {
-      "header": "Abonnierte Kanäle",
-      "helpText": "Zu den ausgewählten Themen können Benachrichtigungen per Mail verschickt werden. Eine gesetzte Checkbox allein impliziert allerdings nicht, dass man für das jeweilige Event benachrichtigt wird. Dies ist als eine Opt-Out Option anzusehen."
+      "header": "Abonnierte Themen"
     }
   },
   "mailTopics": {

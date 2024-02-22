@@ -24,476 +24,78 @@
 
 package sonia.scm.mail.spi;
 
+import com.github.legman.Subscribe;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Stopwatch;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import org.apache.shiro.SecurityUtils;
-import org.codemonkey.simplejavamail.Email;
-import org.codemonkey.simplejavamail.MailException;
-import org.codemonkey.simplejavamail.Mailer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.inject.Singleton;
+import lombok.AccessLevel;
+import lombok.Getter;
+import org.simplejavamail.api.email.Email;
 import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.MailContext;
 import sonia.scm.mail.api.MailSendBatchException;
-import sonia.scm.mail.api.MailSendException;
-import sonia.scm.mail.api.MailTemplateType;
-import sonia.scm.mail.api.Topic;
-import sonia.scm.mail.api.UserMailConfiguration;
-import sonia.scm.mail.spi.content.MailContent;
-import sonia.scm.mail.spi.content.MailContentRenderer;
+import sonia.scm.mail.api.ScmMail;
+import sonia.scm.mail.api.SummarizeMailConfigChangedEvent;
 import sonia.scm.mail.spi.content.MailContentRendererFactory;
-import sonia.scm.trace.Span;
-import sonia.scm.trace.Tracer;
-import sonia.scm.user.DisplayUser;
-import sonia.scm.user.User;
+import sonia.scm.schedule.Scheduler;
 import sonia.scm.user.UserDisplayManager;
-import sonia.scm.util.AssertUtil;
+import sonia.scm.user.UserEvent;
 
-import javax.inject.Provider;
-import javax.mail.Message;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+@Singleton
 public class DefaultMailService extends AbstractMailService {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultMailService.class);
   private final UserDisplayManager userDisplayManager;
   private final MailContentRendererFactory mailContentRendererFactory;
-  private final Tracer tracer;
-  private final Provider<SSLContext> sslContext;
 
+  @VisibleForTesting
+  @Getter(value = AccessLevel.PACKAGE)
+  private final MailSender mailSender;
+
+  @VisibleForTesting
+  @Getter(value = AccessLevel.PACKAGE)
+  private final MailSummarizer mailSummarizer;
 
   @Inject
-  public DefaultMailService(MailContext context, UserDisplayManager userDisplayManager, MailContentRendererFactory mailContentRendererFactory, Tracer tracer, Provider<SSLContext> sslContext) {
+  DefaultMailService(MailContext context,
+                     UserDisplayManager userDisplayManager,
+                     MailContentRendererFactory mailContentRendererFactory,
+                     MailSender mailSender,
+                     MailSummaryQueueStore summaryQueueStore,
+                     Scheduler scheduler) {
     super(context);
     this.userDisplayManager = userDisplayManager;
     this.mailContentRendererFactory = mailContentRendererFactory;
-    this.tracer = tracer;
-    this.sslContext = sslContext;
+    this.mailSender = mailSender;
+    this.mailSummarizer = new MailSummarizer(summaryQueueStore, this::emailTemplateBuilder, getContext(), scheduler);
   }
 
   @Override
   public EnvelopeBuilder emailTemplateBuilder() {
-    return new EnvelopeBuilderImpl(getContext().getConfiguration());
+    return new EnvelopeBuilderImpl(
+      new MailCreationContext(
+        getContext().getConfiguration(), mailContentRendererFactory, getContext(), userDisplayManager, this
+      )
+    );
   }
 
   @Override
-  public void send(MailConfiguration configuration, Iterable<Email> emails)
-    throws MailSendBatchException {
-    if (configuration.isValid()) {
-      MailSendBatchException batchEx = null;
-      Mailer mailer = createMailer(configuration);
-
-      for (Email e : emails) {
-        try (Span span = tracer.span("Mail")) {
-          try {
-            span.label("url", configuration.getHost() + ":" + configuration.getPort());
-            span.label("method", "SMTP");
-            sendMail(configuration, mailer, e);
-          } catch (MailException ex) {
-            span.label("exception", ex.getClass().getName());
-            span.label("message", ex.getMessage());
-            span.failed();
-            LOG.warn("could not send mail", ex);
-
-            if (batchEx == null) {
-              batchEx =
-                new MailSendBatchException("some messages could not be send");
-            }
-
-            batchEx.append(new MailSendException("message could not be send", e,
-              ex));
-          }
-        }
-      }
-
-      if (batchEx != null) {
-        throw batchEx;
-      }
-
-    } else if (LOG.isWarnEnabled()) {
-      LOG.warn("mail configuration is not valid");
-    }
+  public void send(MailConfiguration configuration, Iterable<Email> emails) throws MailSendBatchException {
+    this.mailSender.send(configuration, emails);
   }
 
-  @VisibleForTesting
-  Mailer createMailer(MailConfiguration configuration) {
-    Mailer mailer = new Mailer(
-      configuration.getHost(),
-      configuration.getPort(),
-      Strings.emptyToNull(configuration.getUsername()),
-      Strings.emptyToNull(configuration.getPassword()),
-      configuration.getTransportStrategy()
-    );
-
-    SSLSocketFactory socketFactory = sslContext.get().getSocketFactory();
-    Properties props = new Properties();
-    props.put("mail.smtp.ssl.socketFactory", socketFactory);
-    props.put("mail.smtps.ssl.socketFactory", socketFactory);
-    mailer.applyProperties(props);
-
-    return mailer;
+  @Override
+  public void addMail(String userId, String category, String entityId, ScmMail mail) throws MailSendBatchException {
+    this.mailSummarizer.addMail(userId, category, entityId, mail);
   }
 
-  private void sendMail(MailConfiguration configuration, Mailer mailer, Email e) {
-    AssertUtil.assertIsValid(configuration);
-
-    String prefix = configuration.getSubjectPrefix();
-
-    if (!Strings.isNullOrEmpty(prefix)) {
-      String subject = e.getSubject();
-
-      if ((subject != null) && !subject.startsWith(prefix)) {
-        String ns = prefix;
-
-        if (!ns.endsWith(" ")) {
-          ns = ns.concat(" ");
-        }
-
-        e.setSubject(ns.concat(subject));
-      }
-
-    } else if (LOG.isTraceEnabled()) {
-      LOG.trace("no prefix defined");
-    }
-
-    org.codemonkey.simplejavamail.Recipient from = e.getFromRecipient();
-
-    if (from == null) {
-      LOG.trace("no from recipient found setting default one: {}",
-        configuration.getFrom());
-      e.setFromAddress(null, configuration.getFrom());
-    } else if (LOG.isTraceEnabled()) {
-      LOG.trace("use recipient for {} sending", from.getAddress());
-    }
-
-    if (mailer.validate(e)) {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("send email to {} from {}",
-          getRecipientsString(e.getRecipients()),
-          e.getFromRecipient().getAddress());
-      }
-
-      mailer.sendMail(e);
-    }
+  @Subscribe(async = false)
+  public void onSummarizeMailConfigChanged(SummarizeMailConfigChangedEvent event) {
+    this.mailSummarizer.onSummarizeMailConfigChanged(event);
   }
 
-  private String getRecipientsString(Iterable<org.codemonkey.simplejavamail.Recipient> recipients) {
-    StringBuilder content = new StringBuilder();
-    Iterator<org.codemonkey.simplejavamail.Recipient> it = recipients.iterator();
-
-    while (it.hasNext()) {
-      content.append(it.next().getAddress());
-
-      if (it.hasNext()) {
-        content.append(", ");
-      }
-    }
-
-    return content.toString();
+  @Subscribe
+  public synchronized void onUserDeleted(UserEvent event) {
+    this.mailSummarizer.onUserDeleted(event);
   }
 
-  private static class Recipient {
-
-    private Locale locale;
-    private String displayName;
-    private final String address;
-
-    private Recipient(String address) {
-      this.address = address;
-    }
-
-    private Recipient(String displayName, String address) {
-      this.displayName = displayName;
-      this.address = address;
-    }
-
-    private Recipient(Locale locale, String address) {
-      this.locale = locale;
-      this.address = address;
-    }
-
-    private Recipient(Locale locale, String displayName, String address) {
-      this.locale = locale;
-      this.displayName = displayName;
-      this.address = address;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof Recipient)) return false;
-      Recipient that = (Recipient) o;
-      return address.equals(that.address);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(locale, address);
-    }
-  }
-
-  public class EnvelopeBuilderImpl implements EnvelopeBuilder {
-
-    private MailConfiguration configuration;
-    private String fromDisplayName;
-    private String fromAddress;
-    private Topic topic;
-    private final Set<String> users = new HashSet<>();
-    private final Set<Recipient> external = new HashSet<>();
-
-    private EnvelopeBuilderImpl(MailConfiguration configuration) {
-      this.configuration = configuration;
-    }
-
-    @Override
-    public EnvelopeBuilder withConfiguration(MailConfiguration configuration) {
-      this.configuration = configuration;
-      return this;
-    }
-
-    @Override
-    public EnvelopeBuilder from(String displayName) {
-      this.fromDisplayName = displayName;
-      return this;
-    }
-
-    @Override
-    public EnvelopeBuilder fromCurrentUser() {
-      User user = SecurityUtils.getSubject().getPrincipals().oneByType(User.class);
-      fromDisplayName = user.getDisplayName();
-      if (!Strings.isNullOrEmpty(user.getMail())) {
-        fromAddress = user.getMail();
-      }
-      return this;
-    }
-
-    @Override
-    public EnvelopeBuilder toUser(String userId) {
-      users.add(userId);
-      return this;
-    }
-
-    @Override
-    public EnvelopeBuilder toAddress(String emailAddress) {
-      external.add(new Recipient(emailAddress));
-      return this;
-    }
-
-    @Override
-    public EnvelopeBuilder toAddress(String displayName, String emailAddress) {
-      external.add(new Recipient(displayName, emailAddress));
-      return this;
-    }
-
-    @Override
-    public EnvelopeBuilder toAddress(Locale locale, String displayName, String emailAddress) {
-      external.add(new Recipient(locale, displayName, emailAddress));
-      return this;
-    }
-
-    @Override
-    public EnvelopeBuilder toAddress(Locale locale, String emailAddress) {
-      external.add(new Recipient(locale, emailAddress));
-      return this;
-    }
-
-    @Override
-    public EnvelopeBuilder onTopic(Topic topic) {
-      this.topic = topic;
-      return this;
-    }
-
-    String effectiveFromAddress() { return !Strings.isNullOrEmpty(fromAddress) ? fromAddress : configuration.getFrom(); }
-
-    @Override
-    public SubjectBuilderImpl withSubject(String subject) {
-      return new SubjectBuilderImpl(this, subject);
-    }
-  }
-
-  public class SubjectBuilderImpl implements SubjectBuilder {
-
-    private final EnvelopeBuilderImpl envelopeBuilder;
-
-    private final String defaultSubject;
-    private final Map<Locale, String> localized = new HashMap<>();
-
-    private SubjectBuilderImpl(EnvelopeBuilderImpl envelopeBuilder, String defaultSubject) {
-      this.envelopeBuilder = envelopeBuilder;
-      this.defaultSubject = defaultSubject;
-    }
-
-    @Override
-    public SubjectBuilder withSubject(Locale locale, String subject) {
-      this.localized.put(locale, subject);
-      return this;
-    }
-
-    @Override
-    public TemplateBuilder withTemplate(String template, MailTemplateType type) {
-      return new TemplateBuilderImpl(envelopeBuilder, this, template, type);
-    }
-  }
-
-  public class TemplateBuilderImpl implements TemplateBuilder {
-
-    private final EnvelopeBuilderImpl envelopeBuilder;
-    private final SubjectBuilderImpl subjectBuilder;
-    private final String template;
-    private final MailTemplateType type;
-
-    private TemplateBuilderImpl(EnvelopeBuilderImpl envelopeBuilder, SubjectBuilderImpl subjectBuilder, String template, MailTemplateType type) {
-      this.envelopeBuilder = envelopeBuilder;
-      this.subjectBuilder = subjectBuilder;
-      this.template = template;
-      this.type = type;
-    }
-
-    @Override
-    public MailBuilder andModel(Object templateModel) {
-      return new MailBuilderImpl(envelopeBuilder, subjectBuilder, this, templateModel);
-    }
-  }
-
-  public class MailBuilderImpl implements MailBuilder {
-
-    private final EnvelopeBuilderImpl envelopeBuilder;
-    private final SubjectBuilderImpl subjectBuilder;
-    private final TemplateBuilderImpl templateBuilder;
-    private final Object model;
-
-    private MailBuilderImpl(EnvelopeBuilderImpl envelopeBuilder, SubjectBuilderImpl subjectBuilder, TemplateBuilderImpl templateBuilder, Object model) {
-      this.envelopeBuilder = envelopeBuilder;
-      this.subjectBuilder = subjectBuilder;
-      this.templateBuilder = templateBuilder;
-      this.model = model;
-    }
-
-    @Override
-    public void send() throws MailSendBatchException {
-      List<Email> emails = new ArrayList<>();
-      for (Recipient recipient : collectRecipients()) {
-        emails.add(createMail(recipient));
-      }
-      DefaultMailService.this.send(envelopeBuilder.configuration, emails);
-    }
-
-    private Email createMail(Recipient recipient) {
-      Email email = new Email();
-      email.setFromAddress(envelopeBuilder.fromDisplayName, envelopeBuilder.effectiveFromAddress());
-      email.addRecipient(recipient.displayName, recipient.address, Message.RecipientType.TO);
-      email.setSubject(subjectFor(recipient));
-
-      MailContent mailContent = createMailContent(recipient);
-      email.setTextHTML(mailContent.getHtml());
-      email.setText(mailContent.getText());
-      return email;
-    }
-
-    private MailContent createMailContent(Recipient recipient) {
-      Stopwatch sw = Stopwatch.createStarted();
-      try {
-        MailContentRenderer mailContentRenderer = mailContentRendererFactory.createMailContentRenderer(templateBuilder.template, templateBuilder.type);
-        return mailContentRenderer.createMailContent(recipient.locale, model);
-      } finally {
-        LOG.debug("mail content rendered in {}", sw.stop());
-      }
-    }
-
-    private String subjectFor(Recipient recipient) {
-      String localized = subjectBuilder.localized.get(recipient.locale);
-      if (Strings.isNullOrEmpty(localized)) {
-        LOG.debug("could not find subject with locale {}", recipient.locale);
-        return subjectBuilder.defaultSubject;
-      }
-      return localized;
-    }
-
-    private Set<Recipient> collectRecipients() {
-      ImmutableSet.Builder<Recipient> builder = ImmutableSet.builder();
-      builder.addAll(collectUserRecipients());
-      builder.addAll(collectExternals());
-      return builder.build();
-    }
-
-    private Set<Recipient> collectExternals() {
-      return envelopeBuilder.external
-        .stream()
-        .map(this::ensureLocale)
-        .collect(Collectors.toSet());
-    }
-
-    private Recipient ensureLocale(Recipient recipient) {
-      if (recipient.locale == null) {
-        return new Recipient(defaultLocale(), recipient.displayName, recipient.address);
-      }
-      return recipient;
-    }
-
-    private Set<Recipient> collectUserRecipients() {
-      return envelopeBuilder.users.stream()
-        .filter(this::subscribedToTopic)
-        .map(this::mapUserToRecipient)
-        .filter(Objects::nonNull)
-        .filter(recipient -> Objects.nonNull(recipient.address))
-        .collect(Collectors.toSet());
-    }
-
-    private boolean subscribedToTopic(String userId) {
-      if (envelopeBuilder.topic == null) {
-        return true;
-      }
-      return getContext().getUserConfiguration(userId)
-        .map(this::subscribedToTopic)
-        .orElse(true);
-    }
-
-    private Boolean subscribedToTopic(UserMailConfiguration userMailConfiguration) {
-      Set<Topic> excludedTopics = userMailConfiguration.getExcludedTopics();
-      return excludedTopics == null || !excludedTopics.contains(envelopeBuilder.topic);
-    }
-
-    private Recipient mapUserToRecipient(String username) {
-      Optional<DisplayUser> displayUser = userDisplayManager.get(username);
-      if (displayUser.isPresent()) {
-        DisplayUser user = displayUser.get();
-        Locale locale = preferredLocale(username);
-        return new Recipient(locale, user.getDisplayName(), user.getMail());
-      }
-
-      LOG.warn("could not find user {}", username);
-      return null;
-    }
-
-    private Locale preferredLocale(String username) {
-      MailContext context = getContext();
-      Locale fallbackLocale = defaultLocale();
-      return context.getUserConfiguration(username)
-        .map(UserMailConfiguration::getLanguage)
-        .map(Locale::new)
-        .orElse(fallbackLocale);
-    }
-
-    private Locale defaultLocale() {
-      return Optional.ofNullable(envelopeBuilder.configuration.getLanguage())
-        .map(Locale::new)
-        .orElse(Locale.ENGLISH);
-    }
-  }
 }

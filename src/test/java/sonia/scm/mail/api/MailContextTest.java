@@ -25,23 +25,53 @@
 package sonia.scm.mail.api;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import sonia.scm.event.ScmEventBus;
 import sonia.scm.store.ConfigurationEntryStoreFactory;
 import sonia.scm.store.ConfigurationStoreFactory;
 import sonia.scm.store.InMemoryConfigurationEntryStoreFactory;
 import sonia.scm.store.InMemoryConfigurationStoreFactory;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.google.common.collect.ImmutableSet.of;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.times;
 
 
 class MailContextTest {
 
   ConfigurationStoreFactory configurationStoreFactory = new InMemoryConfigurationStoreFactory();
   ConfigurationEntryStoreFactory entryStoreFactory = new InMemoryConfigurationEntryStoreFactory();
+
+  @Test
+  void shouldStoreUserConfig() {
+    String userId = "userId";
+    UserMailConfiguration unchangedConfig = new UserMailConfiguration();
+
+    UserMailConfiguration summarizationEnabled = new UserMailConfiguration();
+    summarizationEnabled.setSummarizeMails(true);
+
+    UserMailConfiguration summarizationFrequencyChanged = new UserMailConfiguration();
+    summarizationEnabled.setSummaryFrequency(SummaryFrequency.MINUTES_15);
+
+    MailContext mailContext = new MailContext(configurationStoreFactory, entryStoreFactory, new HashSet<>());
+
+
+    try (MockedStatic<ScmEventBus> eventBus = mockStatic(ScmEventBus.class)) {
+      eventBus.when(ScmEventBus::getInstance).thenReturn(mock(ScmEventBus.class));
+      mailContext.store(userId, unchangedConfig);
+      eventBus.verifyNoInteractions();
+      mailContext.store(userId, summarizationEnabled);
+      mailContext.store(userId, summarizationFrequencyChanged);
+      eventBus.verify(ScmEventBus::getInstance, times(2));
+    }
+  }
 
   @Test
   void shouldCollectTopicsFromAllProviders() {

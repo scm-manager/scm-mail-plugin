@@ -33,20 +33,16 @@ import sonia.scm.mail.spi.content.MailContentModule;
 import sonia.scm.plugin.Extension;
 
 /**
- *
  * @author Sebastian Sdorra
  */
 @Extension
-public class MailModule extends AbstractModule
-{
+public class MailModule extends AbstractModule {
 
   /**
    * Method description
-   *
    */
   @Override
-  protected void configure()
-  {
+  protected void configure() {
     bind(MailService.class).to(DefaultMailService.class);
     bind(MailConfigurationMapper.class).to(Mappers.getMapper(MailConfigurationMapper.class).getClass());
 

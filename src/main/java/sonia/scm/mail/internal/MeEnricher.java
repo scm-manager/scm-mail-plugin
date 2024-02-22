@@ -23,6 +23,8 @@
  */
 package sonia.scm.mail.internal;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import sonia.scm.api.v2.resources.Enrich;
 import sonia.scm.api.v2.resources.HalAppender;
 import sonia.scm.api.v2.resources.HalEnricher;
@@ -32,9 +34,6 @@ import sonia.scm.api.v2.resources.Me;
 import sonia.scm.api.v2.resources.ScmPathInfoStore;
 import sonia.scm.plugin.Extension;
 import sonia.scm.security.Authentications;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
 
 @Extension
 @Enrich(Me.class)

@@ -33,6 +33,8 @@ import java.util.Set;
 public class UserMailConfiguration {
 
   private String language;
-
+  private boolean summarizeMails = false;
+  private SummaryFrequency summaryFrequency = SummaryFrequency.HOURS_8;
+  private boolean summarizeByEntity = false;
   private Set<Topic> excludedTopics;
 }

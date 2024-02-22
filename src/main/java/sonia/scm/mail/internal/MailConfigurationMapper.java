@@ -24,6 +24,7 @@
 package sonia.scm.mail.internal;
 
 import de.otto.edison.hal.Links;
+import jakarta.ws.rs.core.UriInfo;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -34,7 +35,6 @@ import sonia.scm.mail.api.MailConfiguration;
 import sonia.scm.mail.api.Topic;
 import sonia.scm.mail.api.UserMailConfiguration;
 
-import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;

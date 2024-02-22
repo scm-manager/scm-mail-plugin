@@ -25,21 +25,24 @@
 package sonia.scm.mail.updates;
 
 import com.google.common.io.Resources;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sonia.scm.mail.api.MailConfiguration;
+import sonia.scm.mail.api.ScmTransportStrategy;
 import sonia.scm.mail.updates.UseStandardEncryptionUpdateStep.LegacyMailConfiguration;
 import sonia.scm.security.CipherUtil;
 import sonia.scm.store.ConfigurationStore;
 import sonia.scm.store.ConfigurationStoreFactory;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -99,6 +102,29 @@ class UseStandardEncryptionUpdateStepTest {
     verify(newStore).set(argThat(
       updatedConfiguration -> {
         assertThat(updatedConfiguration.getPassword()).isEqualTo("marvins_password");
+        return true;
+      }
+    ));
+  }
+
+  @ParameterizedTest
+  @CsvSource(value = {"SMTP_PLAIN,SMTP", "SMTP_SSL,SMTPS", "SMTP_TLS,SMTP_TLS"})
+  void shouldConvertLegacyTransportStrategy(String legacyTransportStrategy, String currentTransportStrategy) throws IOException, JAXBException {
+    JAXBContext legacyContext = JAXBContext.newInstance(LegacyMailConfiguration.class);
+
+    String oldXml =
+      Resources.toString(
+        Resources.getResource("sonia/scm/mail/updates/legacyStore.xml"), Charset.defaultCharset()
+      ).replace("SMTP_PLAIN", legacyTransportStrategy);
+
+    LegacyMailConfiguration legacyConfiguration = (LegacyMailConfiguration) legacyContext.createUnmarshaller().unmarshal(new ByteArrayInputStream(oldXml.getBytes(Charset.defaultCharset())));
+    when(legacyStore.getOptional()).thenReturn(Optional.of(legacyConfiguration));
+
+    updateStep.doUpdate();
+
+    verify(newStore).set(argThat(
+      updatedConfiguration -> {
+        assertThat(updatedConfiguration.getTransportStrategy()).isEqualTo(ScmTransportStrategy.valueOf(currentTransportStrategy));
         return true;
       }
     ));

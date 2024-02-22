@@ -25,6 +25,7 @@ package sonia.scm.mail.spi.content;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
+import jakarta.inject.Inject;
 import org.commonmark.node.Node;
 import org.commonmark.renderer.Renderer;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -32,7 +33,6 @@ import sonia.scm.config.ScmConfiguration;
 import sonia.scm.template.Template;
 import sonia.scm.template.TemplateEngineFactory;
 
-import javax.inject.Inject;
 import java.util.Locale;
 
 class HtmlMarkdownContentRenderer extends AbstractMarkdownContentRenderer {

@@ -34,10 +34,13 @@ export type Topic = {
 
 export type AvailableTopics = {
   topics: Topic[];
-}
+};
 
 export type UserMailConfiguration = {
   language: string;
+  summarizeMails: boolean;
+  summarizeByEntity: boolean;
+  summaryFrequency: string;
   excludedTopics?: Topic[];
   _links: Links;
 };

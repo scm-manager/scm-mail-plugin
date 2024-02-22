@@ -66,20 +66,34 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
   }
 
   const languageChangedHandler = (value: string) => {
-    const newConfig = { ...config, language: value };
+    const newConfig: UserMailConfiguration = { ...config, language: value };
     setConfig(newConfig);
     onConfigurationChange(newConfig, true);
   };
 
-  const mapTranslationKeys = (values: string[]) => {
-    const options = [];
-    for (const value of values) {
-      options.push({
-        value,
-        label: t("scm-mail-plugin.language." + value)
-      });
-    }
-    return options;
+  const summarizeEmailChangedHandler = (value: boolean) => {
+    const newConfig: UserMailConfiguration = { ...config, summarizeMails: value };
+    setConfig(newConfig);
+    onConfigurationChange(newConfig, true);
+  };
+
+  const summarizeByEntityChangedHandler = (value: boolean) => {
+    const newConfig: UserMailConfiguration = { ...config, summarizeByEntity: value };
+    setConfig(newConfig);
+    onConfigurationChange(newConfig, true);
+  };
+
+  const summaryFrequencyChangedHandler = (value: string) => {
+    const newConfig: UserMailConfiguration = { ...config, summaryFrequency: value };
+    setConfig(newConfig);
+    onConfigurationChange(newConfig, true);
+  };
+
+  const mapTranslationKeys = (values: string[], name: string) => {
+    return values.map(value => ({
+      value,
+      label: t(`scm-mail-plugin.${name}.${value}`)
+    }));
   };
 
   const topicsEqual = (t1: Topic) => {
@@ -160,7 +174,7 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
                 label={t("mailTopics." + categoryWithTopics[0] + "." + topic.name + ".label")}
                 checked={isTopicSelected(topic)}
                 onChange={topicChangedHandler(topic)}
-                helpText={t("mailTopics." + categoryWithTopics[0] + "." + topic.name + ".helpText")}
+                helpText={t("mailTopics." + categoryWithTopics[0] + "." + topic.name + ".helpText", "")}
               />
             ))}
           </>
@@ -175,9 +189,7 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
     const secondColumn = topicColumns[1];
     topics = (
       <>
-        <label className="label">
-          {t("scm-mail-plugin.topics.header")} <Help message={t("scm-mail-plugin.topics.helpText")} />
-        </label>
+        <label className="label">{t("scm-mail-plugin.topics.header")}</label>
         <div className="columns">
           {createTopicColumn(firstColumn)}
           {createTopicColumn(secondColumn)}
@@ -195,11 +207,42 @@ const UserMailConfigurationForm: FC<Props> = ({ initialConfiguration, readOnly, 
         <div className="control">
           <Select
             onChange={languageChangedHandler}
-            options={mapTranslationKeys(["de", "en"])}
+            options={mapTranslationKeys(["de", "en"], "language")}
             disabled={readOnly}
             defaultValue={config.language}
           />
         </div>
+        <div className="control">
+          <Checkbox
+            name="summarizeMails"
+            label={t("scm-mail-plugin.form.summarizeMails")}
+            onChange={e => summarizeEmailChangedHandler(e.valueOf())}
+            checked={config.summarizeMails}
+            helpText={t("scm-mail-plugin.form.summarizeMailsHelpText")}
+          />
+        </div>
+        {config.summarizeMails ? (
+          <>
+            <div className="control">
+              <Checkbox
+                name="summarizeEmail"
+                label={t("scm-mail-plugin.form.summarizeByEntity")}
+                onChange={e => summarizeByEntityChangedHandler(e.valueOf())}
+                checked={config.summarizeByEntity}
+                helpText={t("scm-mail-plugin.form.summarizeByEntityHelpText")}
+              />
+            </div>
+            <label className="label">{t("scm-mail-plugin.form.summaryFrequency")}</label>
+            <div className="control">
+              <Select
+                onChange={summaryFrequencyChangedHandler}
+                options={mapTranslationKeys(["MINUTES_15", "HOURS_2", "HOURS_8"], "summaryFrequency")}
+                disabled={readOnly}
+                defaultValue={config.summaryFrequency}
+              />
+            </div>
+          </>
+        ) : null}
       </div>
       {topics}
     </>

@@ -27,6 +27,7 @@ import de.otto.edison.hal.HalRepresentation;
 import de.otto.edison.hal.Links;
 import lombok.Getter;
 import lombok.Setter;
+import sonia.scm.mail.api.SummaryFrequency;
 
 import java.util.Set;
 
@@ -35,6 +36,9 @@ import java.util.Set;
 public class UserMailConfigurationDto extends HalRepresentation {
 
   private String language;
+  private boolean summarizeMails;
+  private SummaryFrequency summaryFrequency;
+  private boolean summarizeByEntity;
   private Set<TopicDto> excludedTopics;
 
   @Override
