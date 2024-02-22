@@ -23,9 +23,9 @@
       "en" : "English"
     },
     "summaryFrequency": {
-      "MINUTES_15": "Every 15 minutes",
-      "HOURS_2": "Every 2 hours",
-      "HOURS_8": "Every 8 hours"
+      "MINUTES_15": "Every 15 minutes (at every full hour, a quarter past, half past, a quarter to)",
+      "HOURS_2": "Every 2 hours (at every even full hour)",
+      "HOURS_8": "Three times a day (at 8:00 AM, 4:00 PM, 0:00 AM)"
     },
     "test": {
       "input": "Email address",
