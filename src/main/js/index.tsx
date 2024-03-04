@@ -30,7 +30,7 @@ import { binder } from "@scm-manager/ui-extensions";
 import { Route } from "react-router-dom";
 import UserMailConfigurationComponent from "./UserMailConfigurationComponent";
 
-cfgBinder.bindGlobal("/mail", "scm-mail-plugin.navLink", "mailConfig", GlobalMailConfiguration);
+cfgBinder.bindGlobal("/mail", "scm-mail-plugin.navLink", "mailConfig", GlobalMailConfiguration, "email");
 
 type ExtensionProps = {
   me: Me;
