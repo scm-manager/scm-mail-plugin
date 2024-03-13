@@ -1,0 +1,2 @@
+- type: added
+  description: Checkbox to always use configured sender address (instead of user address)

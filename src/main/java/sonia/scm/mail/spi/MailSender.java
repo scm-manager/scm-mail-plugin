@@ -120,7 +120,7 @@ class MailSender {
     AssertUtil.assertIsValid(configuration);
 
     Email emailWithSubjectPrefix = addPrefixToSubject(email, configuration.getSubjectPrefix());
-    Email emailWithValidFrom = checkFrom(emailWithSubjectPrefix, configuration.getFrom());
+    Email emailWithValidFrom = checkFrom(emailWithSubjectPrefix, configuration.getFrom(), configuration.getFromAddressAsSender());
 
     if (mailer.validate(emailWithValidFrom)) {
       if (LOG.isDebugEnabled()) {
@@ -151,8 +151,9 @@ class MailSender {
     return EmailBuilder.copying(email).withSubject(paddedPrefix.concat(email.getSubject())).buildEmail();
   }
 
-  private Email checkFrom(Email email, String fromAddress) {
-    if (email.getFromRecipient() != null) {
+  private Email checkFrom(Email email, String fromAddress, boolean fromAddressAsSender) {
+
+    if (email.getFromRecipient() != null && !fromAddressAsSender) {
       LOG.trace("use recipient for {} sending", email.getFromRecipient().getAddress());
       return email;
     }

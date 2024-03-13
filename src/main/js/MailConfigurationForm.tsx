@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 import React from "react";
-import { DropDown, InputField, validation as validator } from "@scm-manager/ui-components";
+import { Checkbox, DropDown, InputField, validation as validator } from "@scm-manager/ui-components";
 import { withTranslation, WithTranslation } from "react-i18next";
 import MailConfigurationTest from "./MailConfigurationTest";
 import { MailConfiguration } from "./MailConfiguration";
@@ -52,7 +52,7 @@ class MailConfigurationForm extends React.Component<Props, State> {
     return !!host && !!from && port > 0 && transportStrategy !== "" && validator.isMailValid(this.state["from"]);
   };
 
-  configChangeHandler = (value: string, name: string) => {
+  configChangeHandler = (value: string | boolean, name: string) => {
     this.setState(
       {
         [name]: value
@@ -175,6 +175,28 @@ class MailConfigurationForm extends React.Component<Props, State> {
     );
   };
 
+  renderCheckboxForDefaultSender = () => {
+    const { t } = this.props;
+    return (
+      <div className="column">
+        <div className="field">
+          <label className="label"> {t("scm-mail-plugin.form.defaultSender")} </label>
+          <div className="control">
+            <Checkbox
+              label={t("scm-mail-plugin.form.defaultSenderCheck")}
+              name="fromAddressAsSender"
+              value={this.state["fromAddressAsSender"]}
+              checked={this.state["fromAddressAsSender"]}
+              onChange={(value: boolean, name: string) => {
+                this.configChangeHandler(value, name);
+              }}
+            ></Checkbox>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   render() {
     const fields = ["host", "port"].map(name => {
       return this.renderInputField(name);
@@ -186,6 +208,7 @@ class MailConfigurationForm extends React.Component<Props, State> {
     fields.push(this.renderPasswordInpuField());
     fields.push(this.renderLanguageDropDown());
     fields.push(this.renderTransportStrategyDropDown());
+    fields.push(this.renderCheckboxForDefaultSender());
 
     return (
       <>

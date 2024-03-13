@@ -38,6 +38,7 @@ public class MailConfigurationDto extends HalRepresentation {
   private String username;
   private String password;
   private String from;
+  private boolean fromAddressAsSender;
   private String subjectPrefix;
   private String language;
 

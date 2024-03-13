@@ -299,6 +299,39 @@ class DefaultMailServiceTest {
   }
 
   @Test
+  void shouldSendEmailAndUseFromAddressInsteadOfUser() throws MailSendBatchException {
+    when(configuration.getFrom()).thenReturn("trillian@email.com");
+    when(configuration.getFromAddressAsSender()).thenReturn(true);
+
+    configureMailer();
+    mockContentRenderer(Locale.ENGLISH, "my-template", "model", "Don't Panic");
+
+    SimplePrincipalCollection principals = new SimplePrincipalCollection();
+    principals.add(UserTestData.createDent(), "test");
+
+    Subject subject = mock(Subject.class);
+    when(subject.getPrincipals()).thenReturn(principals);
+    ThreadContext.bind(subject);
+
+    try {
+      mailService.emailTemplateBuilder()
+        .fromCurrentUser()
+        .toAddress(Locale.ENGLISH, "Tricia McMillan", "tricia.mcmillan@hitchhiker.com")
+        .withSubject("Hello World")
+        .withTemplate("my-template", MailTemplateType.TEXT)
+        .andModel("model")
+        .send();
+
+    } finally {
+      ThreadContext.unbindSubject();
+    }
+
+    Email email = emailCaptor.getValue();
+    Recipient fromRecipient = email.getFromRecipient();
+    assertThat(fromRecipient.getAddress()).isEqualTo("trillian@email.com");
+  }
+
+  @Test
   void shouldSendHtmlAndTextEmail() throws MailSendBatchException {
     configureMailer();
     MailContent mailContent = MailContent.textAndHtml("Don't Panic", "<h1>Don't Panic</h1>");
@@ -456,7 +489,7 @@ class DefaultMailServiceTest {
     assertThat(capturedEmails.get(0).getFromRecipient().getName()).isEqualTo(from.getDisplayName());
     assertThat(capturedEmails.get(0).getFromRecipient().getAddress()).isEqualTo(from.getAddress());
   }
-
+  
   private void mockUser(User user) {
     lenient().when(userDisplayManager.get(user.getId())).thenReturn(of(DisplayUser.from(user)));
   }

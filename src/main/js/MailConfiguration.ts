@@ -49,6 +49,7 @@ export type MailConfiguration = {
   host: string;
   port: number;
   from: string;
+  fromAddressAsSender: boolean;
   username: string;
   subjectPrefix: string;
   transportStrategy: string;

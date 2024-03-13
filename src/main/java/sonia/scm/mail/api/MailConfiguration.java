@@ -51,6 +51,11 @@ public class MailConfiguration implements Validateable {
   private String from;
 
   /**
+   * True if default from address is always used as sender (instead of user)
+   */
+  private boolean fromAddressAsSender;
+
+  /**
    * hostname of the smtp server
    */
   private String host;
@@ -197,6 +202,10 @@ public class MailConfiguration implements Validateable {
    */
   public String getUsername() {
     return username;
+  }
+
+  public boolean getFromAddressAsSender() {
+    return fromAddressAsSender;
   }
 
   /**
