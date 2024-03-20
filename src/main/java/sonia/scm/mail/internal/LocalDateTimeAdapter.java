@@ -22,39 +22,21 @@
  * SOFTWARE.
  */
 
-package sonia.scm.mail.api;
+package sonia.scm.mail.internal;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import sonia.scm.mail.internal.LocalDateTimeAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@XmlRootElement(name = "scmMail")
-@XmlAccessorType(XmlAccessType.FIELD)
-public class ScmMail {
+public class LocalDateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
 
-  private String category;
-  private String entityId;
-  private ScmRecipient from;
-  private ScmRecipient to;
-  private String subject;
-  private String plainText;
+  @Override
+  public LocalDateTime unmarshal(String s) throws Exception {
+    return LocalDateTime.parse(s);
+  }
 
-  @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
-  private LocalDateTime createdAt = LocalDateTime.now();
-
-  public ScmMail(String category, String entityId, ScmRecipient from, ScmRecipient to, String subject, String text) {
-    this(category, entityId, from, to, subject, text, LocalDateTime.now());
+  @Override
+  public String marshal(LocalDateTime localDateTime) throws Exception {
+    return localDateTime.toString();
   }
 }

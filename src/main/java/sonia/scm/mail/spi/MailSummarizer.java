@@ -44,6 +44,8 @@ import sonia.scm.schedule.Task;
 import sonia.scm.user.UserEvent;
 
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -221,9 +223,13 @@ class MailSummarizer {
       return;
     }
 
+    UserMailConfiguration userConfig = mailContext.getUserConfiguration(userId).orElse(new UserMailConfiguration());
     Map<String, List<Map<String, String>>> templateModel = Map.of(
       "emails",
-      mails.stream().map(mail -> Map.of("text", mail.getPlainText() != null ? mail.getPlainText() : "")).toList()
+      mails.stream().map(mail -> Map.of(
+        "text", mail.getPlainText() != null ? mail.getPlainText() : "",
+        "timestamp", formatCreatedAt(userConfig, mail.getCreatedAt())
+      )).toList()
     );
 
     String englishSubject = entityId != null ?
@@ -244,6 +250,18 @@ class MailSummarizer {
       .send();
 
     LOG.trace("Send summary mail for user {}", userId);
+  }
+
+  private String formatCreatedAt(UserMailConfiguration userConfig, LocalDateTime createdAt) {
+    DateTimeFormatter formatter;
+
+    if (userConfig.getLanguage() != null && userConfig.getLanguage().equals("de")) {
+      formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, hh:mm");
+    } else {
+      formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy, hh:mm");
+    }
+
+    return createdAt.format(formatter);
   }
 
   public synchronized void onSummarizeMailConfigChanged(SummarizeMailConfigChangedEvent event) {
