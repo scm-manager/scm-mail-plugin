@@ -50,19 +50,16 @@ class HtmlMarkdownContentRendererTest {
   @Mock
   private TemplateEngine templateEngine;
 
-  private Template content = (writer, model) -> writer.write(model + "!");
-  private Template layout = (writer, model) -> writer.write("<>" + model + "</>");
+  private final Template content = (writer, model) -> writer.write(model + "!");
+  private final Template layout = (writer, model) -> writer.write("<>" + model + "</>");
 
   private ScmConfiguration configuration;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws IOException {
     configuration = new ScmConfiguration();
     configuration.setBaseUrl("http://hitchhiker.com");
-  }
 
-  @Test
-  void shouldRenderHtmlAndText() throws IOException {
     when(templateEngineFactory.getEngineByExtension(anyString())).thenReturn(templateEngine);
     when(templateEngine.getTemplate(anyString(), any(Locale.class))).thenAnswer((ic) -> {
       String path = ic.getArgument(0);
@@ -74,7 +71,10 @@ class HtmlMarkdownContentRendererTest {
         throw new MailContentException("not found");
       }
     });
+  }
 
+  @Test
+  void shouldRenderHtmlAndText() {
     ContentRenderer.Context context = new ContentRenderer.Context("/tpl.mustache", Locale.ENGLISH, "# Super");
 
     HtmlMarkdownContentRenderer renderer = new HtmlMarkdownContentRenderer(
@@ -89,5 +89,44 @@ class HtmlMarkdownContentRendererTest {
       .contains("Super!")
       .contains("</h1>")
       .endsWith("</>");
+  }
+
+  @Test
+  void shouldRenderImageWithoutAltText() {
+    ContentRenderer.Context context = new ContentRenderer.Context("/tpl.mustache", Locale.ENGLISH, "![](https://some-domain.de/some/image/url.png)");
+    HtmlMarkdownContentRenderer renderer = new HtmlMarkdownContentRenderer(
+      templateEngineFactory, new TextMarkdownContentRenderer(templateEngineFactory), configuration
+    );
+
+    MailContent content = renderer.render(context);
+    assertThat(content.getText()).isEqualTo("\"[Image]\" (https://some-domain.de/some/image/url.png)!");
+    assertThat(content.getHtml())
+      .contains("<img src=\"https://some-domain.de/some/image/url.png\" alt=\"[Image]\" style=\"margin: 20px auto; padding: 0; font-size: 100%; font-family: BlinkMacSystemFont,-apple-system,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,Helvetica,Arial,sans-serif; line-height: 1.65; max-width: 100%; display: block;\" />");
+  }
+
+  @Test
+  void shouldRenderImageWithAltText() {
+    ContentRenderer.Context context = new ContentRenderer.Context("/tpl.mustache", Locale.ENGLISH, "![Some Alt Text](https://some-domain.de/some/image/url.png)");
+    HtmlMarkdownContentRenderer renderer = new HtmlMarkdownContentRenderer(
+      templateEngineFactory, new TextMarkdownContentRenderer(templateEngineFactory), configuration
+    );
+
+    MailContent content = renderer.render(context);
+    assertThat(content.getText()).isEqualTo("\"Some Alt Text\" (https://some-domain.de/some/image/url.png)!");
+    assertThat(content.getHtml())
+      .contains("<img src=\"https://some-domain.de/some/image/url.png\" alt=\"Some Alt Text\" style=\"margin: 20px auto; padding: 0; font-size: 100%; font-family: BlinkMacSystemFont,-apple-system,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,Helvetica,Arial,sans-serif; line-height: 1.65; max-width: 100%; display: block;\" />");
+  }
+
+  @Test
+  void shouldNotRenderRelativeImagePath() {
+    ContentRenderer.Context context = new ContentRenderer.Context("/tpl.mustache", Locale.ENGLISH, "![Some Alt Text](/some/image/url.png)");
+    HtmlMarkdownContentRenderer renderer = new HtmlMarkdownContentRenderer(
+      templateEngineFactory, new TextMarkdownContentRenderer(templateEngineFactory), configuration
+    );
+
+    MailContent content = renderer.render(context);
+    assertThat(content.getText()).isEqualTo("\"Some Alt Text\" (/some/image/url.png)!");
+    assertThat(content.getHtml())
+      .contains("<img src=\"\" alt=\"Some Alt Text\" style=\"margin: 20px auto; padding: 0; font-size: 100%; font-family: BlinkMacSystemFont,-apple-system,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,Helvetica,Arial,sans-serif; line-height: 1.65; max-width: 100%; display: block;\" />");
   }
 }

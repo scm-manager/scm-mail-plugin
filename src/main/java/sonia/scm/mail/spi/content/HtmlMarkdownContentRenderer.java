@@ -26,14 +26,22 @@ package sonia.scm.mail.spi.content;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import jakarta.inject.Inject;
+import org.commonmark.node.Image;
 import org.commonmark.node.Node;
+import org.commonmark.node.Text;
+import org.commonmark.renderer.NodeRenderer;
 import org.commonmark.renderer.Renderer;
+import org.commonmark.renderer.html.CoreHtmlNodeRenderer;
+import org.commonmark.renderer.html.HtmlNodeRendererContext;
 import org.commonmark.renderer.html.HtmlRenderer;
+import org.commonmark.renderer.text.CoreTextContentNodeRenderer;
+import org.commonmark.renderer.text.TextContentNodeRendererContext;
 import sonia.scm.config.ScmConfiguration;
 import sonia.scm.template.Template;
 import sonia.scm.template.TemplateEngineFactory;
 
 import java.util.Locale;
+import java.util.Set;
 
 class HtmlMarkdownContentRenderer extends AbstractMarkdownContentRenderer {
 
@@ -42,6 +50,7 @@ class HtmlMarkdownContentRenderer extends AbstractMarkdownContentRenderer {
 
   private static final Renderer HTML_RENDERER = HtmlRenderer.builder()
     .attributeProviderFactory(c -> new HtmlMailAttributeProvider())
+    .nodeRendererFactory(ImageNodeRenderer::new)
     .build();
 
   private final TextMarkdownContentRenderer textRenderer;
@@ -99,6 +108,35 @@ class HtmlMarkdownContentRenderer extends AbstractMarkdownContentRenderer {
         .add("url", url)
         .add("language", language)
         .toString();
+    }
+  }
+
+  private static class ImageNodeRenderer implements NodeRenderer {
+
+    private final CoreHtmlNodeRenderer renderer;
+
+    ImageNodeRenderer(HtmlNodeRendererContext context) {
+      renderer = new CoreHtmlNodeRenderer(context);
+    }
+
+    @Override
+    public Set<Class<? extends Node>> getNodeTypes() {
+      return Set.of(Image.class);
+    }
+
+    @Override
+    public void render(Node node) {
+      Image imageNode = (Image) node;
+
+      if (!imageNode.getDestination().startsWith("http")) {
+        imageNode.setDestination("");
+      }
+
+      if (imageNode.getFirstChild() == null) {
+        imageNode.appendChild(new Text("[Image]"));
+      }
+
+      renderer.render(imageNode);
     }
   }
 }

@@ -1,0 +1,4 @@
+- type: fixed
+  description: Images without an alt text are now getting a default alt text instead
+- type: changed
+  description: Relative URLs of an image get removed, so that the client will not try to load the image, which will fail anyways
