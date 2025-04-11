@@ -14,25 +14,25 @@
  * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
-import React from "react";
+import React, { FC } from "react";
 import { Title, Configuration } from "@scm-manager/ui-components";
 import MailConfigurationForm from "./MailConfigurationForm";
-import { withTranslation, WithTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
+import { useDocumentTitle } from "@scm-manager/ui-core";
 
-type Props = WithTranslation & {
+type Props = {
   link: string;
 };
 
-class GlobalMailConfiguration extends React.Component<Props> {
-  render() {
-    const { t, link } = this.props;
-    return (
-      <>
-        <Title title={t("scm-mail-plugin.form.header")} />
-        <Configuration link={link} render={props => <MailConfigurationForm {...props} />} />
-      </>
-    );
-  }
-}
+const GlobalMailConfiguration: FC<Props> = ({ link }) => {
+  const [t] = useTranslation("plugins");
+  useDocumentTitle(t("scm-mail-plugin.navLink"));
+  return (
+    <>
+      <Title title={t("scm-mail-plugin.form.header")} />
+      <Configuration link={link} render={props => <MailConfigurationForm {...props} />} />
+    </>
+  );
+};
 
-export default withTranslation("plugins")(GlobalMailConfiguration);
+export default GlobalMailConfiguration;
