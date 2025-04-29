@@ -15,22 +15,25 @@
  */
 
 import React, { FC } from "react";
-import { Subtitle, Configuration } from "@scm-manager/ui-components";
-import { useTranslation, withTranslation, WithTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
+import { Configuration } from "@scm-manager/ui-components";
+import { Subtitle, useDocumentTitle } from "@scm-manager/ui-core";
+import { Me } from "@scm-manager/ui-types";
 import UserMailConfigurationForm from "./UserMailConfigurationForm";
-import { useDocumentTitle } from "@scm-manager/ui-core";
 
 type Props = {
   link: string;
+  me: Me;
 };
 
-const UserMailConfigurationComponent: FC<Props> = ({ link }) => {
+const UserMailConfigurationComponent: FC<Props> = ({ link, me }) => {
   const [t] = useTranslation("plugins");
-  useDocumentTitle(t("scm-mail-plugin.navLink"));
+  useDocumentTitle(t("scm-mail-plugin.navLink"), me.displayName);
+
   return (
     <>
       <Subtitle subtitle={t("scm-mail-plugin.form.header")} />
-      <Configuration link={link} render={props => <UserMailConfigurationForm {...props} />} />
+      <Configuration link={link} render={(props) => <UserMailConfigurationForm {...props} />} />
     </>
   );
 };

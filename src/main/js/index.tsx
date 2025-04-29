@@ -40,11 +40,11 @@ const UserMailConfigNavLink = ({ url }) => {
 
 binder.bind("profile.setting", UserMailConfigNavLink, predicate);
 
-const UserMailConfigurationRoute = props => {
+const UserMailConfigurationRoute = (props) => {
   return (
     <Route
       path={`${props.url}/settings/mail-configuration`}
-      render={() => <UserMailConfigurationComponent link={props.me._links.mailConfig.href} />}
+      render={() => <UserMailConfigurationComponent link={props.me._links.mailConfig.href} me={props.me} />}
     />
   );
 };

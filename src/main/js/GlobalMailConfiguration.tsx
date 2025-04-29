@@ -15,10 +15,9 @@
  */
 
 import React, { FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Title, Configuration } from "@scm-manager/ui-components";
 import MailConfigurationForm from "./MailConfigurationForm";
-import { useTranslation } from "react-i18next";
-import { useDocumentTitle } from "@scm-manager/ui-core";
 
 type Props = {
   link: string;
@@ -26,7 +25,6 @@ type Props = {
 
 const GlobalMailConfiguration: FC<Props> = ({ link }) => {
   const [t] = useTranslation("plugins");
-  useDocumentTitle(t("scm-mail-plugin.navLink"));
   return (
     <>
       <Title title={t("scm-mail-plugin.form.header")} />
