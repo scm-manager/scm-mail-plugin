@@ -1,6 +1,6 @@
 ---
 title: Dokumentation
-subtitle: Mail Plugin Dokumentation
+subtitle: Dokumentation des Mail-Plugins
 ---
 Diese Dokumentation beschreibt die Verwendung vom scm-mail-plugin. Sie steht in verschiedenen Sprachen und Versionen zur Verfügung, die im Menü rechts ausgewählt werden können.
 

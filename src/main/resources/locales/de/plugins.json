@@ -9,14 +9,14 @@
       "from": "Absenderadresse",
       "username": "Benutzername",
       "password": "Passwort",
-      "subjectPrefix": "Betreff Prefix",
+      "subjectPrefix": "Betreffspräfix",
       "language": "Sprache",
-      "transportStrategy": "Transport Strategie",
+      "transportStrategy": "Transportstrategie",
       "defaultSender": "Standard-Absenderadresse",
       "defaultSenderCheck": "Immer die konfigurierte Absenderadresse nutzen (ansonsten wird möglicherweise die Benutzeradresse verwendet)",
-      "summarizeMails": "E-Mails nach Kategorie zu einer Sammel-E-Mail zusammenfassen",
+      "summarizeMails": "E-Mails nach Kategorie zu einer Sammel-E-Mail zusammenfassen.",
       "summarizeMailsHelpText": "Nicht alle E-Mails werden zu einer Sammel-E-Mail zusammengefasst. Manche E-Mails haben eine erhöhte Priorität und werden stets direkt versendet.",
-      "summarizeByEntity": "E-Mails zusätzlich nach Event-Quelle zusammenfassen",
+      "summarizeByEntity": "E-Mails zusätzlich nach Event-Quelle zusammenfassen.",
       "summarizeByEntityHelpText": "Event-Quellen können Beispielsweise Pull-Requests eines Repositories sein.",
       "summaryFrequency": "Sendefrequenz von Sammel-E-Mails"
     },
@@ -30,11 +30,11 @@
       "HOURS_8": "Dreimal täglich (um 8:00, 16:00 und 0:00 Uhr)"
     },
     "test": {
-      "input": "E-Mail-Address",
+      "input": "E-Mail-Adresse",
       "button": "Konfiguration testen",
-      "title": "SMTP Server Konfiguration testen",
+      "title": "SMTP-Serverkonfiguration testen",
       "close": "Schließen",
-      "error": "Das Senden der Test E-Mail ist fehlgeschlagen.",
+      "error": "Das Senden der Test-E-Mail ist fehlgeschlagen.",
       "success": "Die E-Mail wurde erfolgreich versandt."
     },
     "topics": {
@@ -45,8 +45,8 @@
     "scm-manager-core": {
       "label": "SCM-Manager Core",
       "healthCheckFailed": {
-        "label": "Fehlgeschlagene Health Checks",
-        "helpText": "Mails bei fehlgeschlagenen Repository Health Checks."
+        "label": "Fehlgeschlagene Health-Checks",
+        "helpText": "E-Mails bei fehlgeschlagenen Repository-Health-Checks."
       }
     }
   },
@@ -54,8 +54,8 @@
     "configuration": {
       "read,write": {
         "mail": {
-          "displayName": "Mail Konfiguration ändern",
-          "description": "Darf die Mail Konfiguration verändern"
+          "displayName": "Mail-Konfiguration ändern",
+          "description": "Darf die Mail-Konfiguration verändern."
         }
       }
     }

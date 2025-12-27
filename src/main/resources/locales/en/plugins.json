@@ -1,23 +1,23 @@
 {
   "scm-mail-plugin": {
     "navLink": "Email",
-    "mailValidationError": "This is not a valid email address",
+    "mailValidationError": "This is not a valid email address.",
     "form": {
       "header": "Configuration of email notifications",
       "host": "Host",
       "port": "Port",
-      "from": "Sender Address",
+      "from": "Sender address",
       "username": "Username",
       "password": "Password",
-      "subjectPrefix": "Subject Prefix",
+      "subjectPrefix": "Subject prefix",
       "language": "Language",
-      "transportStrategy": "Transport Strategy",
-      "defaultSender": "Default Sender Address",
-      "defaultSenderCheck": "Always use configured sender address (otherwise user address may be used)",
-      "summarizeMails": "Summarize emails by category into one summary email",
+      "transportStrategy": "Transport strategy",
+      "defaultSender": "Default sender address",
+      "defaultSenderCheck": "Always use configured sender address (otherwise user address may be used).",
+      "summarizeMails": "Summarize emails by category into one summary email.",
       "summarizeMailsHelpText": "Not every email gets summarized. Some of them are deemed to have a high priority and therefore always get send out directly.",
-      "summarizeByEntity": "Additionally summarize emails by event source",
-      "summarizeByEntityHelpText": "Pull Requests of a repository is an example of an event source",
+      "summarizeByEntity": "Additionally summarize emails by event source.",
+      "summarizeByEntityHelpText": "Pull requests of a repository is an example of an event source.",
       "summaryFrequency": "Frequency of summary emails"
     },
     "language" : {
@@ -31,14 +31,14 @@
     },
     "test": {
       "input": "Email address",
-      "button": "Test Configuration",
-      "title": "Test SMTP Server Configuration",
+      "button": "Test configuration",
+      "title": "Test SMTP server configuration",
       "close": "Close",
       "error": "Sending test email failed.",
       "success": "Email was sent successfully."
     },
     "topics": {
-      "header": "Subscribed Topics"
+      "header": "Subscribed topics"
     }
   },
   "mailTopics": {
@@ -55,7 +55,7 @@
       "read,write": {
         "mail": {
           "displayName": "Modify mail configuration",
-          "description": "May modify the mail configuration"
+          "description": "May modify the mail configuration."
         }
       }
     }

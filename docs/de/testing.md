@@ -1,7 +1,7 @@
 ---
 title: Testing
 ---
-Sie können dieses Plugin gegen E-Mail Test-Tools wie [MailHog](https://github.com/mailhog/MailHog) testen.
+Sie können dieses Plugin gegen E-Mail-Test-Tools wie etwa „[MailHog](https://github.com/mailhog/MailHog)“ testen.
 
 ### Testumgebung aufsetzen 
 
@@ -19,7 +19,7 @@ docker-compose up
 Um sich mit diesem Container verbinden zu können, müssen die folgenden Einstellungen in der globalen Konfiguration gesetzt sein:
 * Host: `localhost`
 * Port: `1025`
-* Von and Benutzername dürfen nicht leer sein.
+* Attribute „Von“ und „Benutzername“ dürfen nicht leer sein.
 
 ### TLS Tests
 
@@ -40,7 +40,7 @@ Konfig:
 - Passwort: `secret`
 - Transport Strategie: `SMTP_TLS`
 
-#### SMPTS / Implizites TLS
+#### SMTPS / Implizites TLS
 
 Konfig:
 - Host: `localhost`
