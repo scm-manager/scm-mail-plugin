@@ -19,12 +19,12 @@ plugins {
 }
 
 dependencies {
-  implementation "org.simplejavamail:simple-java-mail:8.6.2"
-  implementation "com.sun.mail:jakarta.mail:1.6.7"
-  implementation "com.atlassian.commonmark:commonmark:0.12.1"
-  implementation "commons-codec:commons-codec:1.16.1"
+  implementation "org.simplejavamail:simple-java-mail:8.12.6"
+  implementation "com.sun.mail:jakarta.mail:2.0.2"
+  implementation "com.atlassian.commonmark:commonmark:0.17.0"
+  implementation "commons-codec:commons-codec:1.21.0"
 
-  testImplementation "com.github.sdorra:shiro-unit:1.0.1"
+  testImplementation "com.github.sdorra:shiro-unit:1.0.2"
 }
 
 scmPlugin {
