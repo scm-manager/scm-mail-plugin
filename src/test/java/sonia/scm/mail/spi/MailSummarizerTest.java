@@ -16,6 +16,9 @@
 
 package sonia.scm.mail.spi;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
+import org.assertj.core.api.MapAssert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,13 +42,17 @@ import sonia.scm.user.User;
 import sonia.scm.user.UserEvent;
 import sonia.scm.user.UserTestData;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 
+import static java.time.Month.JUNE;
+import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -63,7 +70,7 @@ class MailSummarizerTest {
   @Mock(answer = Answers.RETURNS_SELF)
   private MailService.EnvelopeBuilder envelopeBuilder;
 
-  @Mock
+  @Mock(answer = Answers.RETURNS_SELF)
   private MailService.SubjectBuilder subjectBuilder;
 
   @Mock
@@ -100,7 +107,7 @@ class MailSummarizerTest {
 
       UserMailConfiguration userMailConfiguration = new UserMailConfiguration();
       userMailConfiguration.setSummarizeMails(false);
-      when(mailContext.getUserConfiguration(userId)).thenReturn(Optional.of(userMailConfiguration));
+      when(mailContext.getUserConfiguration(userId)).thenReturn(of(userMailConfiguration));
 
       when(envelopeBuilderSupplier.get()).thenReturn(envelopeBuilder);
       when(envelopeBuilder.withSubject(mail.getSubject())).thenReturn(subjectBuilder);
@@ -134,8 +141,8 @@ class MailSummarizerTest {
       userMailConfiguration.setSummarizeMails(true);
       userMailConfiguration.setSummarizeByEntity(false);
       userMailConfiguration.setSummaryFrequency(SummaryFrequency.HOURS_2);
-      when(mailContext.getUserConfiguration(firstUser)).thenReturn(Optional.of(userMailConfiguration));
-      when(mailContext.getUserConfiguration(secondUser)).thenReturn(Optional.of(userMailConfiguration));
+      when(mailContext.getUserConfiguration(firstUser)).thenReturn(of(userMailConfiguration));
+      when(mailContext.getUserConfiguration(secondUser)).thenReturn(of(userMailConfiguration));
 
       mailSummaryService.addMail(firstUser, pullRequestCategory, "1", firstPullRequestMail);
       mailSummaryService.addMail(firstUser, pullRequestCategory, "1", secondPullRequestMail);
@@ -188,8 +195,8 @@ class MailSummarizerTest {
       userMailConfiguration.setSummarizeMails(true);
       userMailConfiguration.setSummarizeByEntity(true);
       userMailConfiguration.setSummaryFrequency(SummaryFrequency.HOURS_2);
-      when(mailContext.getUserConfiguration(firstUser)).thenReturn(Optional.of(userMailConfiguration));
-      when(mailContext.getUserConfiguration(secondUser)).thenReturn(Optional.of(userMailConfiguration));
+      when(mailContext.getUserConfiguration(firstUser)).thenReturn(of(userMailConfiguration));
+      when(mailContext.getUserConfiguration(secondUser)).thenReturn(of(userMailConfiguration));
 
       mailSummaryService.addMail(firstUser, pullRequestCategory, firstPullRequestId, firstPullRequestMail);
       mailSummaryService.addMail(firstUser, pullRequestCategory, secondPullRequestId, secondPullRequestMail);
@@ -230,7 +237,7 @@ class MailSummarizerTest {
     when(summaryQueueStore.getAll()).thenReturn(Map.of("userId", new MailSummaryQueue()));
     UserMailConfiguration userConfig = new UserMailConfiguration();
     userConfig.setSummarizeMails(false);
-    when(mailContext.getUserConfiguration("userId")).thenReturn(Optional.of(userConfig));
+    when(mailContext.getUserConfiguration("userId")).thenReturn(of(userConfig));
 
     new MailSummarizer(summaryQueueStore, mailService::emailTemplateBuilder, mailContext, scheduler);
 
@@ -243,7 +250,7 @@ class MailSummarizerTest {
     UserMailConfiguration userConfig = new UserMailConfiguration();
     userConfig.setSummarizeMails(true);
     userConfig.setSummaryFrequency(SummaryFrequency.HOURS_2);
-    when(mailContext.getUserConfiguration("userId")).thenReturn(Optional.of(userConfig));
+    when(mailContext.getUserConfiguration("userId")).thenReturn(of(userConfig));
 
     new MailSummarizer(summaryQueueStore, mailService::emailTemplateBuilder, mailContext, scheduler);
 
@@ -257,7 +264,7 @@ class MailSummarizerTest {
     UserMailConfiguration userConfig = new UserMailConfiguration();
     userConfig.setSummarizeMails(true);
     userConfig.setSummaryFrequency(SummaryFrequency.HOURS_2);
-    when(mailContext.getUserConfiguration("userId")).thenReturn(Optional.of(userConfig));
+    when(mailContext.getUserConfiguration("userId")).thenReturn(of(userConfig));
 
     UserMailConfiguration newConfig = new UserMailConfiguration();
     newConfig.setSummarizeMails(true);
@@ -284,7 +291,7 @@ class MailSummarizerTest {
     UserMailConfiguration userConfig = new UserMailConfiguration();
     userConfig.setSummarizeMails(true);
     userConfig.setSummaryFrequency(SummaryFrequency.HOURS_2);
-    when(mailContext.getUserConfiguration("userId")).thenReturn(Optional.of(userConfig));
+    when(mailContext.getUserConfiguration("userId")).thenReturn(of(userConfig));
 
     UserMailConfiguration newConfig = new UserMailConfiguration();
     newConfig.setSummarizeMails(true);
@@ -319,7 +326,7 @@ class MailSummarizerTest {
     UserMailConfiguration userConfig = new UserMailConfiguration();
     userConfig.setSummarizeMails(true);
     userConfig.setSummaryFrequency(SummaryFrequency.HOURS_2);
-    when(mailContext.getUserConfiguration("userId")).thenReturn(Optional.of(userConfig));
+    when(mailContext.getUserConfiguration("userId")).thenReturn(of(userConfig));
 
     UserMailConfiguration newConfig = new UserMailConfiguration();
     newConfig.setSummarizeMails(false);
@@ -346,7 +353,7 @@ class MailSummarizerTest {
     UserMailConfiguration userConfig = new UserMailConfiguration();
     userConfig.setSummarizeMails(true);
     userConfig.setSummaryFrequency(SummaryFrequency.HOURS_2);
-    when(mailContext.getUserConfiguration(deletedUser.getId())).thenReturn(Optional.of(userConfig));
+    when(mailContext.getUserConfiguration(deletedUser.getId())).thenReturn(of(userConfig));
 
     Task task = mock(Task.class);
     when(scheduler.schedule(eq(userConfig.getSummaryFrequency().getCronExpression()), any(Runnable.class))).thenReturn(task);
@@ -368,7 +375,7 @@ class MailSummarizerTest {
     UserMailConfiguration userConfig = new UserMailConfiguration();
     userConfig.setSummarizeMails(true);
     userConfig.setSummaryFrequency(SummaryFrequency.HOURS_2);
-    when(mailContext.getUserConfiguration(modifiedUser.getId())).thenReturn(Optional.of(userConfig));
+    when(mailContext.getUserConfiguration(modifiedUser.getId())).thenReturn(of(userConfig));
 
     MailSummarizer mailSummaryService = new MailSummarizer(summaryQueueStore, mailService::emailTemplateBuilder, mailContext, scheduler);
     mailSummaryService.addMail(modifiedUser.getId(), "test", null, new ScmMail());
@@ -376,5 +383,86 @@ class MailSummarizerTest {
     mailSummaryService.onUserDeleted(new UserEvent(HandlerEventType.MODIFY, modifiedUser));
 
     assertThat(mailSummaryService.getSummaryQueuesByUserId().get(modifiedUser.getId())).isNotNull();
+  }
+
+  @Nested
+  class WithQueuedMails {
+
+    private List<ScmMail> mails;
+    private UserMailConfiguration userConfig;
+
+    @BeforeEach
+    void mockQueuedMail() {
+      ScmMail mail = new ScmMail(
+        "pull-request",
+        null,
+        new ScmRecipient("From", "from@email.com"),
+        new ScmRecipient("to", "to@email.com"),
+        "subject",
+        "text",
+        LocalDateTime.of(2025, JUNE, 24, 13, 25, 10)
+      );
+
+      userConfig = new UserMailConfiguration();
+      when(mailContext.getUserConfiguration("userId")).thenReturn(of(userConfig));
+
+      when(envelopeBuilderSupplier.get())
+        .thenReturn(envelopeBuilder);
+      when(envelopeBuilder.withSubject("Summarized pull-request e-mails (#1)"))
+        .thenReturn(subjectBuilder);
+      when(subjectBuilder.withTemplate(anyString(), eq(MailTemplateType.MARKDOWN_HTML)))
+        .thenReturn(templateBuilder);
+      when(templateBuilder.andModel(any()))
+        .thenReturn(mailBuilder);
+
+      mails = List.of(mail);
+    }
+
+    @Test
+    void shouldSendQueuedMailsWithEnglishTime() throws MailSendBatchException {
+      mailSummaryService.summarizeMails(mails, "userId", "pull-request", "1");
+
+      verify(templateBuilder)
+        .andModel(argThat(
+          values -> {
+            assertSentEmail(values)
+              .extracting("text")
+              .isEqualTo("text");
+            assertSentEmail(values)
+              .extracting("timestamp")
+              .isEqualTo("06-24-2025, 01:25 PM");
+            return true;
+          }
+        ));
+    }
+
+    @Test
+    void shouldSendQueuedMailsWithGermanTime() throws MailSendBatchException {
+      userConfig.setLanguage("de");
+
+      mailSummaryService.summarizeMails(mails, "userId", "pull-request", "1");
+
+      verify(templateBuilder)
+        .andModel(argThat(
+          values -> {
+            assertSentEmail(values)
+              .extracting("text")
+              .isEqualTo("text");
+            assertSentEmail(values)
+              .extracting("timestamp")
+              .isEqualTo("24.06.2025, 13:25");
+            return true;
+          }
+        ));
+    }
+
+    private static MapAssert<Object, Object> assertSentEmail(Object values) {
+      return assertThat(values)
+        .asInstanceOf(InstanceOfAssertFactories.MAP)
+        .extracting("emails")
+        .asInstanceOf(InstanceOfAssertFactories.LIST)
+        .first()
+        .asInstanceOf(InstanceOfAssertFactories.MAP);
+    }
   }
 }

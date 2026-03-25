@@ -210,7 +210,8 @@ class MailSummarizer {
     this.summaryQueueStore.removeAllMailsOfUser(userId);
   }
 
-  private void summarizeMails(List<ScmMail> mails, String userId, String category, String entityId) throws MailSendBatchException {
+  @VisibleForTesting
+  void summarizeMails(List<ScmMail> mails, String userId, String category, String entityId) throws MailSendBatchException {
     if (mails.isEmpty()) {
       return;
     }
@@ -248,9 +249,9 @@ class MailSummarizer {
     DateTimeFormatter formatter;
 
     if (userConfig.getLanguage() != null && userConfig.getLanguage().equals("de")) {
-      formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, hh:mm");
+      formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm");
     } else {
-      formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy, hh:mm");
+      formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy, hh:mm a");
     }
 
     return createdAt.format(formatter);
